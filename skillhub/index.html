@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Store Labs - SkillHub</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Detecting language and redirecting...</p>
+    </div>
+    <noscript>
+        <div class="noscript-fallback">
+            <h1>AI Store Labs - SkillHub</h1>
+            <p>JavaScript is required for automatic language detection. Please choose your language:</p>
+            <ul>
+                <li><a href="en/">English</a></li>
+                <li><a href="fr/">Français</a></li>
+            </ul>
+        </div>
+    </noscript>
+    <script>
+        (function () {
+            'use strict';
+
+            /**
+             * Detect browser language and redirect to the appropriate locale folder.
+             * Priority: stored preference > browser language > default (en)
+             * Supported locales: "en", "fr"
+             */
+            function detectLocaleAndRedirect() {
+                var locale = 'en'; // default
+
+                // Check for stored preference first
+                try {
+                    var stored = localStorage.getItem('skillhub-locale');
+                    if (stored === 'fr' || stored === 'en') {
+                        locale = stored;
+                        redirect(locale);
+                        return;
+                    }
+                } catch (e) {
+                    // localStorage unavailable, continue with browser detection
+                }
+
+                // Detect from browser language
+                var browserLang = navigator.language || navigator.userLanguage || '';
+                if (browserLang.toLowerCase().startsWith('fr')) {
+                    locale = 'fr';
+                }
+
+                redirect(locale);
+            }
+
+            function redirect(locale) {
+                window.location.replace(locale + '/');
+            }
+
+            detectLocaleAndRedirect();
+        })();
+    </script>
+</body>
+</html>

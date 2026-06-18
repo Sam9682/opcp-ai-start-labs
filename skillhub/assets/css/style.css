@@ -1,0 +1,714 @@
+/* ==========================================================================
+   AI Store Labs - SkillHub
+   OVHcloud-branded responsive stylesheet
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   CSS Custom Properties (OVHcloud Brand Colors)
+   -------------------------------------------------------------------------- */
+:root {
+    /* OVHcloud primary palette */
+    --ovh-blue-dark: #000e9c;
+    --ovh-blue: #0050d7;
+    --ovh-blue-light: #4d90fe;
+    --ovh-navy: #1a1f71;
+
+    /* Neutrals */
+    --ovh-white: #ffffff;
+    --ovh-gray-lightest: #f5f6fa;
+    --ovh-gray-light: #e0e4f0;
+    --ovh-gray: #8c93a8;
+    --ovh-gray-dark: #4a5064;
+    --ovh-black: #1c2132;
+
+    /* Accents */
+    --ovh-green: #46b954;
+    --ovh-orange: #f29d00;
+    --ovh-red: #e44258;
+
+    /* Difficulty colors */
+    --difficulty-beginner: #46b954;
+    --difficulty-intermediate: #f29d00;
+    --difficulty-advanced: #e44258;
+
+    /* Layout */
+    --sidebar-width: 280px;
+    --header-height: 64px;
+    --content-max-width: 900px;
+
+    /* Typography */
+    --font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'Source Code Pro', 'Fira Code', 'Consolas', monospace;
+
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-xxl: 48px;
+
+    /* Borders */
+    --border-radius: 4px;
+    --border-radius-lg: 8px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(0, 14, 156, 0.08);
+    --shadow-md: 0 4px 12px rgba(0, 14, 156, 0.12);
+    --shadow-lg: 0 8px 24px rgba(0, 14, 156, 0.16);
+
+    /* Transitions */
+    --transition-fast: 150ms ease;
+    --transition-normal: 250ms ease;
+}
+
+/* --------------------------------------------------------------------------
+   Reset and Base
+   -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-family);
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--ovh-black);
+    background-color: var(--ovh-gray-lightest);
+    min-height: 100vh;
+}
+
+a {
+    color: var(--ovh-blue);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover,
+a:focus {
+    color: var(--ovh-blue-dark);
+    text-decoration: underline;
+}
+
+a:focus-visible {
+    outline: 2px solid var(--ovh-blue);
+    outline-offset: 2px;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* --------------------------------------------------------------------------
+   Typography
+   -------------------------------------------------------------------------- */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--ovh-navy);
+    margin-bottom: var(--spacing-md);
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+h4 { font-size: 1.125rem; }
+
+p {
+    margin-bottom: var(--spacing-md);
+}
+
+/* --------------------------------------------------------------------------
+   Layout - Header
+   -------------------------------------------------------------------------- */
+.site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height);
+    background-color: var(--ovh-navy);
+    color: var(--ovh-white);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--spacing-lg);
+    z-index: 1000;
+    box-shadow: var(--shadow-md);
+}
+
+.site-header .logo {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--ovh-white);
+    text-decoration: none;
+}
+
+.site-header .logo:hover {
+    text-decoration: none;
+    color: var(--ovh-blue-light);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+/* --------------------------------------------------------------------------
+   Layout - Progress Bar (Header)
+   -------------------------------------------------------------------------- */
+.progress-bar-container {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 0.875rem;
+    color: var(--ovh-gray-light);
+}
+
+.progress-bar {
+    width: 120px;
+    height: 6px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: var(--ovh-green);
+    border-radius: 3px;
+    transition: width var(--transition-normal);
+}
+
+/* --------------------------------------------------------------------------
+   Layout - Locale Switcher
+   -------------------------------------------------------------------------- */
+.locale-switcher {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.locale-switcher button {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: var(--ovh-white);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.locale-switcher button:hover,
+.locale-switcher button:focus {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.locale-switcher button.active {
+    background-color: var(--ovh-blue);
+    border-color: var(--ovh-blue);
+}
+
+/* --------------------------------------------------------------------------
+   Layout - Hamburger Menu
+   -------------------------------------------------------------------------- */
+.hamburger-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--ovh-white);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    line-height: 1;
+}
+
+.hamburger-btn:focus-visible {
+    outline: 2px solid var(--ovh-blue-light);
+    outline-offset: 2px;
+}
+
+.hamburger-btn span {
+    display: block;
+    width: 24px;
+    height: 3px;
+    background-color: var(--ovh-white);
+    margin: 4px 0;
+    border-radius: 2px;
+    transition: transform var(--transition-fast);
+}
+
+/* --------------------------------------------------------------------------
+   Layout - Sidebar
+   -------------------------------------------------------------------------- */
+.sidebar {
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    bottom: 0;
+    width: var(--sidebar-width);
+    background-color: var(--ovh-white);
+    border-right: 1px solid var(--ovh-gray-light);
+    overflow-y: auto;
+    padding: var(--spacing-lg) 0;
+    z-index: 900;
+    transition: transform var(--transition-normal);
+}
+
+.sidebar-section {
+    margin-bottom: var(--spacing-lg);
+}
+
+.sidebar-section-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ovh-gray);
+    padding: 0 var(--spacing-lg);
+    margin-bottom: var(--spacing-sm);
+}
+
+.sidebar-nav {
+    list-style: none;
+}
+
+.sidebar-nav li {
+    margin: 0;
+}
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    color: var(--ovh-gray-dark);
+    font-size: 0.9rem;
+    border-left: 3px solid transparent;
+    transition: all var(--transition-fast);
+}
+
+.sidebar-nav a:hover {
+    background-color: var(--ovh-gray-lightest);
+    color: var(--ovh-blue);
+    text-decoration: none;
+}
+
+.sidebar-nav a.active {
+    background-color: rgba(0, 80, 215, 0.05);
+    border-left-color: var(--ovh-blue);
+    color: var(--ovh-blue);
+    font-weight: 600;
+}
+
+.sidebar-nav a.completed {
+    color: var(--ovh-green);
+}
+
+.sidebar-nav a.completed::after {
+    content: '✓';
+    margin-left: auto;
+    font-weight: 700;
+    font-size: 0.875rem;
+}
+
+/* Difficulty badges */
+.difficulty-badge {
+    display: inline-block;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: var(--border-radius);
+    letter-spacing: 0.03em;
+}
+
+.difficulty-badge--beginner {
+    background-color: rgba(70, 185, 84, 0.1);
+    color: var(--difficulty-beginner);
+}
+
+.difficulty-badge--intermediate {
+    background-color: rgba(242, 157, 0, 0.1);
+    color: var(--difficulty-intermediate);
+}
+
+.difficulty-badge--advanced {
+    background-color: rgba(228, 66, 88, 0.1);
+    color: var(--difficulty-advanced);
+}
+
+/* --------------------------------------------------------------------------
+   Layout - Main Content
+   -------------------------------------------------------------------------- */
+.main-content {
+    margin-left: var(--sidebar-width);
+    margin-top: var(--header-height);
+    padding: var(--spacing-xl);
+    min-height: calc(100vh - var(--header-height));
+}
+
+.lesson-content {
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+    background-color: var(--ovh-white);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+/* --------------------------------------------------------------------------
+   Lesson Page Elements
+   -------------------------------------------------------------------------- */
+.lesson-header {
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--ovh-gray-light);
+}
+
+.lesson-header h1 {
+    margin-bottom: var(--spacing-sm);
+}
+
+.lesson-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    font-size: 0.875rem;
+    color: var(--ovh-gray);
+}
+
+.lesson-meta .duration {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.lesson-body h2 {
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--ovh-gray-light);
+}
+
+.lesson-body ul,
+.lesson-body ol {
+    margin-bottom: var(--spacing-md);
+    padding-left: var(--spacing-lg);
+}
+
+.lesson-body li {
+    margin-bottom: var(--spacing-sm);
+}
+
+/* --------------------------------------------------------------------------
+   Code Blocks
+   -------------------------------------------------------------------------- */
+code {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    background-color: var(--ovh-gray-lightest);
+    padding: 2px 6px;
+    border-radius: var(--border-radius);
+    color: var(--ovh-blue-dark);
+}
+
+pre {
+    background-color: var(--ovh-black);
+    color: #e0e4f0;
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius-lg);
+    overflow-x: auto;
+    margin-bottom: var(--spacing-lg);
+    line-height: 1.5;
+}
+
+pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+    font-size: 0.875rem;
+}
+
+/* Syntax highlighting tokens */
+.token-keyword { color: #8b9cf7; }
+.token-string { color: #a5d6a7; }
+.token-comment { color: #6b7394; font-style: italic; }
+.token-number { color: #ffcc80; }
+.token-function { color: #80cbc4; }
+.token-operator { color: #f48fb1; }
+.token-variable { color: #ce93d8; }
+
+/* --------------------------------------------------------------------------
+   Buttons
+   -------------------------------------------------------------------------- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-decoration: none;
+}
+
+.btn:focus-visible {
+    outline: 2px solid var(--ovh-blue);
+    outline-offset: 2px;
+}
+
+.btn-primary {
+    background-color: var(--ovh-blue);
+    color: var(--ovh-white);
+}
+
+.btn-primary:hover {
+    background-color: var(--ovh-blue-dark);
+    color: var(--ovh-white);
+    text-decoration: none;
+}
+
+.btn-success {
+    background-color: var(--ovh-green);
+    color: var(--ovh-white);
+}
+
+.btn-success:hover {
+    background-color: #3ba348;
+    color: var(--ovh-white);
+    text-decoration: none;
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 2px solid var(--ovh-blue);
+    color: var(--ovh-blue);
+}
+
+.btn-outline:hover {
+    background-color: var(--ovh-blue);
+    color: var(--ovh-white);
+    text-decoration: none;
+}
+
+/* Mark as Complete button */
+.btn-mark-complete {
+    margin-top: var(--spacing-xl);
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: 1rem;
+}
+
+.btn-mark-complete.completed {
+    background-color: var(--ovh-green);
+    cursor: default;
+}
+
+/* --------------------------------------------------------------------------
+   Alerts and Notices
+   -------------------------------------------------------------------------- */
+.alert {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-lg);
+    border-left: 4px solid;
+}
+
+.alert-info {
+    background-color: rgba(0, 80, 215, 0.05);
+    border-left-color: var(--ovh-blue);
+    color: var(--ovh-navy);
+}
+
+.alert-warning {
+    background-color: rgba(242, 157, 0, 0.08);
+    border-left-color: var(--ovh-orange);
+    color: #8a5700;
+}
+
+.alert-success {
+    background-color: rgba(70, 185, 84, 0.08);
+    border-left-color: var(--ovh-green);
+    color: #2d7a37;
+}
+
+.alert-danger {
+    background-color: rgba(228, 66, 88, 0.08);
+    border-left-color: var(--ovh-red);
+    color: #9b2d3d;
+}
+
+/* --------------------------------------------------------------------------
+   Loading Screen (index.html)
+   -------------------------------------------------------------------------- */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: var(--spacing-lg);
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--ovh-gray-light);
+    border-top-color: var(--ovh-blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.noscript-fallback {
+    max-width: 500px;
+    margin: var(--spacing-xxl) auto;
+    padding: var(--spacing-xl);
+    text-align: center;
+    background-color: var(--ovh-white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.noscript-fallback ul {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--spacing-lg);
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-lg);
+}
+
+.noscript-fallback a {
+    display: inline-block;
+    padding: var(--spacing-md) var(--spacing-xl);
+    background-color: var(--ovh-blue);
+    color: var(--ovh-white);
+    border-radius: var(--border-radius);
+    font-weight: 600;
+}
+
+.noscript-fallback a:hover {
+    background-color: var(--ovh-blue-dark);
+    text-decoration: none;
+    color: var(--ovh-white);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive - Tablet (≤ 1024px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+    :root {
+        --sidebar-width: 240px;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Responsive - Mobile (≤ 768px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+    .hamburger-btn {
+        display: block;
+    }
+
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: var(--spacing-md);
+    }
+
+    .lesson-content {
+        padding: var(--spacing-md);
+    }
+
+    .site-header {
+        padding: 0 var(--spacing-md);
+    }
+
+    .progress-bar {
+        width: 80px;
+    }
+
+    .lesson-meta {
+        flex-wrap: wrap;
+    }
+
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.25rem; }
+}
+
+/* --------------------------------------------------------------------------
+   Responsive - Small Mobile (≤ 480px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 480px) {
+    .progress-bar-container .progress-label {
+        display: none;
+    }
+
+    .locale-switcher {
+        gap: 2px;
+    }
+
+    .locale-switcher button {
+        padding: 2px 6px;
+        font-size: 0.75rem;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Print Styles
+   -------------------------------------------------------------------------- */
+@media print {
+    .site-header,
+    .sidebar,
+    .hamburger-btn,
+    .btn-mark-complete {
+        display: none;
+    }
+
+    .main-content {
+        margin: 0;
+        padding: 0;
+    }
+
+    .lesson-content {
+        box-shadow: none;
+        max-width: 100%;
+    }
+
+    pre {
+        background-color: #f5f5f5;
+        color: #333;
+        border: 1px solid #ddd;
+    }
+}

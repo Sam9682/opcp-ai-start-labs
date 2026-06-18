@@ -1,0 +1,102 @@
+version: "1.0"
+
+modules:
+  - id: "install-bare-metal"
+    name: "Installation on Bare-Metal Ubuntu"
+    order: 1
+    prerequisites: []
+    session_time_limit_minutes: 120
+    resource_limits:
+      cpu_cores: 2.0
+      memory_mb: 2048
+      time_minutes: 60
+
+  - id: "adding-applications"
+    name: "Adding New Applications"
+    order: 2
+    prerequisites: ["install-bare-metal"]
+    session_time_limit_minutes: 60
+    resource_limits:
+      cpu_cores: 1.0
+      memory_mb: 1024
+      time_minutes: 30
+
+  - id: "starting-applications"
+    name: "Starting Applications"
+    order: 3
+    prerequisites: ["adding-applications"]
+    session_time_limit_minutes: 60
+    resource_limits:
+      cpu_cores: 1.0
+      memory_mb: 1024
+      time_minutes: 30
+
+  - id: "stopping-applications"
+    name: "Stopping Applications"
+    order: 4
+    prerequisites: ["starting-applications"]
+    session_time_limit_minutes: 45
+    resource_limits:
+      cpu_cores: 1.0
+      memory_mb: 512
+      time_minutes: 20
+
+  - id: "making-backups"
+    name: "Making Backups"
+    order: 5
+    prerequisites: ["install-bare-metal"]
+    session_time_limit_minutes: 90
+    resource_limits:
+      cpu_cores: 1.5
+      memory_mb: 2048
+      time_minutes: 45
+
+  - id: "modifying-applications"
+    name: "Modifying Applications with AI Developer"
+    order: 6
+    prerequisites: ["adding-applications", "starting-applications"]
+    session_time_limit_minutes: 90
+    resource_limits:
+      cpu_cores: 2.0
+      memory_mb: 2048
+      time_minutes: 60
+
+  - id: "mig-gpu"
+    name: "Docker Applications with MIG GPU"
+    order: 7
+    prerequisites: ["starting-applications"]
+    session_time_limit_minutes: 120
+    resource_limits:
+      cpu_cores: 2.0
+      memory_mb: 4096
+      time_minutes: 90
+
+  - id: "serverless-execution"
+    name: "Serverless Docker Execution"
+    order: 8
+    prerequisites: ["adding-applications"]
+    session_time_limit_minutes: 60
+    resource_limits:
+      cpu_cores: 1.0
+      memory_mb: 1024
+      time_minutes: 30
+
+  - id: "billing-cost-tracking"
+    name: "Billing and Cost Tracking"
+    order: 9
+    prerequisites: ["starting-applications"]
+    session_time_limit_minutes: 60
+    resource_limits:
+      cpu_cores: 1.0
+      memory_mb: 512
+      time_minutes: 30
+
+endpoints:
+  platform_api: "https://store.example.com/api"
+  platform_cli: "/usr/local/bin/aipoweredstore_cli.py"
+  health_check: "https://store.example.com/health"
+
+global:
+  max_concurrent_containers: 10
+  memory_ceiling_mb: 16384
+  cpu_ceiling_cores: 8.0

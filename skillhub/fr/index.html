@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Store Labs - SkillHub</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="site-header" role="banner">
+        <a href="." class="logo" aria-label="Accueil AI Store Labs">
+            <span>AI Store Labs</span>
+        </a>
+
+        <div class="header-actions">
+            <div class="progress-bar-container" aria-label="Progression globale">
+                <span class="progress-label">Progression :</span>
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <span class="progress-percent">0%</span>
+            </div>
+
+            <div class="locale-switcher" role="navigation" aria-label="Sélecteur de langue">
+                <button data-locale="en" aria-label="English">EN</button>
+                <button class="active" data-locale="fr" aria-label="Français">FR</button>
+            </div>
+
+            <button class="hamburger-btn" aria-label="Basculer le menu de navigation" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <aside class="sidebar" role="navigation" aria-label="Navigation des leçons">
+        <div class="sidebar-section">
+            <h2 class="sidebar-section-title">Débutant</h2>
+            <ul class="sidebar-nav" id="nav-beginner">
+                <li><a href="install-bare-metal.html">Installation sur Ubuntu Bare-Metal</a></li>
+                <li><a href="adding-applications.html">Ajout de nouvelles applications</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section">
+            <h2 class="sidebar-section-title">Intermédiaire</h2>
+            <ul class="sidebar-nav" id="nav-intermediate">
+                <li><a href="starting-applications.html">Démarrage des applications</a></li>
+                <li><a href="stopping-applications.html">Arrêt des applications</a></li>
+                <li><a href="making-backups.html">Sauvegardes</a></li>
+                <li><a href="modifying-applications.html">Modification d'applications avec l'IA</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section">
+            <h2 class="sidebar-section-title">Avancé</h2>
+            <ul class="sidebar-nav" id="nav-advanced">
+                <li><a href="mig-gpu.html">Docker avec GPU MIG</a></li>
+                <li><a href="serverless-execution.html">Exécution Docker Serverless</a></li>
+                <li><a href="billing-cost-tracking.html">Facturation et suivi des coûts</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content" role="main">
+        <div class="lesson-content">
+            <div class="lesson-header">
+                <h1>Bienvenue sur AI Store Labs</h1>
+                <div class="lesson-meta">
+                    <span class="difficulty-badge difficulty-badge--beginner">Premiers pas</span>
+                </div>
+            </div>
+            <div class="lesson-body">
+                <p>Bienvenue sur la plateforme de formation AI-Powered-Store. Ce SkillHub propose des leçons interactives couvrant tous les aspects de la plateforme — de l'installation à la gestion avancée des GPU.</p>
+
+                <h2>Comment utiliser SkillHub</h2>
+                <p>Naviguez à travers les leçons en utilisant la barre latérale à gauche. Les leçons sont organisées par niveau de difficulté :</p>
+                <ul>
+                    <li><strong>Débutant</strong> — Configuration de la plateforme et opérations de base</li>
+                    <li><strong>Intermédiaire</strong> — Cycle de vie des applications et gestion des données</li>
+                    <li><strong>Avancé</strong> — Charges GPU, serverless et facturation</li>
+                </ul>
+
+                <h2>Suivi de votre progression</h2>
+                <p>À mesure que vous terminez chaque leçon, cliquez sur le bouton « Marquer comme terminé ». Votre progression est sauvegardée localement et affichée dans la barre de progression de l'en-tête.</p>
+
+                <div class="alert alert-info">
+                    <strong>Conseil :</strong> Chaque leçon est accompagnée d'un laboratoire pratique. Complétez d'abord la lecture, puis lancez le labo pour les exercices pratiques.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Les modules JavaScript seront chargés ici dans les tâches suivantes -->
+</body>
+</html>

@@ -1,0 +1,66 @@
+version: "3.8"
+
+services:
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: ai-store-labs-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./skillhub:/usr/share/nginx/html:ro
+    depends_on:
+      flask-app:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/nginx-health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - ai-store-labs
+
+  flask-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-store-labs-flask
+    expose:
+      - "5000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./labs:/app/labs
+      - ./skillhub:/app/skillhub:ro
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+      - LAB_CONFIG_PATH=/app/labs/config/lab_config.yaml
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - ai-store-labs
+
+  lab-base:
+    build:
+      context: ./labs/base
+      dockerfile: Dockerfile
+    image: ai-store-labs-base:latest
+    container_name: ai-store-labs-base
+    command: ["echo", "Base image built successfully"]
+    restart: "no"
+    networks:
+      - ai-store-labs
+
+networks:
+  ai-store-labs:
+    name: ai-store-labs-network
+    driver: bridge
