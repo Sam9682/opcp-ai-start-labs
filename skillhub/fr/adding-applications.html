@@ -71,12 +71,13 @@
                 </div>
             </div>
             <div class="lesson-body">
-                <p>Apprenez à enregistrer et déployer des applications sur la plateforme AI-Powered-Store en utilisant le CLI, l'API REST et l'interface web.</p>
+                <p>Apprenez à enregistrer et déployer des applications sur la plateforme AI-Powered-Store en utilisant le CLI, l'API REST et l'interface web d'administration.</p>
 
                 <h2>Prérequis</h2>
                 <ul>
                     <li>Terminé : <a href="install-bare-metal.html">Installation sur Ubuntu Bare-Metal</a></li>
                     <li>Instance AI-Powered-Store en fonctionnement</li>
+                    <li>Accès administrateur à l'interface web</li>
                 </ul>
 
                 <h2>Ce que vous apprendrez</h2>
@@ -85,7 +86,167 @@
                     <li>Enregistrement d'applications via l'API REST</li>
                     <li>Enregistrement d'applications via l'interface web</li>
                     <li>Configuration des métadonnées d'application</li>
+                    <li>Gestion des applications existantes (édition, suppression)</li>
                 </ul>
+
+                <h2>Interface de gestion des applications</h2>
+                <p>L'interface web d'administration fournit un tableau complet listant toutes les applications enregistrées sur la plateforme. Accessible via le menu <strong>Applications</strong> dans la barre de navigation.</p>
+
+                <figure class="lesson-figure">
+                    <img src="../assets/img/Screen_Apps1.png" alt="Interface de gestion des applications affichant la liste des applications enregistrées avec leurs métadonnées et boutons d'action" style="max-width: 100%; border: 1px solid #ddd; border-radius: 4px;">
+                    <figcaption>Vue du panneau « Applications Management » de la plateforme OPCP-AiPoweredStore</figcaption>
+                </figure>
+
+                <h3>Colonnes du tableau</h3>
+                <p>Chaque application enregistrée affiche les informations suivantes :</p>
+                <table class="lesson-table" style="width:100%; border-collapse: collapse; margin: 1em 0;">
+                    <thead>
+                        <tr style="background: #f5f5f5; text-align: left;">
+                            <th style="padding: 8px; border: 1px solid #ddd;">Colonne</th>
+                            <th style="padding: 8px; border: 1px solid #ddd;">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>ID</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Identifiant unique de l'application dans la base de données</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>NAME</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Nom technique de l'application (ex : <code>ai-shai-web-interface</code>, <code>opcp-ai-start-labs</code>)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>URL</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">URL publique d'accès à l'application une fois déployée (ex : <code>https://opcp-psmc.com/admin/ai-staticwebsite</code>)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>DESCRIPTION</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Description lisible de l'application (ex : « Interface Web pour Shai », « OPCP Openstack Automation »)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>GIT URL</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">URL du dépôt Git source (ex : <code>git@github.com/Sam9682/ai-shai-web-interface.git</code>)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>GIT SIZE (MB)</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Taille du dépôt Git en mégaoctets</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>BUILD (S)</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Temps de build en secondes (N/A si non encore construit)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>START (S)</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Temps de démarrage en secondes</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>STOP (S)</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Temps d'arrêt en secondes</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>PS (S)</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Temps de vérification du statut (process status) en secondes</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>SWAUTOMORPH URL</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">URL de déploiement Swautomorph (« Not yet deployed » si non déployée)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>ACTIONS</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Boutons <strong>Edit</strong> et <strong>Delete</strong> pour gérer l'application</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Actions disponibles</h3>
+                <ul>
+                    <li><strong>Add New Application</strong> — Bouton en haut à droite pour enregistrer une nouvelle application</li>
+                    <li><strong>Download PDF</strong> — Exporter la liste des applications au format PDF</li>
+                    <li><strong>Edit</strong> — Modifier les métadonnées d'une application existante (nom, URL, description, dépôt Git)</li>
+                    <li><strong>Delete</strong> — Supprimer une application de la plateforme</li>
+                </ul>
+
+                <h2>Méthode 1 : Ajout via l'interface web</h2>
+                <p>C'est la méthode la plus simple pour les administrateurs :</p>
+                <ol>
+                    <li>Connectez-vous à l'interface d'administration</li>
+                    <li>Accédez au menu <strong>Applications</strong> dans la barre de navigation</li>
+                    <li>Cliquez sur le bouton <strong>Add New Application</strong></li>
+                    <li>Remplissez le formulaire avec les informations requises :
+                        <ul>
+                            <li><strong>Name</strong> : nom technique (sans espaces, en minuscules)</li>
+                            <li><strong>Description</strong> : description lisible</li>
+                            <li><strong>URL</strong> : URL publique d'accès</li>
+                            <li><strong>Git URL</strong> : URL du dépôt source</li>
+                        </ul>
+                    </li>
+                    <li>Validez le formulaire</li>
+                </ol>
+
+                <h2>Méthode 2 : Ajout via le CLI</h2>
+                <p>Le script CLI permet d'enregistrer des applications en ligne de commande :</p>
+                <pre><code># Activer l'environnement virtuel
+cd ~/opcp-ai-powered-store
+source .venv/bin/activate
+
+# Enregistrer une nouvelle application
+python aipoweredstore_cli.py add-app \
+  --name "mon-application" \
+  --description "Description de mon application" \
+  --git-url "git@github.com/user/mon-application.git" \
+  --url "https://mon-domaine.com/admin/mon-application"</code></pre>
+
+                <h2>Méthode 3 : Ajout via l'API REST</h2>
+                <p>L'API REST permet l'intégration dans des pipelines CI/CD :</p>
+                <pre><code># Enregistrer une application via l'API
+curl -X POST https://&lt;votre-domaine&gt;/api/applications \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer &lt;votre-token&gt;" \
+  -d '{
+    "name": "mon-application",
+    "description": "Description de mon application",
+    "git_url": "git@github.com/user/mon-application.git",
+    "url": "https://mon-domaine.com/admin/mon-application"
+  }'</code></pre>
+
+                <h2>Exemples d'applications de la plateforme</h2>
+                <p>Voici des exemples d'applications typiques enregistrées sur la plateforme :</p>
+                <ul>
+                    <li><strong>ai-shai-web-interface</strong> — Interface Web pour OVH Shai (taille : 10 MB, build : 67s)</li>
+                    <li><strong>ai-staticwebsite</strong> — Site web statique simple (taille : 4 MB, build : 29s)</li>
+                    <li><strong>opcp-ai-start-labs</strong> — Labs de démarrage IA (taille : 50 MB)</li>
+                    <li><strong>opcp-openstack-automation</strong> — Automatisation Openstack (taille : 10 MB, build : 30s)</li>
+                    <li><strong>opcp-psmc-dashboard</strong> — Tableau de bord PSMC (taille : 50 MB, build : 30s)</li>
+                    <li><strong>opcp-serverless-brik</strong> — Brique serverless (taille : 50 MB)</li>
+                </ul>
+
+                <h2>Modification d'une application existante</h2>
+                <p>Pour modifier les métadonnées d'une application existante :</p>
+                <ol>
+                    <li>Localisez l'application dans le tableau</li>
+                    <li>Cliquez sur le bouton <strong>Edit</strong> dans la colonne ACTIONS</li>
+                    <li>Modifiez les champs souhaités dans le formulaire d'édition</li>
+                    <li>Sauvegardez les modifications</li>
+                </ol>
+
+                <h2>Suppression d'une application</h2>
+                <div class="alert alert-warning">
+                    <strong>Attention :</strong> La suppression d'une application est irréversible. Assurez-vous d'avoir une sauvegarde avant de procéder.
+                </div>
+                <ol>
+                    <li>Localisez l'application dans le tableau</li>
+                    <li>Cliquez sur le bouton <strong>Delete</strong> dans la colonne ACTIONS</li>
+                    <li>Confirmez la suppression dans la boîte de dialogue</li>
+                </ol>
+
+                <h2>Exercices</h2>
+                <p>Cette leçon comprend des exercices pratiques en laboratoire :</p>
+                <ol>
+                    <li>Enregistrer une nouvelle application via l'interface web</li>
+                    <li>Modifier la description d'une application existante</li>
+                    <li>Exporter la liste des applications en PDF</li>
+                    <li>Enregistrer une application via le CLI</li>
+                </ol>
 
                 <div class="alert alert-info">
                     <strong>Labo disponible :</strong> Un module de laboratoire pratique accompagne cette leçon. Lancez le labo pour vous exercer dans un environnement isolé.

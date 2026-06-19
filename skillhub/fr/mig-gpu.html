@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker avec GPU MIG - AI Store Labs</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="site-header" role="banner">
+        <a href="." class="logo" aria-label="Accueil AI Store Labs">
+            <span>AI Store Labs</span>
+        </a>
+
+        <div class="header-actions">
+            <div class="progress-bar-container" aria-label="Progression globale">
+                <span class="progress-label">Progression :</span>
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <span class="progress-percent">0%</span>
+            </div>
+
+            <div class="locale-switcher" role="navigation" aria-label="Sélecteur de langue">
+                <button data-locale="en" aria-label="English">EN</button>
+                <button class="active" data-locale="fr" aria-label="Français">FR</button>
+            </div>
+
+            <button class="hamburger-btn" aria-label="Basculer le menu de navigation" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <aside class="sidebar" role="navigation" aria-label="Navigation des leçons">
+        <div class="sidebar-section">
+            <h2 class="sidebar-section-title">Débutant</h2>
+            <ul class="sidebar-nav" id="nav-beginner">
+                <li><a href="install-bare-metal.html">Installation sur Ubuntu Bare-Metal</a></li>
+                <li><a href="adding-applications.html">Ajout de nouvelles applications</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section">
+            <h2 class="sidebar-section-title">Intermédiaire</h2>
+            <ul class="sidebar-nav" id="nav-intermediate">
+                <li><a href="starting-applications.html">Démarrage des applications</a></li>
+                <li><a href="stopping-applications.html">Arrêt des applications</a></li>
+                <li><a href="making-backups.html">Sauvegardes</a></li>
+                <li><a href="modifying-applications.html">Modification d'applications avec l'IA</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section">
+            <h2 class="sidebar-section-title">Avancé</h2>
+            <ul class="sidebar-nav" id="nav-advanced">
+                <li><a href="mig-gpu.html" class="active">Docker avec GPU MIG</a></li>
+                <li><a href="serverless-execution.html">Exécution Docker Serverless</a></li>
+                <li><a href="billing-cost-tracking.html">Facturation et suivi des coûts</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content" role="main">
+        <div class="lesson-content">
+            <div class="lesson-header">
+                <h1>Docker avec GPU MIG</h1>
+                <div class="lesson-meta">
+                    <span class="difficulty-badge difficulty-badge--advanced">Avancé</span>
+                    <span class="duration">⏱ ~90 min</span>
+                </div>
+            </div>
+            <div class="lesson-body">
+                <p>Apprenez à utiliser la technologie NVIDIA Multi-Instance GPU (MIG) pour partitionner un seul GPU en plusieurs instances isolées, permettant à plusieurs conteneurs Docker de partager les ressources GPU de manière sécurisée.</p>
+
+                <h2>Prérequis</h2>
+                <ul>
+                    <li>Terminé : <a href="install-bare-metal.html">Installation sur Ubuntu Bare-Metal</a></li>
+                    <li>GPU NVIDIA A100, A30, H100 ou compatible avec support MIG</li>
+                    <li>Pilotes NVIDIA 550+ et Container Toolkit installés</li>
+                </ul>
+
+                <h2>Ce que vous apprendrez</h2>
+                <ul>
+                    <li>Comprendre l'architecture MIG et le partitionnement GPU</li>
+                    <li>Activer et configurer le mode MIG</li>
+                    <li>Créer des instances GPU et des instances de calcul</li>
+                    <li>Assigner des slices MIG aux conteneurs Docker</li>
+                    <li>Surveiller l'utilisation GPU par instance</li>
+                </ul>
+
+                <h2>Activation du mode MIG</h2>
+                <pre><code># Activer le mode MIG sur le GPU 0
+sudo nvidia-smi -i 0 -mig 1
+
+# Vérifier que le mode MIG est activé
+nvidia-smi --query-gpu=mig.mode.current --format=csv</code></pre>
+
+                <h2>Création d'instances GPU</h2>
+                <pre><code># Lister les profils MIG disponibles
+nvidia-smi mig -lgip
+
+# Créer une instance GPU (ex: profil 1g.5gb)
+sudo nvidia-smi mig -i 0 -cgi 1g.5gb -C</code></pre>
+
+                <h2>Exécution Docker avec MIG</h2>
+                <pre><code># Exécuter un conteneur sur un device MIG spécifique
+docker run --rm --gpus '"device=0:0"' nvidia/cuda:12.3.0-base-ubuntu22.04 nvidia-smi</code></pre>
+
+                <div class="alert alert-info">
+                    <strong>Labo disponible :</strong> Un module de laboratoire pratique accompagne cette leçon. Lancez le labo pour vous exercer dans un environnement isolé.
+                </div>
+            </div>
+
+            <button class="btn btn-success btn-mark-complete" data-lesson-id="mig-gpu">
+                Marquer comme terminé
+            </button>
+        </div>
+    </main>
+
+    <!-- Les modules JavaScript seront chargés ici dans les tâches suivantes -->
+</body>
+</html>

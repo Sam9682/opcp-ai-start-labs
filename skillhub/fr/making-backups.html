@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sauvegardes - AI Store Labs</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="site-header" role="banner">
+        <a href="." class="logo" aria-label="Accueil AI Store Labs">
+            <span>AI Store Labs</span>
+        </a>
+
+        <div class="header-actions">
+            <div class="progress-bar-container" aria-label="Progression globale">
+                <span class="progress-label">Progression :</span>
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <span class="progress-percent">0%</span>
+            </div>
+
+            <div class="locale-switcher" role="navigation" aria-label="Sélecteur de langue">
+                <button data-locale="en" aria-label="English">EN</button>
+                <button class="active" data-locale="fr" aria-label="Français">FR</button>
+            </div>
+
+            <button class="hamburger-btn" aria-label="Basculer le menu de navigation" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <aside class="sidebar" role="navigation" aria-label="Navigation des leçons">
+        <div class="sidebar-section">
+            <h2 class="sidebar-section-title">Débutant</h2>
+            <ul class="sidebar-nav" id="nav-beginner">
+                <li><a href="install-bare-metal.html">Installation sur Ubuntu Bare-Metal</a></li>
+                <li><a href="adding-applications.html">Ajout de nouvelles applications</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section">
+            <h2 class="sidebar-section-title">Intermédiaire</h2>
+            <ul class="sidebar-nav" id="nav-intermediate">
+                <li><a href="starting-applications.html">Démarrage des applications</a></li>
+                <li><a href="stopping-applications.html">Arrêt des applications</a></li>
+                <li><a href="making-backups.html" class="active">Sauvegardes</a></li>
+                <li><a href="modifying-applications.html">Modification d'applications avec l'IA</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section">
+            <h2 class="sidebar-section-title">Avancé</h2>
+            <ul class="sidebar-nav" id="nav-advanced">
+                <li><a href="mig-gpu.html">Docker avec GPU MIG</a></li>
+                <li><a href="serverless-execution.html">Exécution Docker Serverless</a></li>
+                <li><a href="billing-cost-tracking.html">Facturation et suivi des coûts</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content" role="main">
+        <div class="lesson-content">
+            <div class="lesson-header">
+                <h1>Sauvegardes</h1>
+                <div class="lesson-meta">
+                    <span class="difficulty-badge difficulty-badge--intermediate">Intermédiaire</span>
+                    <span class="duration">⏱ ~60 min</span>
+                </div>
+            </div>
+            <div class="lesson-body">
+                <p>Apprenez à sauvegarder les données applicatives, les bases de données et la configuration de la plateforme vers le stockage objet S3 compatible OVH via l'AWS CLI.</p>
+
+                <h2>Prérequis</h2>
+                <ul>
+                    <li>Terminé : <a href="install-bare-metal.html">Installation sur Ubuntu Bare-Metal</a></li>
+                    <li>AWS CLI configuré avec les identifiants S3 OVH</li>
+                    <li>Instance AI-Powered-Store en fonctionnement</li>
+                </ul>
+
+                <h2>Ce que vous apprendrez</h2>
+                <ul>
+                    <li>Sauvegarde des bases de données applicatives</li>
+                    <li>Synchronisation des sauvegardes vers le stockage objet OVH S3</li>
+                    <li>Restauration à partir de sauvegardes</li>
+                    <li>Mise en place de sauvegardes automatiques planifiées</li>
+                    <li>Vérification de l'intégrité des sauvegardes</li>
+                </ul>
+
+                <h2>Sauvegarde de base de données</h2>
+                <p>Créez un dump de la base de données pour une application en cours d'exécution :</p>
+                <pre><code># Sauvegarde d'une base PostgreSQL
+docker exec &lt;conteneur_bdd&gt; pg_dump -U postgres &lt;base_de_donnees&gt; > sauvegarde_$(date +%Y%m%d).sql</code></pre>
+
+                <h2>Envoi vers S3 (OVH Object Storage)</h2>
+                <pre><code># Synchroniser les sauvegardes vers S3
+aws s3 sync ./backups/ s3://&lt;nom_bucket&gt;/backups/ \
+  --profile OVH-SWAUTOMORPH \
+  --endpoint-url https://s3.gra.io.cloud.ovh.net/</code></pre>
+
+                <h2>Restauration à partir d'une sauvegarde</h2>
+                <pre><code># Télécharger la sauvegarde depuis S3
+aws s3 cp s3://&lt;nom_bucket&gt;/backups/sauvegarde_20240101.sql ./restauration.sql \
+  --profile OVH-SWAUTOMORPH \
+  --endpoint-url https://s3.gra.io.cloud.ovh.net/
+
+# Restaurer la base de données
+docker exec -i &lt;conteneur_bdd&gt; psql -U postgres &lt;base_de_donnees&gt; &lt; restauration.sql</code></pre>
+
+                <div class="alert alert-info">
+                    <strong>Labo disponible :</strong> Un module de laboratoire pratique accompagne cette leçon. Lancez le labo pour vous exercer dans un environnement isolé.
+                </div>
+            </div>
+
+            <button class="btn btn-success btn-mark-complete" data-lesson-id="making-backups">
+                Marquer comme terminé
+            </button>
+        </div>
+    </main>
+
+    <!-- Les modules JavaScript seront chargés ici dans les tâches suivantes -->
+</body>
+</html>

@@ -71,7 +71,7 @@
                 </div>
             </div>
             <div class="lesson-body">
-                <p>Apprenez à déployer la plateforme AI-Powered-Store sur un serveur Ubuntu bare-metal vierge (22.04 ou 24.04 LTS).</p>
+                <p>Apprenez à déployer la plateforme AI-Powered-Store sur un serveur Ubuntu bare-metal vierge (22.04 ou 24.04 LTS). Ce guide couvre l'ensemble du processus d'installation, de la préparation du système au déploiement final.</p>
 
                 <h2>Prérequis</h2>
                 <ul>
@@ -79,16 +79,140 @@
                     <li>Accès root ou sudo</li>
                     <li>Au moins 4 Go de RAM et 20 Go d'espace disque</li>
                     <li>Connectivité Internet pour le téléchargement des paquets</li>
+                    <li>Un GPU NVIDIA compatible (optionnel, pour le support MIG)</li>
                 </ul>
 
-                <h2>Ce que vous apprendrez</h2>
+                <h2>Étape 1 : Installation des dépendances système</h2>
+                <p>Commencez par mettre à jour les paquets et installer les dépendances nécessaires :</p>
+                <pre><code>sudo apt update
+sudo apt --fix-broken install -y
+sudo apt install -y python3 python3-pip python3-venv net-tools unzip</code></pre>
+
+                <h2>Étape 2 : Installation des outils CLI</h2>
+                <p>Installez les outils en ligne de commande nécessaires à la gestion de la plateforme :</p>
+
+                <h3>Amazon Kiro CLI</h3>
+                <pre><code>curl -fsSL https://cli.kiro.dev/install | bash</code></pre>
+
+                <h3>OVH CLI (shai)</h3>
+                <pre><code>curl -fsSL https://raw.githubusercontent.com/ovh/shai/main/install.sh | sh
+echo 'export PATH="~/.local/bin:$PATH"' >> ~/.bashrc</code></pre>
+
+                <h3>AWS CLI</h3>
+                <pre><code>curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip -q awscliv2.zip
+sudo ./aws/install
+rm -rf aws awscliv2.zip</code></pre>
+
+                <h3>Terraform</h3>
+                <pre><code>curl -s "https://releases.hashicorp.com/terraform/1.14.5/terraform_1.14.5_linux_amd64.zip" -o "terraform.zip"
+unzip -q terraform.zip
+sudo mv terraform /usr/local/bin/
+rm -f terraform.zip</code></pre>
+
+                <h2>Étape 3 : Configuration réseau (Netplan)</h2>
+                <p>Le script configure automatiquement les priorités des interfaces réseau pour assurer que l'interface publique est préférée pour le routage par défaut :</p>
                 <ul>
-                    <li>Vérification des prérequis système</li>
-                    <li>Installation de Docker Engine et docker-compose v2</li>
-                    <li>Clonage du dépôt de la plateforme</li>
-                    <li>Configuration de l'environnement (<code>deploy.ini</code> et <code>env_setup.sh</code>)</li>
-                    <li>Démarrage de la plateforme avec <code>deployControlPlan.sh</code></li>
+                    <li><strong>Interface publique</strong> : métrique de route <code>50</code> (priorité haute)</li>
+                    <li><strong>Interface privée</strong> : métrique de route <code>200</code> (priorité basse)</li>
                 </ul>
+                <p>La détection des interfaces se fait automatiquement en analysant les adresses IP (plages privées : <code>10.x</code>, <code>172.16-31.x</code>, <code>192.168.x</code>).</p>
+                <div class="alert alert-warning">
+                    <strong>Attention :</strong> Une sauvegarde du fichier netplan existant est créée automatiquement avant toute modification.
+                </div>
+
+                <h2>Étape 4 : Installation de Docker</h2>
+                <p>Docker est installé via le script officiel, avec docker-compose en complément :</p>
+                <pre><code>curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
+sudo curl -sL "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+rm -f get-docker.sh</code></pre>
+                <div class="alert alert-info">
+                    <strong>Note :</strong> Vous devrez vous déconnecter et reconnecter pour que l'ajout au groupe <code>docker</code> prenne effet.
+                </div>
+
+                <h2>Étape 5 : Installation des pilotes NVIDIA et support GPU (optionnel)</h2>
+                <p>Si votre serveur dispose d'un GPU NVIDIA compatible :</p>
+                <pre><code># Installation des pilotes NVIDIA
+sudo apt install -y nvidia-driver-550 nvidia-utils-550
+
+# Activation du mode MIG (Multi-Instance GPU)
+sudo nvidia-smi -mig 1
+
+# Installation du NVIDIA Container Toolkit
+sudo apt install -y nvidia-container-toolkit
+
+# Vérification de l'accès Docker au GPU
+docker run --rm --gpus '"device=0"' nvidia/cuda:12.3.0-base-ubuntu22.04 nvidia-smi</code></pre>
+                <div class="alert alert-warning">
+                    <strong>Note :</strong> Le mode MIG n'est disponible que sur les GPU NVIDIA A100, A30, H100, et similaires. Cette étape sera ignorée si le matériel n'est pas compatible.
+                </div>
+
+                <h2>Étape 6 : Configuration AWS (stockage S3 OVH)</h2>
+                <p>Configurez les identifiants AWS pour la synchronisation S3 avec OVH Object Storage :</p>
+                <pre><code>mkdir -p ~/.aws
+
+# Fichier ~/.aws/config
+cat > ~/.aws/config &lt;&lt;EOF
+[profile OVH-SWAUTOMORPH]
+region = gra
+output = json
+EOF
+
+# Fichier ~/.aws/credentials
+cat > ~/.aws/credentials &lt;&lt;EOF
+[OVH-SWAUTOMORPH]
+aws_access_key_id = VOTRE_ACCESS_KEY
+aws_secret_access_key = VOTRE_SECRET_KEY
+endpoint_url = https://s3.gra.io.cloud.ovh.net/
+signature_version = s3v4
+EOF
+
+# Variables d'environnement
+export AWS_DEFAULT_PROFILE=OVH-SWAUTOMORPH
+export AWS_ENDPOINT_URL_S3=https://s3.gra.io.cloud.ovh.net/</code></pre>
+
+                <h2>Étape 7 : Clonage du dépôt</h2>
+                <p>Clonez le dépôt principal avec ses sous-modules :</p>
+                <pre><code>git clone https://github.com/Sam9682/opcp-ai-powered-store.git
+cd opcp-ai-powered-store
+git submodule update --init --recursive</code></pre>
+
+                <h2>Étape 8 : Configuration de l'environnement Python</h2>
+                <p>Créez un environnement virtuel et installez les dépendances :</p>
+                <pre><code>python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt</code></pre>
+
+                <h2>Étape 9 : Configuration finale</h2>
+                <p>Préparez l'arborescence de déploiement :</p>
+                <pre><code>mkdir -p logs
+chmod +x setup_modsecurity_config.sh
+cd ~
+mkdir -p deployments/admin</code></pre>
+
+                <h2>Actions post-installation</h2>
+                <div class="alert alert-warning">
+                    <strong>Important — À ne pas oublier :</strong>
+                    <ul>
+                        <li>Modifier <code>./conf/deploy.ini</code> avec vos paramètres de plateforme, notamment les valeurs <code>PLTF_NAME</code> et <code>DOMAIN</code></li>
+                        <li>Ajouter le certificat SSL dans <code>~/opcp-ai-powered-store/ssl/fullchain_domain.crt</code> pour le HTTPS nginx</li>
+                        <li>Ajouter la clé privée SSL dans <code>~/opcp-ai-powered-store/ssl/privateKey_domain.key</code> pour le HTTPS nginx</li>
+                        <li>Renseigner <code>aws_access_key_id</code> et <code>aws_secret_access_key</code> dans <code>~/.aws/credentials</code> pour la synchronisation S3</li>
+                    </ul>
+                </div>
+
+                <h2>Script automatisé</h2>
+                <figure class="lesson-figure">
+                    <img src="../assets/img/Screen_InstallPltf1.png" alt="Capture d'écran de l'exécution du script d'installation de la plateforme" style="max-width: 100%; border: 1px solid #ddd; border-radius: 4px;">
+                    <figcaption>Exemple d'exécution du script d'installation de la plateforme</figcaption>
+                </figure>
+
+                <p>L'ensemble de ces étapes peut être exécuté automatiquement via le script <code>init_pltf.sh</code> :</p>
+                <pre><code>chmod +x init_pltf.sh
+./init_pltf.sh</code></pre>
 
                 <h2>Exercices</h2>
                 <p>Cette leçon comprend des exercices pratiques en laboratoire. Complétez chaque étape et validez votre progression.</p>

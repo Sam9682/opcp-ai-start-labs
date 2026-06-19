@@ -71,12 +71,13 @@
                 </div>
             </div>
             <div class="lesson-body">
-                <p>Learn how to register and deploy applications on the AI-Powered-Store platform using the CLI, REST API, and web interface.</p>
+                <p>Learn how to register and deploy applications on the AI-Powered-Store platform using the CLI, REST API, and web admin interface.</p>
 
                 <h2>Prerequisites</h2>
                 <ul>
                     <li>Completed: <a href="install-bare-metal.html">Installation on Bare-Metal Ubuntu</a></li>
                     <li>Running AI-Powered-Store instance</li>
+                    <li>Admin access to the web interface</li>
                 </ul>
 
                 <h2>What You Will Learn</h2>
@@ -85,7 +86,167 @@
                     <li>Registering applications via the REST API</li>
                     <li>Registering applications via the web interface</li>
                     <li>Configuring application metadata</li>
+                    <li>Managing existing applications (edit, delete)</li>
                 </ul>
+
+                <h2>Applications Management Interface</h2>
+                <p>The web admin interface provides a comprehensive table listing all registered applications on the platform. Access it via the <strong>Applications</strong> menu in the top navigation bar.</p>
+
+                <figure class="lesson-figure">
+                    <img src="../assets/img/Screen_Apps1.png" alt="Applications Management interface showing the list of registered applications with metadata and action buttons" style="max-width: 100%; border: 1px solid #ddd; border-radius: 4px;">
+                    <figcaption>The "Applications Management" panel from the OPCP-AiPoweredStore platform</figcaption>
+                </figure>
+
+                <h3>Table Columns</h3>
+                <p>Each registered application displays the following information:</p>
+                <table class="lesson-table" style="width:100%; border-collapse: collapse; margin: 1em 0;">
+                    <thead>
+                        <tr style="background: #f5f5f5; text-align: left;">
+                            <th style="padding: 8px; border: 1px solid #ddd;">Column</th>
+                            <th style="padding: 8px; border: 1px solid #ddd;">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>ID</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Unique application identifier in the database</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>NAME</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Technical application name (e.g., <code>ai-shai-web-interface</code>, <code>opcp-ai-start-labs</code>)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>URL</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Public access URL once deployed (e.g., <code>https://opcp-psmc.com/admin/ai-staticwebsite</code>)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>DESCRIPTION</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Human-readable description (e.g., "Interface Web pour Shai", "OPCP Openstack Automation")</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>GIT URL</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Source Git repository URL (e.g., <code>git@github.com/Sam9682/ai-shai-web-interface.git</code>)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>GIT SIZE (MB)</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Git repository size in megabytes</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>BUILD (S)</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Build time in seconds (N/A if not yet built)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>START (S)</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Start time in seconds</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>STOP (S)</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Stop time in seconds</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>PS (S)</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Process status check time in seconds</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>SWAUTOMORPH URL</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">Swautomorph deployment URL ("Not yet deployed" if not deployed)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>ACTIONS</strong></td>
+                            <td style="padding: 8px; border: 1px solid #ddd;"><strong>Edit</strong> and <strong>Delete</strong> buttons for managing the application</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Available Actions</h3>
+                <ul>
+                    <li><strong>Add New Application</strong> — Button in the top right to register a new application</li>
+                    <li><strong>Download PDF</strong> — Export the application list as a PDF</li>
+                    <li><strong>Edit</strong> — Modify an existing application's metadata (name, URL, description, Git repo)</li>
+                    <li><strong>Delete</strong> — Remove an application from the platform</li>
+                </ul>
+
+                <h2>Method 1: Adding via the Web Interface</h2>
+                <p>This is the simplest method for administrators:</p>
+                <ol>
+                    <li>Log into the admin interface</li>
+                    <li>Navigate to the <strong>Applications</strong> menu in the top navigation bar</li>
+                    <li>Click the <strong>Add New Application</strong> button</li>
+                    <li>Fill in the form with the required information:
+                        <ul>
+                            <li><strong>Name</strong>: technical name (no spaces, lowercase)</li>
+                            <li><strong>Description</strong>: human-readable description</li>
+                            <li><strong>URL</strong>: public access URL</li>
+                            <li><strong>Git URL</strong>: source repository URL</li>
+                        </ul>
+                    </li>
+                    <li>Submit the form</li>
+                </ol>
+
+                <h2>Method 2: Adding via the CLI</h2>
+                <p>The CLI script allows registering applications from the command line:</p>
+                <pre><code># Activate the virtual environment
+cd ~/opcp-ai-powered-store
+source .venv/bin/activate
+
+# Register a new application
+python aipoweredstore_cli.py add-app \
+  --name "my-application" \
+  --description "My application description" \
+  --git-url "git@github.com/user/my-application.git" \
+  --url "https://my-domain.com/admin/my-application"</code></pre>
+
+                <h2>Method 3: Adding via the REST API</h2>
+                <p>The REST API enables integration in CI/CD pipelines:</p>
+                <pre><code># Register an application via the API
+curl -X POST https://&lt;your-domain&gt;/api/applications \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer &lt;your-token&gt;" \
+  -d '{
+    "name": "my-application",
+    "description": "My application description",
+    "git_url": "git@github.com/user/my-application.git",
+    "url": "https://my-domain.com/admin/my-application"
+  }'</code></pre>
+
+                <h2>Example Platform Applications</h2>
+                <p>Here are examples of typical applications registered on the platform:</p>
+                <ul>
+                    <li><strong>ai-shai-web-interface</strong> — Web interface for OVH Shai (size: 10 MB, build: 67s)</li>
+                    <li><strong>ai-staticwebsite</strong> — Simple static website (size: 4 MB, build: 29s)</li>
+                    <li><strong>opcp-ai-start-labs</strong> — AI starter labs (size: 50 MB)</li>
+                    <li><strong>opcp-openstack-automation</strong> — Openstack automation (size: 10 MB, build: 30s)</li>
+                    <li><strong>opcp-psmc-dashboard</strong> — PSMC Dashboard (size: 50 MB, build: 30s)</li>
+                    <li><strong>opcp-serverless-brik</strong> — Serverless building block (size: 50 MB)</li>
+                </ul>
+
+                <h2>Editing an Existing Application</h2>
+                <p>To modify an existing application's metadata:</p>
+                <ol>
+                    <li>Locate the application in the table</li>
+                    <li>Click the <strong>Edit</strong> button in the ACTIONS column</li>
+                    <li>Modify the desired fields in the edit form</li>
+                    <li>Save your changes</li>
+                </ol>
+
+                <h2>Deleting an Application</h2>
+                <div class="alert alert-warning">
+                    <strong>Warning:</strong> Deleting an application is irreversible. Make sure you have a backup before proceeding.
+                </div>
+                <ol>
+                    <li>Locate the application in the table</li>
+                    <li>Click the <strong>Delete</strong> button in the ACTIONS column</li>
+                    <li>Confirm the deletion in the dialog box</li>
+                </ol>
+
+                <h2>Exercises</h2>
+                <p>This lesson includes hands-on lab exercises:</p>
+                <ol>
+                    <li>Register a new application via the web interface</li>
+                    <li>Modify the description of an existing application</li>
+                    <li>Export the application list as PDF</li>
+                    <li>Register an application via the CLI</li>
+                </ol>
 
                 <div class="alert alert-info">
                     <strong>Lab Available:</strong> A hands-on lab module accompanies this lesson. Start the lab to practice in an isolated environment.
