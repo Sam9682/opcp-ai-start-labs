@@ -28,7 +28,7 @@ services:
       dockerfile: Dockerfile
     container_name: ai-store-labs-flask-app-${USER_ID:-0}-${HTTP_PORT:-5000}
     ports:
-      - "${HTTPS_PORT:-5000}:80"
+      - "${HTTP_PORT:-5000}:5000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./labs:/app/labs
