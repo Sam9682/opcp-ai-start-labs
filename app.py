@@ -1,27 +1,19 @@
-"""Flask application entry point for AI Store Labs."""
+"""Application entry point"""
+import os
+from src.app import create_app
+from src.config import PORT
 
-from flask import Flask, jsonify, send_from_directory
-from src.api import lab_routes
-
-app = Flask(__name__, static_folder='skillhub')
-
-
-@app.route('/health')
-def health():
-    """Health check endpoint."""
-    return jsonify({"status": "healthy"}), 200
-
-
-@app.route('/')
-@app.route('/<path:path>')
-def serve_skillhub(path='index.html'):
-    """Serve SkillHub static files."""
-    return send_from_directory(app.static_folder, path)
-
-
-# Register API blueprint
-app.register_blueprint(lab_routes, url_prefix='/api')
-
+def main():
+    """Main entry point"""
+    # Create Flask app
+    app = create_app()
+    
+    # Run application
+    app.run(
+        host='0.0.0.0', 
+        port=5000, 
+        debug=os.environ.get('FLASK_ENV') == 'development'
+    )
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    main()
