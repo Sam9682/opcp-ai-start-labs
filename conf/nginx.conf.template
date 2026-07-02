@@ -52,16 +52,15 @@ http {
             proxy_set_header X-Forwarded-Proto $scheme;
         }
 
-        # Cache static assets and return 404 if not found (no fallback to index.html)
+        # Serve static files directly
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+
+        # Cache static assets
         location ~* \.(css|js|png|jpg|jpeg|gif|svg|ico|woff2?)$ {
             expires 1h;
             add_header Cache-Control "public, no-transform";
-            try_files $uri =404;
-        }
-
-        # Serve static files directly
-        location / {
-            try_files $uri $uri/ =404;
         }
 
         error_page 404 /404.html;
