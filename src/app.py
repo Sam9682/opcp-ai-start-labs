@@ -46,12 +46,17 @@ def create_app():
     @app.route('/<path:filename>')
     def serve_skillhub(filename):
         """Serve SkillHub static files (JS, CSS, HTML pages)"""
-        # Only serve if the file exists in skillhub directory
         file_path = os.path.join(SKILLHUB_DIR, filename)
+        # If it's a file, serve it directly
         if os.path.isfile(file_path):
             return send_from_directory(SKILLHUB_DIR, filename)
-        # If file not found in skillhub, return 404
-        return send_from_directory(SKILLHUB_DIR, 'index.html')
+        # If it's a directory, serve its index.html
+        index_path = os.path.join(file_path, 'index.html')
+        if os.path.isdir(file_path) and os.path.isfile(index_path):
+            return send_from_directory(SKILLHUB_DIR, os.path.join(filename, 'index.html'))
+        # Fallback: 404
+        from flask import abort
+        abort(404)
     
     @app.route('/health')
     def health():
