@@ -1,10 +1,14 @@
 """Main Flask application"""
-from flask import Flask, render_template, jsonify, request, session
+import os
+from flask import Flask, render_template, jsonify, request, session, send_from_directory
 from flask_cors import CORS
 from .config import SECRET_KEY, USER_ID, USER_NAME, USER_EMAIL, DESCRIPTION, PORT
 from .database import init_db, log_page_visit, end_page_visit, get_user_usage
 import uuid
 import time
+
+# Path to the skillhub static website
+SKILLHUB_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'skillhub')
 
 def create_app():
     """Application factory"""
@@ -36,19 +40,18 @@ def create_app():
     
     @app.route('/')
     def index():
-        """Main page displaying user information"""
-        from flask import request
-        user_id_param = request.args.get('user_id')
-        show_admin = user_id_param is not None
-        
-        user_info = {
-            'id': USER_ID,
-            'name': USER_NAME,
-            'email': USER_EMAIL,
-            'description': DESCRIPTION,
-            'port': PORT
-        }
-        return render_template('index.html', user=user_info, show_admin=show_admin)
+        """Serve the SkillHub website index page"""
+        return send_from_directory(SKILLHUB_DIR, 'index.html')
+    
+    @app.route('/<path:filename>')
+    def serve_skillhub(filename):
+        """Serve SkillHub static files (JS, CSS, HTML pages)"""
+        # Only serve if the file exists in skillhub directory
+        file_path = os.path.join(SKILLHUB_DIR, filename)
+        if os.path.isfile(file_path):
+            return send_from_directory(SKILLHUB_DIR, filename)
+        # If file not found in skillhub, return 404
+        return send_from_directory(SKILLHUB_DIR, 'index.html')
     
     @app.route('/health')
     def health():
