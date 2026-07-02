@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.name }} - OPCP OpenStack First Steps</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; background: #f5f5f5; }
+        .card { background: #fff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #333; margin-top: 0; }
+        .info { margin: 10px 0; color: #555; }
+        .info strong { color: #333; }
+        .admin-link { margin-top: 20px; }
+        a { color: #0066cc; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>{{ user.name }}</h1>
+        <p class="info"><strong>ID:</strong> {{ user.id }}</p>
+        <p class="info"><strong>Email:</strong> {{ user.email }}</p>
+        <p class="info"><strong>Description:</strong> {{ user.description }}</p>
+        <p class="info"><strong>Port:</strong> {{ user.port }}</p>
+        {% if show_admin %}
+        <div class="admin-link">
+            <a href="/admin">Admin Panel</a>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

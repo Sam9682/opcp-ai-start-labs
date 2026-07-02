@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing - Usage</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; background: #f5f5f5; }
+        .card { background: #fff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #333; margin-top: 0; }
+        .info { margin: 10px 0; color: #555; }
+        a { color: #0066cc; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Usage &amp; Billing</h1>
+        <p class="info"><strong>User:</strong> {{ user_id }}</p>
+        <p class="info"><strong>Total visits:</strong> {{ usage.total_visits if usage else 0 }}</p>
+        <p class="info"><strong>Total duration:</strong> {{ usage.total_duration if usage else 0 }}s</p>
+        <p><a href="/">← Back</a></p>
+    </div>
+</body>
+</html>
