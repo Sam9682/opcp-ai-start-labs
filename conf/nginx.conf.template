@@ -19,8 +19,7 @@ http {
         ssl_protocols TLSv1.2 TLSv1.3;
         ssl_ciphers HIGH:!aNULL:!MD5;
 
-        root /var/www/html;
-        index index.html;
+        root /usr/share/nginx/html;
 
         # Proxy API and app routes to Flask
         location /api/ {
@@ -52,9 +51,9 @@ http {
             proxy_set_header X-Forwarded-Proto $scheme;
         }
 
-        # Serve static files directly
+        # Serve static files
         location / {
-            try_files $uri $uri/ /index.html;
+            try_files $uri $uri/index.html =404;
         }
 
         # Cache static assets
@@ -62,7 +61,5 @@ http {
             expires 1h;
             add_header Cache-Control "public, no-transform";
         }
-
-        error_page 404 /404.html;
     }
 }
