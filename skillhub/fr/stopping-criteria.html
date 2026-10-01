@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Critères d'arrêt - AI Store Labs</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="site-header" role="banner">
+        <a href="." class="logo" aria-label="Accueil AI Store Labs">
+            <span>AI Store Labs</span>
+        </a>
+
+        <div class="header-actions">
+            <div class="progress-bar-container" aria-label="Progression globale">
+                <span class="progress-label">Progression :</span>
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <span class="progress-percent">0%</span>
+            </div>
+
+            <div class="locale-switcher" role="navigation" aria-label="Sélecteur de langue">
+                <button data-locale="en" aria-label="English">EN</button>
+                <button class="active" data-locale="fr" aria-label="Français">FR</button>
+            </div>
+
+            <button class="hamburger-btn" aria-label="Basculer le menu de navigation" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <aside class="sidebar" role="navigation" aria-label="Navigation des leçons">
+        <div class="sidebar-section" data-track="morning">
+            <h2 class="sidebar-section-title">Matin — Les fondamentaux</h2>
+            <ul class="sidebar-nav" id="nav-morning">
+                <li><a href="assistant-vs-agent.html">De l'assistant à l'agent</a></li>
+                <li><a href="agent-anatomy-7-components.html">Anatomie : les sept composants</a></li>
+                <li><a href="agentic-loop-and-variants.html">La boucle agentique et ses variantes</a></li>
+                <li><a href="stopping-criteria.html" class="active">Critères d'arrêt</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="afternoon">
+            <h2 class="sidebar-section-title">Après-midi — Conception et gouvernance</h2>
+            <ul class="sidebar-nav" id="nav-afternoon">
+                <li><a href="multi-agent-patterns.html">Patrons multi-agents</a></li>
+                <li><a href="when-not-multi-agent.html">Quand éviter le multi-agents</a></li>
+                <li><a href="guardrails-5-layers.html">Garde-fous : cinq couches</a></li>
+                <li><a href="human-in-the-loop-ovhcloud-policy.html">Human-in-the-Loop et politique IA OVHcloud</a></li>
+                <li><a href="threat-modeling-workshop.html">Atelier : modélisation des menaces</a></li>
+                <li><a href="agent-design-capstone.html">Projet final : conception d'agent</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="sandbox">
+            <h2 class="sidebar-section-title">Bac à sable — plateforme opcp-explorer</h2>
+            <ul class="sidebar-nav" id="nav-sandbox">
+                <li><a href="install-bare-metal.html">Installation sur Ubuntu Bare-Metal</a></li>
+                <li><a href="adding-applications.html">Ajout de nouvelles applications</a></li>
+                <li><a href="starting-applications.html">Démarrage des applications</a></li>
+                <li><a href="stopping-applications.html">Arrêt des applications</a></li>
+                <li><a href="making-backups.html">Sauvegardes</a></li>
+                <li><a href="modifying-applications.html">Modification d'applications avec l'IA</a></li>
+                <li><a href="mig-gpu.html">Docker avec GPU MIG</a></li>
+                <li><a href="serverless-execution.html">Exécution Docker Serverless</a></li>
+                <li><a href="billing-cost-tracking.html">Facturation et suivi des coûts</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content" role="main">
+        <div class="lesson-content">
+            <div class="lesson-header">
+                <h1>Critères d'arrêt : prévenir les boucles infinies</h1>
+                <div class="lesson-meta">
+                    <span class="difficulty-badge difficulty-badge--intermediate">Matin · Fondamentaux</span>
+                    <span class="duration">⏱ ~30 min</span>
+                </div>
+            </div>
+            <div class="lesson-body">
+                <p>Un agent qui ne s'arrête jamais est un risque : il consomme des jetons et de l'argent, sature les systèmes en aval, et peut effectuer des actions destructrices en boucle. Un agent fiable a toujours des <strong>critères d'arrêt</strong> bien définis. Cette leçon fait le pont entre la théorie du matin et les garde-fous de l'après-midi.</p>
+
+                <h2>Objectifs pédagogiques</h2>
+                <ul>
+                    <li>Expliquer pourquoi les boucles non bornées sont dangereuses</li>
+                    <li>Lister les grandes catégories de critères d'arrêt</li>
+                    <li>Appliquer des critères d'arrêt à un agent de déploiement opcp-explorer</li>
+                </ul>
+
+                <h2>Pourquoi les boucles s'emballent</h2>
+                <p>Causes fréquentes de boucles emballées :</p>
+                <ul>
+                    <li><strong>Objectif jamais satisfait</strong> — le test de réussite ne peut jamais être vrai (p. ex. attendre un statut qui n'apparaîtra jamais).</li>
+                    <li><strong>Oscillation</strong> — l'agent alterne entre deux actions qui s'annulent (démarrer → arrêter → démarrer).</li>
+                    <li><strong>Échec identique répété</strong> — le même appel d'outil échoue de la même façon, mais l'agent persiste.</li>
+                    <li><strong>Planification dégénérée</strong> — le planificateur ajoute des étapes sans converger.</li>
+                </ul>
+
+                <h2>Catégories de critères d'arrêt</h2>
+                <ol>
+                    <li><strong>Objectif atteint</strong> — une condition de réussite explicite est satisfaite (p. ex. le contrôle de santé renvoie <code>healthy</code>). C'est l'arrêt idéal.</li>
+                    <li><strong>Nombre max d'itérations</strong> — un plafond strict sur les tours de boucle (p. ex. arrêt après 10 étapes).</li>
+                    <li><strong>Limite de budget / coût</strong> — arrêt après N jetons, N appels d'outils ou un plafond de dépense.</li>
+                    <li><strong>Délai d'horloge</strong> — arrêt après une durée fixe, indépendamment des progrès.</li>
+                    <li><strong>Détection d'absence de progrès</strong> — arrêt si l'état n'a pas changé, ou si la même action se répète, sur les K dernières étapes.</li>
+                    <li><strong>Seuil d'erreurs</strong> — arrêt après N échecs consécutifs ou cumulés.</li>
+                    <li><strong>Arrêt humain</strong> — une personne ou un garde-fou (le kill switch) force l'arrêt.</li>
+                </ol>
+
+                <div class="alert alert-info">
+                    <strong>Bonne pratique :</strong> combinez plusieurs critères. Associez toujours l'arrêt idéal (objectif atteint) à au moins une limite stricte (itérations max ou délai) afin que l'agent se termine même lorsque l'objectif est inatteignable.
+                </div>
+
+                <h2>Exemple traité sur opcp-explorer</h2>
+                <p>Un agent de déploiement tente de démarrer une application et de vérifier sa santé. Ses critères d'arrêt :</p>
+                <pre><code>s'arrêter quand :
+  health == "healthy"            # objectif atteint
+  OU tentatives >= 5             # itérations max
+  OU écoulé > 120s               # délai d'horloge
+  OU même_erreur répétée 3x      # seuil d'erreurs
+  OU arrêt_opérateur == vrai     # arrêt humain / kill switch</code></pre>
+                <p>Avec ces critères, le pire cas est borné : l'agent réussit, ou s'arrête en cinq tentatives / deux minutes et explique pourquoi.</p>
+
+                <h2>Rendre compte à l'arrêt</h2>
+                <p>Lorsqu'un agent s'arrête, il doit indiquer <em>quel</em> critère s'est déclenché et l'état final. « Arrêté après 5 tentatives ; dernière erreur : build échoué (dépendance manquante) » est exploitable ; une terminaison silencieuse ne l'est pas. Ce compte rendu est aussi ce que vous annoterez dans le labo de lecture de trace.</p>
+
+                <h2>Points clés à retenir</h2>
+                <ul>
+                    <li>Tout agent a besoin de critères d'arrêt explicites et appliqués.</li>
+                    <li>Associez une condition d'objectif à des limites strictes (itérations, budget, délai) et à des contrôles d'erreur / d'absence de progrès.</li>
+                    <li>À l'arrêt, indiquez quel critère s'est déclenché et l'état final.</li>
+                </ul>
+
+                <div class="alert alert-info">
+                    <strong>Suite :</strong> mettez cela en pratique dans le <strong>labo de lecture de trace</strong>, puis poursuivez avec le parcours de l'après-midi sur les <a href="multi-agent-patterns.html">systèmes multi-agents</a>.
+                </div>
+            </div>
+
+            <button class="btn btn-success btn-mark-complete" data-lesson-id="stopping-criteria">
+                Marquer comme terminé
+            </button>
+        </div>
+    </main>
+</body>
+</html>

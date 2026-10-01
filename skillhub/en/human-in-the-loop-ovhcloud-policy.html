@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Human-in-the-Loop &amp; OVHcloud AI Policy - AI Store Labs</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="site-header" role="banner">
+        <a href="." class="logo" aria-label="AI Store Labs Home">
+            <span>AI Store Labs</span>
+        </a>
+
+        <div class="header-actions">
+            <div class="progress-bar-container" aria-label="Overall progress">
+                <span class="progress-label">Progress:</span>
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <span class="progress-percent">0%</span>
+            </div>
+
+            <div class="locale-switcher" role="navigation" aria-label="Language selector">
+                <button class="active" data-locale="en" aria-label="English">EN</button>
+                <button data-locale="fr" aria-label="Français">FR</button>
+            </div>
+
+            <button class="hamburger-btn" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <aside class="sidebar" role="navigation" aria-label="Lesson navigation">
+        <div class="sidebar-section" data-track="morning">
+            <h2 class="sidebar-section-title">Morning — Fundamentals</h2>
+            <ul class="sidebar-nav" id="nav-morning">
+                <li><a href="assistant-vs-agent.html">From Assistant to Agent</a></li>
+                <li><a href="agent-anatomy-7-components.html">Anatomy: Seven Core Components</a></li>
+                <li><a href="agentic-loop-and-variants.html">The Agentic Loop &amp; Variants</a></li>
+                <li><a href="stopping-criteria.html">Stopping Criteria</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="afternoon">
+            <h2 class="sidebar-section-title">Afternoon — Design &amp; Governance</h2>
+            <ul class="sidebar-nav" id="nav-afternoon">
+                <li><a href="multi-agent-patterns.html">Multi-Agent Patterns</a></li>
+                <li><a href="when-not-multi-agent.html">When Not to Go Multi-Agent</a></li>
+                <li><a href="guardrails-5-layers.html">Guardrails: Five Layers</a></li>
+                <li><a href="human-in-the-loop-ovhcloud-policy.html" class="active">Human-in-the-Loop &amp; OVHcloud AI Policy</a></li>
+                <li><a href="threat-modeling-workshop.html">Workshop: Threat Modeling</a></li>
+                <li><a href="agent-design-capstone.html">Capstone: Agent Design</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="sandbox">
+            <h2 class="sidebar-section-title">Sandbox — opcp-explorer Platform</h2>
+            <ul class="sidebar-nav" id="nav-sandbox">
+                <li><a href="install-bare-metal.html">Installation on Bare-Metal Ubuntu</a></li>
+                <li><a href="adding-applications.html">Adding New Applications</a></li>
+                <li><a href="starting-applications.html">Starting Applications</a></li>
+                <li><a href="stopping-applications.html">Stopping Applications</a></li>
+                <li><a href="making-backups.html">Making Backups</a></li>
+                <li><a href="modifying-applications.html">Modifying Applications with AI</a></li>
+                <li><a href="mig-gpu.html">Docker with MIG GPU</a></li>
+                <li><a href="serverless-execution.html">Serverless Docker Execution</a></li>
+                <li><a href="billing-cost-tracking.html">Billing &amp; Cost Tracking</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content" role="main">
+        <div class="lesson-content">
+            <div class="lesson-header">
+                <h1>Human-in-the-Loop Governance and the OVHcloud AI Policy</h1>
+                <div class="lesson-meta">
+                    <span class="difficulty-badge difficulty-badge--advanced">Afternoon · Design &amp; Governance</span>
+                    <span class="duration">⏱ ~30 min</span>
+                </div>
+            </div>
+            <div class="lesson-body">
+                <p>Guardrails are only as good as the governance around them. This lesson covers human-in-the-loop (HITL) as a governance practice and connects it to responsible-AI principles aligned with the OVHcloud AI Policy.</p>
+
+                <h2>Learning Objectives</h2>
+                <ul>
+                    <li>Distinguish human-in-the-loop, on-the-loop, and out-of-the-loop</li>
+                    <li>Decide which actions require human review</li>
+                    <li>Apply responsible-AI principles aligned with the OVHcloud AI Policy</li>
+                </ul>
+
+                <h2>Three Degrees of Human Oversight</h2>
+                <ul>
+                    <li><strong>Human-in-the-loop</strong> — a person approves actions before they execute. Highest control, lowest throughput.</li>
+                    <li><strong>Human-on-the-loop</strong> — the agent acts autonomously, but a person monitors and can intervene or stop it.</li>
+                    <li><strong>Human-out-of-the-loop</strong> — no runtime human involvement; control is entirely in the pre-set guardrails.</li>
+                </ul>
+                <p>These map directly onto the autonomy spectrum from the morning: higher autonomy moves you from in-the-loop toward out-of-the-loop, and demands stronger pre-set guardrails to compensate.</p>
+
+                <h2>Which Actions Need a Human?</h2>
+                <p>Require human review when an action is:</p>
+                <ul>
+                    <li><strong>Irreversible</strong> — deleting data, tearing down infrastructure.</li>
+                    <li><strong>High-impact</strong> — production changes, spending above a threshold.</li>
+                    <li><strong>Low-confidence</strong> — the agent is uncertain or the situation is novel.</li>
+                    <li><strong>Sensitive</strong> — touching personal data, security, or access controls.</li>
+                </ul>
+
+                <h2>Responsible AI and the OVHcloud AI Policy</h2>
+                <p>The OVHcloud AI Policy frames how AI should be built and operated responsibly. The principles below are summarized for this course; always design against your organization's current, canonical policy document.</p>
+                <ul>
+                    <li><strong>Transparency</strong> — it is clear when AI is acting and what it did (ties to observability).</li>
+                    <li><strong>Human accountability</strong> — a person remains responsible for the agent's actions.</li>
+                    <li><strong>Data protection and privacy</strong> — respect data residency, minimization, and user rights.</li>
+                    <li><strong>Security</strong> — least-privilege access and protection against misuse (ties to permissions).</li>
+                    <li><strong>Fairness and safety</strong> — avoid harmful or discriminatory outcomes.</li>
+                    <li><strong>Controllability</strong> — a human can always oversee, pause, and stop the system (ties to the kill switch).</li>
+                </ul>
+
+                <div class="alert alert-info">
+                    <strong>Canonical source:</strong> this is a teaching summary. Confirm the exact wording and obligations against the official OVHcloud AI Policy published by your organization before relying on it in a design.
+                </div>
+
+                <h2>From Principles to Controls</h2>
+                <p>Responsible-AI principles are not abstract: each maps to a guardrail layer you can implement. Transparency and accountability map to observability; security and privacy to permissions; controllability to the kill switch and human approval. The afternoon workshops turn these mappings into a concrete design.</p>
+
+                <h2>Key Takeaways</h2>
+                <ul>
+                    <li>Oversight comes in degrees: in-the-loop, on-the-loop, out-of-the-loop.</li>
+                    <li>Require human review for irreversible, high-impact, low-confidence, or sensitive actions.</li>
+                    <li>Responsible-AI principles map directly onto the five guardrail layers.</li>
+                </ul>
+
+                <div class="alert alert-info">
+                    <strong>Next:</strong> apply all of this in the <a href="threat-modeling-workshop.html">threat-modeling workshop</a>, then the <a href="agent-design-capstone.html">end-to-end design capstone</a>.
+                </div>
+            </div>
+
+            <button class="btn btn-success btn-mark-complete" data-lesson-id="human-in-the-loop-ovhcloud-policy">
+                Mark as Complete
+            </button>
+        </div>
+    </main>
+</body>
+</html>

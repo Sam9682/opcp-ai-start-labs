@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Systèmes multi-agents - AI Store Labs</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="site-header" role="banner">
+        <a href="." class="logo" aria-label="Accueil AI Store Labs">
+            <span>AI Store Labs</span>
+        </a>
+
+        <div class="header-actions">
+            <div class="progress-bar-container" aria-label="Progression globale">
+                <span class="progress-label">Progression :</span>
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <span class="progress-percent">0%</span>
+            </div>
+
+            <div class="locale-switcher" role="navigation" aria-label="Sélecteur de langue">
+                <button data-locale="en" aria-label="English">EN</button>
+                <button class="active" data-locale="fr" aria-label="Français">FR</button>
+            </div>
+
+            <button class="hamburger-btn" aria-label="Basculer le menu de navigation" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <aside class="sidebar" role="navigation" aria-label="Navigation des leçons">
+        <div class="sidebar-section" data-track="morning">
+            <h2 class="sidebar-section-title">Matin — Les fondamentaux</h2>
+            <ul class="sidebar-nav" id="nav-morning">
+                <li><a href="assistant-vs-agent.html">De l'assistant à l'agent</a></li>
+                <li><a href="agent-anatomy-7-components.html">Anatomie : les sept composants</a></li>
+                <li><a href="agentic-loop-and-variants.html">La boucle agentique et ses variantes</a></li>
+                <li><a href="stopping-criteria.html">Critères d'arrêt</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="afternoon">
+            <h2 class="sidebar-section-title">Après-midi — Conception et gouvernance</h2>
+            <ul class="sidebar-nav" id="nav-afternoon">
+                <li><a href="multi-agent-patterns.html" class="active">Patrons multi-agents</a></li>
+                <li><a href="when-not-multi-agent.html">Quand éviter le multi-agents</a></li>
+                <li><a href="guardrails-5-layers.html">Garde-fous : cinq couches</a></li>
+                <li><a href="human-in-the-loop-ovhcloud-policy.html">Human-in-the-Loop et politique IA OVHcloud</a></li>
+                <li><a href="threat-modeling-workshop.html">Atelier : modélisation des menaces</a></li>
+                <li><a href="agent-design-capstone.html">Projet final : conception d'agent</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="sandbox">
+            <h2 class="sidebar-section-title">Bac à sable — plateforme opcp-explorer</h2>
+            <ul class="sidebar-nav" id="nav-sandbox">
+                <li><a href="install-bare-metal.html">Installation sur Ubuntu Bare-Metal</a></li>
+                <li><a href="adding-applications.html">Ajout de nouvelles applications</a></li>
+                <li><a href="starting-applications.html">Démarrage des applications</a></li>
+                <li><a href="stopping-applications.html">Arrêt des applications</a></li>
+                <li><a href="making-backups.html">Sauvegardes</a></li>
+                <li><a href="modifying-applications.html">Modification d'applications avec l'IA</a></li>
+                <li><a href="mig-gpu.html">Docker avec GPU MIG</a></li>
+                <li><a href="serverless-execution.html">Exécution Docker Serverless</a></li>
+                <li><a href="billing-cost-tracking.html">Facturation et suivi des coûts</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content" role="main">
+        <div class="lesson-content">
+            <div class="lesson-header">
+                <h1>Systèmes multi-agents : quatre patrons d'architecture</h1>
+                <div class="lesson-meta">
+                    <span class="difficulty-badge difficulty-badge--advanced">Après-midi · Conception et gouvernance</span>
+                    <span class="duration">⏱ ~45 min</span>
+                </div>
+            </div>
+            <div class="lesson-body">
+                <p>Quand un seul agent ne suffit pas, on décompose le problème entre plusieurs agents spécialisés. Cette leçon explique pourquoi le faire, les quatre patrons d'architecture pour organiser plusieurs agents, et comment ils communiquent.</p>
+
+                <h2>Objectifs pédagogiques</h2>
+                <ul>
+                    <li>Expliquer pourquoi et quand décomposer une tâche entre agents</li>
+                    <li>Reconnaître les quatre patrons d'architecture multi-agents</li>
+                    <li>Décrire comment les agents communiquent entre eux</li>
+                </ul>
+
+                <h2>Pourquoi décomposer ?</h2>
+                <ul>
+                    <li><strong>Spécialisation</strong> — un agent ciblé, avec une boîte à outils et une invite étroites, surpasse un généraliste sur sa sous-tâche.</li>
+                    <li><strong>Séparation des responsabilités</strong> — des agents plus petits sont plus faciles à tester, à borner et à raisonner.</li>
+                    <li><strong>Parallélisme</strong> — des sous-tâches indépendantes s'exécutent en même temps.</li>
+                    <li><strong>Permissions restreintes</strong> — chaque agent reçoit uniquement les outils et portées requis, réduisant le rayon d'impact.</li>
+                </ul>
+
+                <h2>Les quatre patrons</h2>
+
+                <h3>1. Superviseur (orchestrateur–ouvrier)</h3>
+                <p>Un agent superviseur décompose l'objectif et délègue des sous-tâches à des agents ouvriers, puis intègre leurs résultats. Sur opcp-explorer, un superviseur pourrait déléguer « construire l'image » et « vérifier la santé » à deux ouvriers.</p>
+                <pre><code>flowchart TD
+    S[Superviseur] --> W1[Ouvrier : déployer]
+    S --> W2[Ouvrier : vérifier]
+    W1 --> S
+    W2 --> S</code></pre>
+
+                <h3>2. Pipeline (séquentiel)</h3>
+                <p>Les agents sont disposés en chaîne ; la sortie de chacun est l'entrée du suivant. Idéal pour des flux étagés où l'ordre compte.</p>
+                <pre><code>flowchart LR
+    A[Planifier] --> B[Déployer] --> C[Vérifier] --> D[Rapporter]</code></pre>
+
+                <h3>3. Parallèle (éclatement / regroupement)</h3>
+                <p>Un coordinateur éclate une tâche vers plusieurs agents travaillant simultanément, puis agrège (regroupe) leurs résultats. Idéal pour des sous-tâches indépendantes comme vérifier la santé de nombreuses apps en même temps.</p>
+                <pre><code>flowchart TD
+    C[Coordinateur] --> A1[Agent 1]
+    C --> A2[Agent 2]
+    C --> A3[Agent 3]
+    A1 --> M[Agréger]
+    A2 --> M
+    A3 --> M</code></pre>
+
+                <h3>4. Réseau (pair-à-pair)</h3>
+                <p>Les agents communiquent en pairs sans contrôleur central, négociant ou votant pour aboutir à un résultat. Le plus flexible, le plus difficile à gouverner et à déboguer.</p>
+                <pre><code>flowchart LR
+    P1[Agent A] <--> P2[Agent B]
+    P2 <--> P3[Agent C]
+    P1 <--> P3</code></pre>
+
+                <h2>Communication inter-agents</h2>
+                <p>Quel que soit l'agencement des agents, ils échangent de l'information via l'un de ces mécanismes :</p>
+                <ul>
+                    <li><strong>Messages</strong> — requêtes/réponses structurées passées directement entre agents.</li>
+                    <li><strong>Mémoire partagée / tableau noir</strong> — un stockage commun que les agents lisent et écrivent.</li>
+                    <li><strong>Résultats d'outils</strong> — la sortie d'un agent exposée à un autre comme un outil.</li>
+                    <li><strong>Transfert (handoff)</strong> — un agent transfère le contrôle (et le contexte) à un autre.</li>
+                </ul>
+                <p>Des schémas de messages clairs et des transferts explicites gardent les systèmes multi-agents observables — ce qui importe pour la leçon sur les garde-fous.</p>
+
+                <h2>Points clés à retenir</h2>
+                <ul>
+                    <li>Décomposer pour la spécialisation, la séparation, le parallélisme et les permissions restreintes.</li>
+                    <li>Quatre patrons : superviseur, pipeline, parallèle, réseau.</li>
+                    <li>Les agents communiquent via messages, mémoire partagée, résultats d'outils ou transfert.</li>
+                </ul>
+
+                <div class="alert alert-info">
+                    <strong>Suite :</strong> <a href="when-not-multi-agent.html">Quand ne pas utiliser une architecture multi-agents</a>.
+                </div>
+            </div>
+
+            <button class="btn btn-success btn-mark-complete" data-lesson-id="multi-agent-patterns">
+                Marquer comme terminé
+            </button>
+        </div>
+    </main>
+</body>
+</html>

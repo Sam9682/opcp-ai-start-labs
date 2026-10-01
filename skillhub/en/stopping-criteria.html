@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopping Criteria - AI Store Labs</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="site-header" role="banner">
+        <a href="." class="logo" aria-label="AI Store Labs Home">
+            <span>AI Store Labs</span>
+        </a>
+
+        <div class="header-actions">
+            <div class="progress-bar-container" aria-label="Overall progress">
+                <span class="progress-label">Progress:</span>
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <span class="progress-percent">0%</span>
+            </div>
+
+            <div class="locale-switcher" role="navigation" aria-label="Language selector">
+                <button class="active" data-locale="en" aria-label="English">EN</button>
+                <button data-locale="fr" aria-label="Français">FR</button>
+            </div>
+
+            <button class="hamburger-btn" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <aside class="sidebar" role="navigation" aria-label="Lesson navigation">
+        <div class="sidebar-section" data-track="morning">
+            <h2 class="sidebar-section-title">Morning — Fundamentals</h2>
+            <ul class="sidebar-nav" id="nav-morning">
+                <li><a href="assistant-vs-agent.html">From Assistant to Agent</a></li>
+                <li><a href="agent-anatomy-7-components.html">Anatomy: Seven Core Components</a></li>
+                <li><a href="agentic-loop-and-variants.html">The Agentic Loop &amp; Variants</a></li>
+                <li><a href="stopping-criteria.html" class="active">Stopping Criteria</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="afternoon">
+            <h2 class="sidebar-section-title">Afternoon — Design &amp; Governance</h2>
+            <ul class="sidebar-nav" id="nav-afternoon">
+                <li><a href="multi-agent-patterns.html">Multi-Agent Patterns</a></li>
+                <li><a href="when-not-multi-agent.html">When Not to Go Multi-Agent</a></li>
+                <li><a href="guardrails-5-layers.html">Guardrails: Five Layers</a></li>
+                <li><a href="human-in-the-loop-ovhcloud-policy.html">Human-in-the-Loop &amp; OVHcloud AI Policy</a></li>
+                <li><a href="threat-modeling-workshop.html">Workshop: Threat Modeling</a></li>
+                <li><a href="agent-design-capstone.html">Capstone: Agent Design</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="sandbox">
+            <h2 class="sidebar-section-title">Sandbox — opcp-explorer Platform</h2>
+            <ul class="sidebar-nav" id="nav-sandbox">
+                <li><a href="install-bare-metal.html">Installation on Bare-Metal Ubuntu</a></li>
+                <li><a href="adding-applications.html">Adding New Applications</a></li>
+                <li><a href="starting-applications.html">Starting Applications</a></li>
+                <li><a href="stopping-applications.html">Stopping Applications</a></li>
+                <li><a href="making-backups.html">Making Backups</a></li>
+                <li><a href="modifying-applications.html">Modifying Applications with AI</a></li>
+                <li><a href="mig-gpu.html">Docker with MIG GPU</a></li>
+                <li><a href="serverless-execution.html">Serverless Docker Execution</a></li>
+                <li><a href="billing-cost-tracking.html">Billing &amp; Cost Tracking</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content" role="main">
+        <div class="lesson-content">
+            <div class="lesson-header">
+                <h1>Stopping Criteria: Preventing Infinite Loops</h1>
+                <div class="lesson-meta">
+                    <span class="difficulty-badge difficulty-badge--intermediate">Morning · Fundamentals</span>
+                    <span class="duration">⏱ ~30 min</span>
+                </div>
+            </div>
+            <div class="lesson-body">
+                <p>An agent that never stops is a liability: it burns tokens and money, hammers downstream systems, and can take destructive actions in a loop. A reliable agent always has well-defined <strong>stopping criteria</strong>. This lesson is the bridge between the morning theory and the afternoon's guardrails.</p>
+
+                <h2>Learning Objectives</h2>
+                <ul>
+                    <li>Explain why unbounded loops are dangerous</li>
+                    <li>List the main categories of stopping criteria</li>
+                    <li>Apply stopping criteria to an opcp-explorer deployment agent</li>
+                </ul>
+
+                <h2>Why Loops Run Away</h2>
+                <p>Common causes of runaway loops:</p>
+                <ul>
+                    <li><strong>Goal never satisfied</strong> — the success check can never be true (e.g., waiting for a status that will never appear).</li>
+                    <li><strong>Oscillation</strong> — the agent flips between two actions that undo each other (start → stop → start).</li>
+                    <li><strong>Repeated identical failure</strong> — the same tool call fails the same way, but the agent keeps retrying.</li>
+                    <li><strong>Degenerate planning</strong> — the planner keeps adding steps without converging.</li>
+                </ul>
+
+                <h2>Categories of Stopping Criteria</h2>
+                <ol>
+                    <li><strong>Goal achieved</strong> — an explicit success condition is met (e.g., health check returns <code>healthy</code>). This is the ideal stop.</li>
+                    <li><strong>Max iterations</strong> — a hard cap on loop turns (e.g., stop after 10 steps).</li>
+                    <li><strong>Budget / cost limit</strong> — stop after N tokens, N tool calls, or a spend ceiling.</li>
+                    <li><strong>Wall-clock timeout</strong> — stop after a fixed duration regardless of progress.</li>
+                    <li><strong>No-progress detection</strong> — stop if the state has not changed, or the same action repeats, over the last K steps.</li>
+                    <li><strong>Error threshold</strong> — stop after N consecutive or total failures.</li>
+                    <li><strong>Human halt</strong> — a person or a guardrail (the kill switch) forces a stop.</li>
+                </ol>
+
+                <div class="alert alert-info">
+                    <strong>Best practice:</strong> combine several criteria. Always pair the ideal stop (goal achieved) with at least one hard limit (max iterations or timeout) so the agent terminates even when the goal is unreachable.
+                </div>
+
+                <h2>Worked Example on opcp-explorer</h2>
+                <p>A deployment agent tries to start an application and verify its health. Its stopping criteria:</p>
+                <pre><code>stop when:
+  health == "healthy"            # goal achieved
+  OR attempts >= 5               # max iterations
+  OR elapsed > 120s              # wall-clock timeout
+  OR same_error repeated 3x      # error threshold
+  OR operator_halt == true       # human halt / kill switch</code></pre>
+                <p>With these in place, the worst case is bounded: the agent either succeeds, or stops within five attempts / two minutes and reports why.</p>
+
+                <h2>Reporting on Stop</h2>
+                <p>When an agent stops, it should report <em>which</em> criterion fired and the final state. "Stopped after 5 attempts; last error: build failed (missing dependency)" is actionable; silent termination is not. This report is also what you will annotate in the trace-reading lab.</p>
+
+                <h2>Key Takeaways</h2>
+                <ul>
+                    <li>Every agent needs explicit, enforced stopping criteria.</li>
+                    <li>Pair a goal condition with hard limits (iterations, budget, timeout) and error/no-progress checks.</li>
+                    <li>On stop, report which criterion fired and the final state.</li>
+                </ul>
+
+                <div class="alert alert-info">
+                    <strong>Next:</strong> put this into practice in the hands-on <strong>trace-reading lab</strong>, then continue to the afternoon track on <a href="multi-agent-patterns.html">multi-agent systems</a>.
+                </div>
+            </div>
+
+            <button class="btn btn-success btn-mark-complete" data-lesson-id="stopping-criteria">
+                Mark as Complete
+            </button>
+        </div>
+    </main>
+</body>
+</html>

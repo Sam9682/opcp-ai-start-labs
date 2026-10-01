@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projet final : concevoir un agent IA de bout en bout - AI Store Labs</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="site-header" role="banner">
+        <a href="." class="logo" aria-label="Accueil AI Store Labs">
+            <span>AI Store Labs</span>
+        </a>
+
+        <div class="header-actions">
+            <div class="progress-bar-container" aria-label="Progression globale">
+                <span class="progress-label">Progression :</span>
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <span class="progress-percent">0%</span>
+            </div>
+
+            <div class="locale-switcher" role="navigation" aria-label="Sélecteur de langue">
+                <button data-locale="en" aria-label="English">EN</button>
+                <button class="active" data-locale="fr" aria-label="Français">FR</button>
+            </div>
+
+            <button class="hamburger-btn" aria-label="Basculer le menu de navigation" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <aside class="sidebar" role="navigation" aria-label="Navigation des leçons">
+        <div class="sidebar-section" data-track="morning">
+            <h2 class="sidebar-section-title">Matin — Les fondamentaux</h2>
+            <ul class="sidebar-nav" id="nav-morning">
+                <li><a href="assistant-vs-agent.html">De l'assistant à l'agent</a></li>
+                <li><a href="agent-anatomy-7-components.html">Anatomie : les sept composants</a></li>
+                <li><a href="agentic-loop-and-variants.html">La boucle agentique et ses variantes</a></li>
+                <li><a href="stopping-criteria.html">Critères d'arrêt</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="afternoon">
+            <h2 class="sidebar-section-title">Après-midi — Conception et gouvernance</h2>
+            <ul class="sidebar-nav" id="nav-afternoon">
+                <li><a href="multi-agent-patterns.html">Patrons multi-agents</a></li>
+                <li><a href="when-not-multi-agent.html">Quand éviter le multi-agents</a></li>
+                <li><a href="guardrails-5-layers.html">Garde-fous : cinq couches</a></li>
+                <li><a href="human-in-the-loop-ovhcloud-policy.html">Human-in-the-Loop et politique IA OVHcloud</a></li>
+                <li><a href="threat-modeling-workshop.html">Atelier : modélisation des menaces</a></li>
+                <li><a href="agent-design-capstone.html" class="active">Projet final : conception d'agent</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="sandbox">
+            <h2 class="sidebar-section-title">Bac à sable — plateforme opcp-explorer</h2>
+            <ul class="sidebar-nav" id="nav-sandbox">
+                <li><a href="install-bare-metal.html">Installation sur Ubuntu Bare-Metal</a></li>
+                <li><a href="adding-applications.html">Ajout de nouvelles applications</a></li>
+                <li><a href="starting-applications.html">Démarrage des applications</a></li>
+                <li><a href="stopping-applications.html">Arrêt des applications</a></li>
+                <li><a href="making-backups.html">Sauvegardes</a></li>
+                <li><a href="modifying-applications.html">Modification d'applications avec l'IA</a></li>
+                <li><a href="mig-gpu.html">Docker avec GPU MIG</a></li>
+                <li><a href="serverless-execution.html">Exécution Docker Serverless</a></li>
+                <li><a href="billing-cost-tracking.html">Facturation et suivi des coûts</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content" role="main">
+        <div class="lesson-content">
+            <div class="lesson-header">
+                <h1>Projet final : concevoir un agent IA de bout en bout</h1>
+                <div class="lesson-meta">
+                    <span class="difficulty-badge difficulty-badge--advanced">Après-midi · Projet final</span>
+                    <span class="duration">⏱ ~60 min</span>
+                </div>
+            </div>
+            <div class="lesson-body">
+                <p>Ceci est le livrable final de la session. Vous concevrez un agent IA complet opérant sur opcp-explorer, en réunissant tout ce qui a été vu dans la journée : les sept composants, une variante de boucle et des critères d'arrêt, une décision multi-agents, et les cinq couches de garde-fous. Le résultat est un livrable de conception d'agent complété et documenté.</p>
+
+                <h2>Objectifs pédagogiques</h2>
+                <ul>
+                    <li>Produire une conception entièrement documentée d'un agent fonctionnel, fiable et contrôlable</li>
+                    <li>Justifier chaque choix de conception à l'aune des concepts de la journée</li>
+                    <li>Confirmer que la conception couvre les cinq couches de garde-fous</li>
+                </ul>
+
+                <h2>Prérequis</h2>
+                <ul>
+                    <li>Terminé : l'intégralité des parcours du matin et de l'après-midi</li>
+                    <li>Terminé : l'<a href="threat-modeling-workshop.html">atelier de modélisation des menaces</a></li>
+                    <li>Le labo de connectivité opcp-explorer (pour ancrer les outils de votre agent)</li>
+                </ul>
+
+                <h2>Ce que vous allez construire</h2>
+                <p>Un document de conception pour un agent opcp-explorer de votre choix — par exemple un agent de déploiement et vérification, un agent de sauvegarde ou un agent de surveillance des coûts. Utilisez le modèle et conservez ses titres.</p>
+
+                <div class="deliverable-callout alert alert-info">
+                    <strong>Livrable :</strong> complétez <code>deliverables/agent-design-template.fr.md</code> (ou <code>.md</code>). C'est votre artefact final à rendre.
+                </div>
+
+                <h2>Étapes de conception</h2>
+                <ol>
+                    <li><strong>Objectif &amp; autonomie</strong> — énoncez l'objectif et situez l'agent sur le spectre d'autonomie.</li>
+                    <li><strong>Sept composants</strong> — spécifiez cerveau, mémoires court et long terme, outils, planificateur, boucle d'exécution et garde-fous.</li>
+                    <li><strong>Variante de boucle &amp; critères d'arrêt</strong> — choisissez ReAct / Plan-and-Execute / Reflexion et définissez des arrêts explicites.</li>
+                    <li><strong>Décision multi-agents</strong> — un ou plusieurs agents ? Justifiez avec la liste de décision.</li>
+                    <li><strong>Garde-fous</strong> — un contrôle concret pour chacune des cinq couches.</li>
+                    <li><strong>Alignement IA responsable</strong> — mappez transparence, responsabilité, protection des données, sécurité et contrôlabilité.</li>
+                </ol>
+
+                <h2>Grille d'évaluation</h2>
+                <p>Votre conception doit satisfaire chaque objectif pédagogique de la session :</p>
+                <ul>
+                    <li>Assistant vs agent et le bon niveau d'autonomie — traité dans objectif &amp; autonomie.</li>
+                    <li>Les sept composants et leurs rôles — chacun spécifié.</li>
+                    <li>La boucle agentique (Penser → Agir → Observer) — variante choisie et justifiée.</li>
+                    <li>Sélection d'un patron multi-agents — décision prise et justifiée.</li>
+                    <li>Garde-fous (les cinq couches) — un contrôle pour chaque, confirmé ci-dessous.</li>
+                    <li>IA responsable alignée sur la politique IA OVHcloud — mapping complété.</li>
+                </ul>
+
+                <h2>Auto-évaluation : la conception couvre les cinq couches</h2>
+                <p>Cochez chaque couche une fois que votre document de conception spécifie un contrôle concret pour elle. Les cinq sont requises pour marquer le projet final comme terminé.</p>
+                <div class="self-assessment" id="guardrail-self-assessment">
+                    <ul class="guardrail-checklist">
+                        <li><label><input type="checkbox" class="guardrail-check" data-layer="permissions"> Permissions — jeton restreint / liste d'outils / frontière d'environnement</label></li>
+                        <li><label><input type="checkbox" class="guardrail-check" data-layer="operational-limits"> Limites opérationnelles — plafonds itérations / reprises / budget / délai</label></li>
+                        <li><label><input type="checkbox" class="guardrail-check" data-layer="human-approval"> Approbation humaine — quelles actions exigent un oui humain</label></li>
+                        <li><label><input type="checkbox" class="guardrail-check" data-layer="observability"> Observabilité — traces, logs, alertes</label></li>
+                        <li><label><input type="checkbox" class="guardrail-check" data-layer="kill-switch"> Kill switch — arrêt immédiat et révocation d'accès</label></li>
+                    </ul>
+                    <p class="assessment-result" role="status" aria-live="polite"></p>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>Amélioration future :</strong> un formulaire interactif SkillHub générant ce document de conception à partir d'entrées guidées est prévu. Pour l'instant, le modèle markdown est le livrable canonique.
+                </div>
+
+                <button class="btn btn-success btn-mark-complete" data-lesson-id="agent-design-capstone" disabled>
+                    Marquer comme terminé
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initGuardrailChecklist } from '../js/self-assessment.js';
+        const container = document.getElementById('guardrail-self-assessment');
+        const resultEl = container.querySelector('.assessment-result');
+        const completeBtn = document.querySelector('.btn-mark-complete');
+        initGuardrailChecklist({ container, resultEl, completeBtn, locale: 'fr' });
+    </script>
+</body>
+</html>

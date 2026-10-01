@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quand éviter le multi-agents - AI Store Labs</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="site-header" role="banner">
+        <a href="." class="logo" aria-label="Accueil AI Store Labs">
+            <span>AI Store Labs</span>
+        </a>
+
+        <div class="header-actions">
+            <div class="progress-bar-container" aria-label="Progression globale">
+                <span class="progress-label">Progression :</span>
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <span class="progress-percent">0%</span>
+            </div>
+
+            <div class="locale-switcher" role="navigation" aria-label="Sélecteur de langue">
+                <button data-locale="en" aria-label="English">EN</button>
+                <button class="active" data-locale="fr" aria-label="Français">FR</button>
+            </div>
+
+            <button class="hamburger-btn" aria-label="Basculer le menu de navigation" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <aside class="sidebar" role="navigation" aria-label="Navigation des leçons">
+        <div class="sidebar-section" data-track="morning">
+            <h2 class="sidebar-section-title">Matin — Les fondamentaux</h2>
+            <ul class="sidebar-nav" id="nav-morning">
+                <li><a href="assistant-vs-agent.html">De l'assistant à l'agent</a></li>
+                <li><a href="agent-anatomy-7-components.html">Anatomie : les sept composants</a></li>
+                <li><a href="agentic-loop-and-variants.html">La boucle agentique et ses variantes</a></li>
+                <li><a href="stopping-criteria.html">Critères d'arrêt</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="afternoon">
+            <h2 class="sidebar-section-title">Après-midi — Conception et gouvernance</h2>
+            <ul class="sidebar-nav" id="nav-afternoon">
+                <li><a href="multi-agent-patterns.html">Patrons multi-agents</a></li>
+                <li><a href="when-not-multi-agent.html" class="active">Quand éviter le multi-agents</a></li>
+                <li><a href="guardrails-5-layers.html">Garde-fous : cinq couches</a></li>
+                <li><a href="human-in-the-loop-ovhcloud-policy.html">Human-in-the-Loop et politique IA OVHcloud</a></li>
+                <li><a href="threat-modeling-workshop.html">Atelier : modélisation des menaces</a></li>
+                <li><a href="agent-design-capstone.html">Projet final : conception d'agent</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="sandbox">
+            <h2 class="sidebar-section-title">Bac à sable — plateforme opcp-explorer</h2>
+            <ul class="sidebar-nav" id="nav-sandbox">
+                <li><a href="install-bare-metal.html">Installation sur Ubuntu Bare-Metal</a></li>
+                <li><a href="adding-applications.html">Ajout de nouvelles applications</a></li>
+                <li><a href="starting-applications.html">Démarrage des applications</a></li>
+                <li><a href="stopping-applications.html">Arrêt des applications</a></li>
+                <li><a href="making-backups.html">Sauvegardes</a></li>
+                <li><a href="modifying-applications.html">Modification d'applications avec l'IA</a></li>
+                <li><a href="mig-gpu.html">Docker avec GPU MIG</a></li>
+                <li><a href="serverless-execution.html">Exécution Docker Serverless</a></li>
+                <li><a href="billing-cost-tracking.html">Facturation et suivi des coûts</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content" role="main">
+        <div class="lesson-content">
+            <div class="lesson-header">
+                <h1>Quand ne pas utiliser une architecture multi-agents</h1>
+                <div class="lesson-meta">
+                    <span class="difficulty-badge difficulty-badge--advanced">Après-midi · Conception et gouvernance</span>
+                    <span class="duration">⏱ ~30 min</span>
+                </div>
+            </div>
+            <div class="lesson-body">
+                <p>Les systèmes multi-agents sont puissants, mais ils ajoutent des coûts de coordination, des dépenses et de nouveaux modes de défaillance. Souvent, un unique agent bien conçu est le meilleur choix d'ingénierie. Cette leçon donne des repères pratiques pour décider.</p>
+
+                <h2>Objectifs pédagogiques</h2>
+                <ul>
+                    <li>Reconnaître les coûts introduits par une conception multi-agents</li>
+                    <li>Appliquer une liste de décision agent unique vs multi-agents</li>
+                    <li>Privilégier par défaut l'architecture la plus simple qui fonctionne</li>
+                </ul>
+
+                <h2>Les coûts cachés du multi-agents</h2>
+                <ul>
+                    <li><strong>Coût de coordination</strong> — messages, transferts et état partagé ajoutent latence et complexité.</li>
+                    <li><strong>Multiplication des coûts</strong> — chaque agent exécute sa propre boucle et consomme ses propres jetons.</li>
+                    <li><strong>Propagation des erreurs</strong> — la mauvaise sortie d'un agent corrompt silencieusement le suivant.</li>
+                    <li><strong>Observabilité plus difficile</strong> — une défaillance se répartit sur plusieurs traces au lieu d'une seule.</li>
+                    <li><strong>Comportement émergent</strong> — des agents pair-à-pair peuvent boucler ou se bloquer d'une façon qu'aucun composant n'avait prévue.</li>
+                </ul>
+
+                <h2>Préférez un agent unique quand…</h2>
+                <ul>
+                    <li>La tâche est essentiellement séquentielle et tient dans le contexte d'un agent.</li>
+                    <li>Les sous-tâches partagent la plupart des mêmes outils et du même état.</li>
+                    <li>Les budgets de latence ou de coût sont serrés.</li>
+                    <li>Vous avez besoin d'une trace unique et facile à auditer (p. ex. un flux réglementé).</li>
+                    <li>L'équipe valide encore la fiabilité de l'agent.</li>
+                </ul>
+
+                <h2>Envisagez le multi-agents seulement quand…</h2>
+                <ul>
+                    <li>Les sous-tâches nécessitent réellement des spécialisations ou des outils différents.</li>
+                    <li>Des sous-tâches indépendantes peuvent s'exécuter en parallèle pour un gain réel.</li>
+                    <li>Vous voulez imposer des portées de permissions différentes par rôle.</li>
+                    <li>La fenêtre de contexte d'un seul agent ne peut pas contenir toute la tâche.</li>
+                </ul>
+
+                <h2>Liste de décision</h2>
+                <pre><code>flowchart TD
+    Q1{Spécialisations ou<br/>outils différents ?} -->|non| Single[Utiliser UN agent]
+    Q1 -->|oui| Q2{Parallélisme réel<br/>ou isolation de portée ?}
+    Q2 -->|non| Single
+    Q2 -->|oui| Q3{Vaut le coût de coordination<br/>+ observabilité ?}
+    Q3 -->|non| Single
+    Q3 -->|oui| Multi[Utiliser PLUSIEURS agents]</code></pre>
+
+                <div class="alert alert-info">
+                    <strong>Règle empirique :</strong> commencez avec un seul agent. Ne divisez en plusieurs que lorsqu'un besoin concret — spécialisation, parallélisme ou isolation de portée — justifie le coût supplémentaire.
+                </div>
+
+                <h2>Points clés à retenir</h2>
+                <ul>
+                    <li>Le multi-agents ajoute coordination, coût et nouveaux modes de défaillance.</li>
+                    <li>Par défaut, un seul agent ; divisez seulement pour un besoin concret et justifié.</li>
+                    <li>La simplicité favorise la fiabilité, l'observabilité et la gouvernance.</li>
+                </ul>
+
+                <div class="alert alert-info">
+                    <strong>Suite :</strong> <a href="guardrails-5-layers.html">Garde-fous : les cinq couches de contrôle</a>.
+                </div>
+            </div>
+
+            <button class="btn btn-success btn-mark-complete" data-lesson-id="when-not-multi-agent">
+                Marquer comme terminé
+            </button>
+        </div>
+    </main>
+</body>
+</html>

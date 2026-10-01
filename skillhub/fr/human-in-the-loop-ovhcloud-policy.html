@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Human-in-the-Loop et politique IA OVHcloud - AI Store Labs</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="site-header" role="banner">
+        <a href="." class="logo" aria-label="Accueil AI Store Labs">
+            <span>AI Store Labs</span>
+        </a>
+
+        <div class="header-actions">
+            <div class="progress-bar-container" aria-label="Progression globale">
+                <span class="progress-label">Progression :</span>
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <span class="progress-percent">0%</span>
+            </div>
+
+            <div class="locale-switcher" role="navigation" aria-label="Sélecteur de langue">
+                <button data-locale="en" aria-label="English">EN</button>
+                <button class="active" data-locale="fr" aria-label="Français">FR</button>
+            </div>
+
+            <button class="hamburger-btn" aria-label="Basculer le menu de navigation" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <aside class="sidebar" role="navigation" aria-label="Navigation des leçons">
+        <div class="sidebar-section" data-track="morning">
+            <h2 class="sidebar-section-title">Matin — Les fondamentaux</h2>
+            <ul class="sidebar-nav" id="nav-morning">
+                <li><a href="assistant-vs-agent.html">De l'assistant à l'agent</a></li>
+                <li><a href="agent-anatomy-7-components.html">Anatomie : les sept composants</a></li>
+                <li><a href="agentic-loop-and-variants.html">La boucle agentique et ses variantes</a></li>
+                <li><a href="stopping-criteria.html">Critères d'arrêt</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="afternoon">
+            <h2 class="sidebar-section-title">Après-midi — Conception et gouvernance</h2>
+            <ul class="sidebar-nav" id="nav-afternoon">
+                <li><a href="multi-agent-patterns.html">Patrons multi-agents</a></li>
+                <li><a href="when-not-multi-agent.html">Quand éviter le multi-agents</a></li>
+                <li><a href="guardrails-5-layers.html">Garde-fous : cinq couches</a></li>
+                <li><a href="human-in-the-loop-ovhcloud-policy.html" class="active">Human-in-the-Loop et politique IA OVHcloud</a></li>
+                <li><a href="threat-modeling-workshop.html">Atelier : modélisation des menaces</a></li>
+                <li><a href="agent-design-capstone.html">Projet final : conception d'agent</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="sandbox">
+            <h2 class="sidebar-section-title">Bac à sable — plateforme opcp-explorer</h2>
+            <ul class="sidebar-nav" id="nav-sandbox">
+                <li><a href="install-bare-metal.html">Installation sur Ubuntu Bare-Metal</a></li>
+                <li><a href="adding-applications.html">Ajout de nouvelles applications</a></li>
+                <li><a href="starting-applications.html">Démarrage des applications</a></li>
+                <li><a href="stopping-applications.html">Arrêt des applications</a></li>
+                <li><a href="making-backups.html">Sauvegardes</a></li>
+                <li><a href="modifying-applications.html">Modification d'applications avec l'IA</a></li>
+                <li><a href="mig-gpu.html">Docker avec GPU MIG</a></li>
+                <li><a href="serverless-execution.html">Exécution Docker Serverless</a></li>
+                <li><a href="billing-cost-tracking.html">Facturation et suivi des coûts</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content" role="main">
+        <div class="lesson-content">
+            <div class="lesson-header">
+                <h1>Gouvernance human-in-the-loop et la politique IA OVHcloud</h1>
+                <div class="lesson-meta">
+                    <span class="difficulty-badge difficulty-badge--advanced">Après-midi · Conception et gouvernance</span>
+                    <span class="duration">⏱ ~30 min</span>
+                </div>
+            </div>
+            <div class="lesson-body">
+                <p>Les garde-fous ne valent que par la gouvernance qui les entoure. Cette leçon couvre le human-in-the-loop (HITL) comme pratique de gouvernance et le relie aux principes d'IA responsable alignés sur la politique IA OVHcloud.</p>
+
+                <h2>Objectifs pédagogiques</h2>
+                <ul>
+                    <li>Distinguer human-in-the-loop, on-the-loop et out-of-the-loop</li>
+                    <li>Décider quelles actions requièrent une revue humaine</li>
+                    <li>Appliquer les principes d'IA responsable alignés sur la politique IA OVHcloud</li>
+                </ul>
+
+                <h2>Trois degrés de supervision humaine</h2>
+                <ul>
+                    <li><strong>Human-in-the-loop</strong> — une personne approuve les actions avant leur exécution. Contrôle maximal, débit minimal.</li>
+                    <li><strong>Human-on-the-loop</strong> — l'agent agit de façon autonome, mais une personne surveille et peut intervenir ou l'arrêter.</li>
+                    <li><strong>Human-out-of-the-loop</strong> — aucune implication humaine à l'exécution ; le contrôle réside entièrement dans les garde-fous préétablis.</li>
+                </ul>
+                <p>Ces degrés correspondent directement au spectre d'autonomie du matin : plus d'autonomie fait passer de in-the-loop vers out-of-the-loop, et exige des garde-fous préétablis plus solides pour compenser.</p>
+
+                <h2>Quelles actions nécessitent un humain ?</h2>
+                <p>Exigez une revue humaine lorsqu'une action est :</p>
+                <ul>
+                    <li><strong>Irréversible</strong> — supprimer des données, démanteler de l'infrastructure.</li>
+                    <li><strong>À fort impact</strong> — changements en production, dépense au-dessus d'un seuil.</li>
+                    <li><strong>Peu confiante</strong> — l'agent est incertain ou la situation est inédite.</li>
+                    <li><strong>Sensible</strong> — touchant des données personnelles, la sécurité ou les contrôles d'accès.</li>
+                </ul>
+
+                <h2>IA responsable et la politique IA OVHcloud</h2>
+                <p>La politique IA OVHcloud encadre la façon dont l'IA doit être construite et exploitée de manière responsable. Les principes ci-dessous sont résumés pour ce cours ; concevez toujours à partir du document de politique actuel et canonique de votre organisation.</p>
+                <ul>
+                    <li><strong>Transparence</strong> — il est clair quand l'IA agit et ce qu'elle a fait (lié à l'observabilité).</li>
+                    <li><strong>Responsabilité humaine</strong> — une personne reste responsable des actions de l'agent.</li>
+                    <li><strong>Protection des données et vie privée</strong> — respecter la résidence des données, la minimisation et les droits des utilisateurs.</li>
+                    <li><strong>Sécurité</strong> — accès au moindre privilège et protection contre les usages abusifs (lié aux permissions).</li>
+                    <li><strong>Équité et sûreté</strong> — éviter les résultats nuisibles ou discriminatoires.</li>
+                    <li><strong>Contrôlabilité</strong> — un humain peut toujours superviser, suspendre et arrêter le système (lié au kill switch).</li>
+                </ul>
+
+                <div class="alert alert-info">
+                    <strong>Source canonique :</strong> ceci est un résumé pédagogique. Vérifiez la formulation exacte et les obligations dans la politique IA OVHcloud officielle publiée par votre organisation avant de vous y fier dans une conception.
+                </div>
+
+                <h2>Des principes aux contrôles</h2>
+                <p>Les principes d'IA responsable ne sont pas abstraits : chacun se mappe à une couche de garde-fou implémentable. Transparence et responsabilité se mappent à l'observabilité ; sécurité et vie privée aux permissions ; contrôlabilité au kill switch et à l'approbation humaine. Les ateliers de l'après-midi transforment ces mappings en conception concrète.</p>
+
+                <h2>Points clés à retenir</h2>
+                <ul>
+                    <li>La supervision existe en degrés : in-the-loop, on-the-loop, out-of-the-loop.</li>
+                    <li>Exigez une revue humaine pour les actions irréversibles, à fort impact, peu confiantes ou sensibles.</li>
+                    <li>Les principes d'IA responsable se mappent directement sur les cinq couches de garde-fous.</li>
+                </ul>
+
+                <div class="alert alert-info">
+                    <strong>Suite :</strong> appliquez tout cela dans l'<a href="threat-modeling-workshop.html">atelier de modélisation des menaces</a>, puis le <a href="agent-design-capstone.html">projet final de conception de bout en bout</a>.
+                </div>
+            </div>
+
+            <button class="btn btn-success btn-mark-complete" data-lesson-id="human-in-the-loop-ovhcloud-policy">
+                Marquer comme terminé
+            </button>
+        </div>
+    </main>
+</body>
+</html>

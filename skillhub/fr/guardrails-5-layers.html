@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garde-fous : les cinq couches - AI Store Labs</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="site-header" role="banner">
+        <a href="." class="logo" aria-label="Accueil AI Store Labs">
+            <span>AI Store Labs</span>
+        </a>
+
+        <div class="header-actions">
+            <div class="progress-bar-container" aria-label="Progression globale">
+                <span class="progress-label">Progression :</span>
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <span class="progress-percent">0%</span>
+            </div>
+
+            <div class="locale-switcher" role="navigation" aria-label="Sélecteur de langue">
+                <button data-locale="en" aria-label="English">EN</button>
+                <button class="active" data-locale="fr" aria-label="Français">FR</button>
+            </div>
+
+            <button class="hamburger-btn" aria-label="Basculer le menu de navigation" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <aside class="sidebar" role="navigation" aria-label="Navigation des leçons">
+        <div class="sidebar-section" data-track="morning">
+            <h2 class="sidebar-section-title">Matin — Les fondamentaux</h2>
+            <ul class="sidebar-nav" id="nav-morning">
+                <li><a href="assistant-vs-agent.html">De l'assistant à l'agent</a></li>
+                <li><a href="agent-anatomy-7-components.html">Anatomie : les sept composants</a></li>
+                <li><a href="agentic-loop-and-variants.html">La boucle agentique et ses variantes</a></li>
+                <li><a href="stopping-criteria.html">Critères d'arrêt</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="afternoon">
+            <h2 class="sidebar-section-title">Après-midi — Conception et gouvernance</h2>
+            <ul class="sidebar-nav" id="nav-afternoon">
+                <li><a href="multi-agent-patterns.html">Patrons multi-agents</a></li>
+                <li><a href="when-not-multi-agent.html">Quand éviter le multi-agents</a></li>
+                <li><a href="guardrails-5-layers.html" class="active">Garde-fous : cinq couches</a></li>
+                <li><a href="human-in-the-loop-ovhcloud-policy.html">Human-in-the-Loop et politique IA OVHcloud</a></li>
+                <li><a href="threat-modeling-workshop.html">Atelier : modélisation des menaces</a></li>
+                <li><a href="agent-design-capstone.html">Projet final : conception d'agent</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="sandbox">
+            <h2 class="sidebar-section-title">Bac à sable — plateforme opcp-explorer</h2>
+            <ul class="sidebar-nav" id="nav-sandbox">
+                <li><a href="install-bare-metal.html">Installation sur Ubuntu Bare-Metal</a></li>
+                <li><a href="adding-applications.html">Ajout de nouvelles applications</a></li>
+                <li><a href="starting-applications.html">Démarrage des applications</a></li>
+                <li><a href="stopping-applications.html">Arrêt des applications</a></li>
+                <li><a href="making-backups.html">Sauvegardes</a></li>
+                <li><a href="modifying-applications.html">Modification d'applications avec l'IA</a></li>
+                <li><a href="mig-gpu.html">Docker avec GPU MIG</a></li>
+                <li><a href="serverless-execution.html">Exécution Docker Serverless</a></li>
+                <li><a href="billing-cost-tracking.html">Facturation et suivi des coûts</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content" role="main">
+        <div class="lesson-content">
+            <div class="lesson-header">
+                <h1>Garde-fous : les cinq couches de contrôle</h1>
+                <div class="lesson-meta">
+                    <span class="difficulty-badge difficulty-badge--advanced">Après-midi · Conception et gouvernance</span>
+                    <span class="duration">⏱ ~45 min</span>
+                </div>
+            </div>
+            <div class="lesson-body">
+                <p>Les garde-fous sont les contrôles qui bornent ce qu'un agent peut faire. Plus vous accordez d'autonomie (le spectre du matin), plus les garde-fous doivent être solides. Cette leçon présente cinq couches complémentaires — pensez défense en profondeur, pas un simple interrupteur.</p>
+
+                <h2>Objectifs pédagogiques</h2>
+                <ul>
+                    <li>Nommer et expliquer les cinq couches de garde-fous</li>
+                    <li>Associer chaque couche à un contrôle concret sur opcp-explorer</li>
+                    <li>Combiner les couches en défense en profondeur</li>
+                </ul>
+
+                <h2>Défense en profondeur</h2>
+                <pre><code>flowchart TD
+    L1[1. Permissions] --> L2[2. Limites opérationnelles]
+    L2 --> L3[3. Approbation humaine]
+    L3 --> L4[4. Observabilité]
+    L4 --> L5[5. Kill switch]</code></pre>
+                <p class="caption">Chaque couche rattrape ce que la précédente laisse passer. Aucune couche seule ne suffit.</p>
+
+                <h2>Couche 1 — Permissions</h2>
+                <p>Ce que l'agent est <em>autorisé</em> à toucher. Jetons restreints, listes d'autorisation d'outils, accès lecture seule vs lecture-écriture, frontières d'environnement (préproduction vs production). Sur opcp-explorer : un jeton limité à <code>apps:read</code> et <code>apps:write</code> mais jamais <code>billing:*</code>, restreint à un projet.</p>
+
+                <h2>Couche 2 — Limites opérationnelles</h2>
+                <p>Combien l'agent peut faire. Nombre max d'itérations de boucle, plafonds de reprises/erreurs, budgets de jetons et de dépense, limites de débit, délais d'horloge. C'est la forme appliquée des critères d'arrêt du matin. Sur opcp-explorer : « au plus 5 tentatives de déploiement, 10 minutes, X € de dépense ».</p>
+
+                <h2>Couche 3 — Approbation humaine</h2>
+                <p>Là où une personne doit dire oui. Un point de contrôle human-in-the-loop avant les actions à fort impact ou irréversibles. Sur opcp-explorer : l'agent peut déployer en préproduction de façon autonome, mais la promotion en production exige l'approbation d'un opérateur.</p>
+
+                <h2>Couche 4 — Observabilité</h2>
+                <p>Pouvoir voir ce que l'agent a fait. Traces d'exécution structurées, logs, métriques et alertes — la trace que vous avez annotée ce matin. Sans observabilité, les autres couches sont invérifiables. Sur opcp-explorer : chaque appel d'outil et décision est journalisé avec entrées, sorties et raison d'arrêt.</p>
+
+                <h2>Couche 5 — Kill switch</h2>
+                <p>La capacité d'arrêter l'agent immédiatement. Un contrôle unique et fiable qui stoppe la boucle et révoque l'accès, quel que soit l'état de l'agent. Sur opcp-explorer : une commande opérateur qui met fin à la session de l'agent et invalide son jeton.</p>
+
+                <h2>Les cinq couches en un coup d'œil</h2>
+                <table>
+                    <thead>
+                        <tr><th>Couche</th><th>Question à laquelle elle répond</th><th>Contrôle opcp-explorer</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Permissions</td><td>Que peut-il toucher ?</td><td>Jeton restreint, liste d'outils</td></tr>
+                        <tr><td>Limites opérationnelles</td><td>Combien peut-il faire ?</td><td>Plafonds reprises/itérations/dépense</td></tr>
+                        <tr><td>Approbation humaine</td><td>Qu'est-ce qui requiert un oui humain ?</td><td>Approbation avant production</td></tr>
+                        <tr><td>Observabilité</td><td>Peut-on voir ce qu'il a fait ?</td><td>Traces et logs structurés</td></tr>
+                        <tr><td>Kill switch</td><td>Peut-on l'arrêter maintenant ?</td><td>Fin de session + révocation du jeton</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-info">
+                    <strong>Conseil de conception :</strong> dimensionnez chaque couche en proportion de l'autonomie et de l'impact. Une action peu autonome et réversible exige des garde-fous légers ; une action très autonome et irréversible les exige toutes les cinq.
+                </div>
+
+                <h2>Points clés à retenir</h2>
+                <ul>
+                    <li>Cinq couches : permissions, limites opérationnelles, approbation humaine, observabilité, kill switch.</li>
+                    <li>Elles fonctionnent ensemble en défense en profondeur — aucune seule ne suffit.</li>
+                    <li>Dimensionnez chaque couche selon l'autonomie de l'agent et l'impact de l'action.</li>
+                </ul>
+
+                <div class="alert alert-info">
+                    <strong>Suite :</strong> <a href="human-in-the-loop-ovhcloud-policy.html">Gouvernance human-in-the-loop et la politique IA OVHcloud</a>.
+                </div>
+            </div>
+
+            <button class="btn btn-success btn-mark-complete" data-lesson-id="guardrails-5-layers">
+                Marquer comme terminé
+            </button>
+        </div>
+    </main>
+</body>
+</html>

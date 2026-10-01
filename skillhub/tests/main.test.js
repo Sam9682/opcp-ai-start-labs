@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { initApp } from '../js/main.js';
+import { lessons } from '../js/lessons.js';
 
 describe('Main Module', () => {
   beforeEach(() => {
@@ -43,9 +44,11 @@ describe('Main Module', () => {
     initApp();
     const bar = document.querySelector('.progress-bar');
     const text = document.querySelector('.progress-text');
-    // 2 out of 9 lessons = 22%
-    expect(bar.style.width).toBe('22%');
-    expect(text.textContent).toBe('22%');
+    // 2 completed out of the full catalog, computed from the live catalog
+    // so this stays correct as lessons are added.
+    const expected = Math.round((2 / lessons.length) * 100) + '%';
+    expect(bar.style.width).toBe(expected);
+    expect(text.textContent).toBe(expected);
   });
 
   it('degrades gracefully when progress elements are not in DOM', () => {

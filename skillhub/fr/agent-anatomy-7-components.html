@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anatomie d'un agent IA - AI Store Labs</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="site-header" role="banner">
+        <a href="." class="logo" aria-label="Accueil AI Store Labs">
+            <span>AI Store Labs</span>
+        </a>
+
+        <div class="header-actions">
+            <div class="progress-bar-container" aria-label="Progression globale">
+                <span class="progress-label">Progression :</span>
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <span class="progress-percent">0%</span>
+            </div>
+
+            <div class="locale-switcher" role="navigation" aria-label="Sélecteur de langue">
+                <button data-locale="en" aria-label="English">EN</button>
+                <button class="active" data-locale="fr" aria-label="Français">FR</button>
+            </div>
+
+            <button class="hamburger-btn" aria-label="Basculer le menu de navigation" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <aside class="sidebar" role="navigation" aria-label="Navigation des leçons">
+        <div class="sidebar-section" data-track="morning">
+            <h2 class="sidebar-section-title">Matin — Les fondamentaux</h2>
+            <ul class="sidebar-nav" id="nav-morning">
+                <li><a href="assistant-vs-agent.html">De l'assistant à l'agent</a></li>
+                <li><a href="agent-anatomy-7-components.html" class="active">Anatomie : les sept composants</a></li>
+                <li><a href="agentic-loop-and-variants.html">La boucle agentique et ses variantes</a></li>
+                <li><a href="stopping-criteria.html">Critères d'arrêt</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="afternoon">
+            <h2 class="sidebar-section-title">Après-midi — Conception et gouvernance</h2>
+            <ul class="sidebar-nav" id="nav-afternoon">
+                <li><a href="multi-agent-patterns.html">Patrons multi-agents</a></li>
+                <li><a href="when-not-multi-agent.html">Quand éviter le multi-agents</a></li>
+                <li><a href="guardrails-5-layers.html">Garde-fous : cinq couches</a></li>
+                <li><a href="human-in-the-loop-ovhcloud-policy.html">Human-in-the-Loop et politique IA OVHcloud</a></li>
+                <li><a href="threat-modeling-workshop.html">Atelier : modélisation des menaces</a></li>
+                <li><a href="agent-design-capstone.html">Projet final : conception d'agent</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="sandbox">
+            <h2 class="sidebar-section-title">Bac à sable — plateforme opcp-explorer</h2>
+            <ul class="sidebar-nav" id="nav-sandbox">
+                <li><a href="install-bare-metal.html">Installation sur Ubuntu Bare-Metal</a></li>
+                <li><a href="adding-applications.html">Ajout de nouvelles applications</a></li>
+                <li><a href="starting-applications.html">Démarrage des applications</a></li>
+                <li><a href="stopping-applications.html">Arrêt des applications</a></li>
+                <li><a href="making-backups.html">Sauvegardes</a></li>
+                <li><a href="modifying-applications.html">Modification d'applications avec l'IA</a></li>
+                <li><a href="mig-gpu.html">Docker avec GPU MIG</a></li>
+                <li><a href="serverless-execution.html">Exécution Docker Serverless</a></li>
+                <li><a href="billing-cost-tracking.html">Facturation et suivi des coûts</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content" role="main">
+        <div class="lesson-content">
+            <div class="lesson-header">
+                <h1>Anatomie d'un agent IA : les sept composants essentiels</h1>
+                <div class="lesson-meta">
+                    <span class="difficulty-badge difficulty-badge--beginner">Matin · Fondamentaux</span>
+                    <span class="duration">⏱ ~45 min</span>
+                </div>
+            </div>
+            <div class="lesson-body">
+                <p>Tout agent IA, aussi simple ou sophistiqué soit-il, est construit à partir des mêmes sept briques. Comprendre chaque composant — et la façon dont ils se connectent — permet de raisonner sur n'importe quel agent que vous rencontrez ou concevez, y compris un agent qui opère la plateforme <strong>opcp-explorer</strong>.</p>
+
+                <h2>Objectifs pédagogiques</h2>
+                <ul>
+                    <li>Nommer les sept composants essentiels d'un agent IA</li>
+                    <li>Expliquer le rôle de chaque composant</li>
+                    <li>Cartographier les composants sur un agent agissant sur opcp-explorer</li>
+                </ul>
+
+                <h2>Les sept composants</h2>
+                <ol>
+                    <li><strong>Cerveau (LLM)</strong> — le moteur de raisonnement. Il interprète l'objectif, décide de l'étape suivante et choisit l'outil à appeler. Tout le reste sert le cerveau ou le contraint.</li>
+                    <li><strong>Mémoire à court terme</strong> — le contexte de travail de la tâche courante : étapes récentes, résultats intermédiaires et bloc-notes en cours. Elle est bornée par la fenêtre de contexte.</li>
+                    <li><strong>Mémoire à long terme</strong> — connaissance persistante entre les sessions : résultats passés, faits appris, embeddings dans une base vectorielle. Elle permet à l'agent de se souvenir de ce qui s'est passé hier.</li>
+                    <li><strong>Outils</strong> — les mains de l'agent. API, CLI, fonctions et serveurs MCP qui lui permettent d'agir sur le monde. Sur opcp-explorer, les outils sont les opérations de déploiement, démarrage, arrêt et statut.</li>
+                    <li><strong>Planificateur</strong> — décompose un objectif en étapes ordonnées et séquence les appels d'outils. Il peut s'agir d'un plan explicite ou implicite dans le raisonnement pas à pas du cerveau.</li>
+                    <li><strong>Boucle d'exécution</strong> — le moteur qui exécute en boucle Penser → Agir → Observer jusqu'à ce qu'une condition d'arrêt soit atteinte. Détaillée dans la leçon suivante.</li>
+                    <li><strong>Garde-fous</strong> — les contrôles qui bornent ce que l'agent peut faire : permissions, limites, approbations, observabilité et kill switch. Détaillés cet après-midi.</li>
+                </ol>
+
+                <h2>Comment les composants s'articulent</h2>
+                <pre><code>flowchart LR
+    Goal[Objectif] --> Planner[Planificateur]
+    Planner --> Brain[Cerveau / LLM]
+    STM[Mémoire court terme] <--> Brain
+    LTM[Mémoire long terme] <--> Brain
+    Brain -->|choisit| Tools[Outils]
+    Tools -->|résultats| Brain
+    Loop[Boucle d'exécution] -. pilote .-> Brain
+    Guardrails[Garde-fous] -. borne .-> Tools
+    Guardrails -. borne .-> Loop</code></pre>
+                <p class="caption">Le cerveau raisonne sur la mémoire, le planificateur ordonne le travail, les outils agissent sur le monde, la boucle le fait tourner, et les garde-fous bornent l'ensemble.</p>
+
+                <h2>Cartographié sur opcp-explorer</h2>
+                <table>
+                    <thead>
+                        <tr><th>Composant</th><th>Sur opcp-explorer</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Cerveau (LLM)</td><td>Décide s'il faut déployer, redémarrer ou attendre</td></tr>
+                        <tr><td>Mémoire court terme</td><td>Le statut du déploiement courant et les logs récents</td></tr>
+                        <tr><td>Mémoire long terme</td><td>Quelles apps ont échoué auparavant et pourquoi</td></tr>
+                        <tr><td>Outils</td><td>Opérations REST API, CLI et MCP (déployer, démarrer, arrêter, logs)</td></tr>
+                        <tr><td>Planificateur</td><td>« Cloner → construire → démarrer → vérifier la santé »</td></tr>
+                        <tr><td>Boucle d'exécution</td><td>Réessayer le démarrage jusqu'à la santé ou la limite</td></tr>
+                        <tr><td>Garde-fous</td><td>Portée du jeton, nombre max de tentatives, approbation avant production</td></tr>
+                    </tbody>
+                </table>
+
+                <h2>Points clés à retenir</h2>
+                <ul>
+                    <li>Sept composants : cerveau, mémoire court terme, mémoire long terme, outils, planificateur, boucle d'exécution, garde-fous.</li>
+                    <li>Le cerveau raisonne ; la mémoire se souvient ; les outils agissent ; le planificateur ordonne ; la boucle répète ; les garde-fous bornent.</li>
+                    <li>Tout agent peut être analysé en localisant chacune de ces sept pièces.</li>
+                </ul>
+
+                <div class="alert alert-info">
+                    <strong>Suite :</strong> <a href="agentic-loop-and-variants.html">La boucle agentique : Penser → Agir → Observer et ses variantes</a>.
+                </div>
+            </div>
+
+            <button class="btn btn-success btn-mark-complete" data-lesson-id="agent-anatomy-7-components">
+                Marquer comme terminé
+            </button>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anatomy of an AI Agent - AI Store Labs</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="site-header" role="banner">
+        <a href="." class="logo" aria-label="AI Store Labs Home">
+            <span>AI Store Labs</span>
+        </a>
+
+        <div class="header-actions">
+            <div class="progress-bar-container" aria-label="Overall progress">
+                <span class="progress-label">Progress:</span>
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <span class="progress-percent">0%</span>
+            </div>
+
+            <div class="locale-switcher" role="navigation" aria-label="Language selector">
+                <button class="active" data-locale="en" aria-label="English">EN</button>
+                <button data-locale="fr" aria-label="Français">FR</button>
+            </div>
+
+            <button class="hamburger-btn" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <aside class="sidebar" role="navigation" aria-label="Lesson navigation">
+        <div class="sidebar-section" data-track="morning">
+            <h2 class="sidebar-section-title">Morning — Fundamentals</h2>
+            <ul class="sidebar-nav" id="nav-morning">
+                <li><a href="assistant-vs-agent.html">From Assistant to Agent</a></li>
+                <li><a href="agent-anatomy-7-components.html" class="active">Anatomy: Seven Core Components</a></li>
+                <li><a href="agentic-loop-and-variants.html">The Agentic Loop &amp; Variants</a></li>
+                <li><a href="stopping-criteria.html">Stopping Criteria</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="afternoon">
+            <h2 class="sidebar-section-title">Afternoon — Design &amp; Governance</h2>
+            <ul class="sidebar-nav" id="nav-afternoon">
+                <li><a href="multi-agent-patterns.html">Multi-Agent Patterns</a></li>
+                <li><a href="when-not-multi-agent.html">When Not to Go Multi-Agent</a></li>
+                <li><a href="guardrails-5-layers.html">Guardrails: Five Layers</a></li>
+                <li><a href="human-in-the-loop-ovhcloud-policy.html">Human-in-the-Loop &amp; OVHcloud AI Policy</a></li>
+                <li><a href="threat-modeling-workshop.html">Workshop: Threat Modeling</a></li>
+                <li><a href="agent-design-capstone.html">Capstone: Agent Design</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="sandbox">
+            <h2 class="sidebar-section-title">Sandbox — opcp-explorer Platform</h2>
+            <ul class="sidebar-nav" id="nav-sandbox">
+                <li><a href="install-bare-metal.html">Installation on Bare-Metal Ubuntu</a></li>
+                <li><a href="adding-applications.html">Adding New Applications</a></li>
+                <li><a href="starting-applications.html">Starting Applications</a></li>
+                <li><a href="stopping-applications.html">Stopping Applications</a></li>
+                <li><a href="making-backups.html">Making Backups</a></li>
+                <li><a href="modifying-applications.html">Modifying Applications with AI</a></li>
+                <li><a href="mig-gpu.html">Docker with MIG GPU</a></li>
+                <li><a href="serverless-execution.html">Serverless Docker Execution</a></li>
+                <li><a href="billing-cost-tracking.html">Billing &amp; Cost Tracking</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content" role="main">
+        <div class="lesson-content">
+            <div class="lesson-header">
+                <h1>Anatomy of an AI Agent: the Seven Core Components</h1>
+                <div class="lesson-meta">
+                    <span class="difficulty-badge difficulty-badge--beginner">Morning · Fundamentals</span>
+                    <span class="duration">⏱ ~45 min</span>
+                </div>
+            </div>
+            <div class="lesson-body">
+                <p>Every AI agent, however simple or sophisticated, is built from the same seven building blocks. Understanding each component — and how they connect — lets you reason about any agent you meet or design, including one that operates the <strong>opcp-explorer</strong> platform.</p>
+
+                <h2>Learning Objectives</h2>
+                <ul>
+                    <li>Name the seven core components of an AI agent</li>
+                    <li>Explain the role each component plays</li>
+                    <li>Map the components onto an agent acting on opcp-explorer</li>
+                </ul>
+
+                <h2>The Seven Components</h2>
+                <ol>
+                    <li><strong>Brain (LLM)</strong> — the reasoning engine. It interprets the goal, decides the next step, and chooses which tool to call. Everything else serves the brain or constrains it.</li>
+                    <li><strong>Short-term memory</strong> — the working context of the current task: recent steps, intermediate results, and the running scratchpad. It is bounded by the context window.</li>
+                    <li><strong>Long-term memory</strong> — persistent knowledge across sessions: past outcomes, learned facts, embeddings in a vector store. It lets the agent recall what happened yesterday.</li>
+                    <li><strong>Tools</strong> — the agent's hands. APIs, CLIs, functions, and MCP servers that let it affect the world. On opcp-explorer, tools are the deploy, start, stop, and status operations.</li>
+                    <li><strong>Planner</strong> — decomposes a goal into ordered steps and sequences tool calls. It may be an explicit plan or implicit in the brain's step-by-step reasoning.</li>
+                    <li><strong>Execution loop</strong> — the engine that repeatedly runs Think → Act → Observe until a stopping condition is met. Covered in depth in the next lesson.</li>
+                    <li><strong>Guardrails</strong> — the controls that bound what the agent may do: permissions, limits, approvals, observability, and a kill switch. Covered in depth this afternoon.</li>
+                </ol>
+
+                <h2>How the Components Fit Together</h2>
+                <pre><code>flowchart LR
+    Goal[Goal] --> Planner
+    Planner --> Brain[Brain / LLM]
+    STM[Short-term memory] <--> Brain
+    LTM[Long-term memory] <--> Brain
+    Brain -->|chooses| Tools
+    Tools -->|results| Brain
+    Loop[Execution loop] -. drives .-> Brain
+    Guardrails -. bound .-> Tools
+    Guardrails -. bound .-> Loop</code></pre>
+                <p class="caption">The brain reasons over memory, the planner orders the work, tools act on the world, the loop keeps it turning, and guardrails bound the whole system.</p>
+
+                <h2>Mapped onto opcp-explorer</h2>
+                <table>
+                    <thead>
+                        <tr><th>Component</th><th>On opcp-explorer</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Brain (LLM)</td><td>Decides whether to deploy, restart, or wait</td></tr>
+                        <tr><td>Short-term memory</td><td>The current deployment's status and recent logs</td></tr>
+                        <tr><td>Long-term memory</td><td>Which apps failed before and why</td></tr>
+                        <tr><td>Tools</td><td>REST API, CLI, and MCP operations (deploy, start, stop, logs)</td></tr>
+                        <tr><td>Planner</td><td>"Clone → build → start → verify health"</td></tr>
+                        <tr><td>Execution loop</td><td>Retry start until healthy or limit reached</td></tr>
+                        <tr><td>Guardrails</td><td>Token scope, max retries, approval before production</td></tr>
+                    </tbody>
+                </table>
+
+                <h2>Key Takeaways</h2>
+                <ul>
+                    <li>Seven components: brain, short-term memory, long-term memory, tools, planner, execution loop, guardrails.</li>
+                    <li>The brain reasons; memory remembers; tools act; the planner orders; the loop repeats; guardrails bound.</li>
+                    <li>Any agent can be analyzed by locating each of these seven parts.</li>
+                </ul>
+
+                <div class="alert alert-info">
+                    <strong>Next:</strong> <a href="agentic-loop-and-variants.html">The Agentic Loop: Think → Act → Observe and its Variants</a>.
+                </div>
+            </div>
+
+            <button class="btn btn-success btn-mark-complete" data-lesson-id="agent-anatomy-7-components">
+                Mark as Complete
+            </button>
+        </div>
+    </main>
+</body>
+</html>

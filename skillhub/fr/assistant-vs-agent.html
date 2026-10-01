@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>De l'assistant à l'agent - AI Store Labs</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="site-header" role="banner">
+        <a href="." class="logo" aria-label="Accueil AI Store Labs">
+            <span>AI Store Labs</span>
+        </a>
+
+        <div class="header-actions">
+            <div class="progress-bar-container" aria-label="Progression globale">
+                <span class="progress-label">Progression :</span>
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <span class="progress-percent">0%</span>
+            </div>
+
+            <div class="locale-switcher" role="navigation" aria-label="Sélecteur de langue">
+                <button data-locale="en" aria-label="English">EN</button>
+                <button class="active" data-locale="fr" aria-label="Français">FR</button>
+            </div>
+
+            <button class="hamburger-btn" aria-label="Basculer le menu de navigation" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <aside class="sidebar" role="navigation" aria-label="Navigation des leçons">
+        <div class="sidebar-section" data-track="morning">
+            <h2 class="sidebar-section-title">Matin — Les fondamentaux</h2>
+            <ul class="sidebar-nav" id="nav-morning">
+                <li><a href="assistant-vs-agent.html" class="active">De l'assistant à l'agent</a></li>
+                <li><a href="agent-anatomy-7-components.html">Anatomie : les sept composants</a></li>
+                <li><a href="agentic-loop-and-variants.html">La boucle agentique et ses variantes</a></li>
+                <li><a href="stopping-criteria.html">Critères d'arrêt</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="afternoon">
+            <h2 class="sidebar-section-title">Après-midi — Conception et gouvernance</h2>
+            <ul class="sidebar-nav" id="nav-afternoon">
+                <li><a href="multi-agent-patterns.html">Patrons multi-agents</a></li>
+                <li><a href="when-not-multi-agent.html">Quand éviter le multi-agents</a></li>
+                <li><a href="guardrails-5-layers.html">Garde-fous : cinq couches</a></li>
+                <li><a href="human-in-the-loop-ovhcloud-policy.html">Human-in-the-Loop et politique IA OVHcloud</a></li>
+                <li><a href="threat-modeling-workshop.html">Atelier : modélisation des menaces</a></li>
+                <li><a href="agent-design-capstone.html">Projet final : conception d'agent</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="sandbox">
+            <h2 class="sidebar-section-title">Bac à sable — plateforme opcp-explorer</h2>
+            <ul class="sidebar-nav" id="nav-sandbox">
+                <li><a href="install-bare-metal.html">Installation sur Ubuntu Bare-Metal</a></li>
+                <li><a href="adding-applications.html">Ajout de nouvelles applications</a></li>
+                <li><a href="starting-applications.html">Démarrage des applications</a></li>
+                <li><a href="stopping-applications.html">Arrêt des applications</a></li>
+                <li><a href="making-backups.html">Sauvegardes</a></li>
+                <li><a href="modifying-applications.html">Modification d'applications avec l'IA</a></li>
+                <li><a href="mig-gpu.html">Docker avec GPU MIG</a></li>
+                <li><a href="serverless-execution.html">Exécution Docker Serverless</a></li>
+                <li><a href="billing-cost-tracking.html">Facturation et suivi des coûts</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content" role="main">
+        <div class="lesson-content">
+            <div class="lesson-header">
+                <h1>De l'assistant à l'agent : le spectre d'autonomie</h1>
+                <div class="lesson-meta">
+                    <span class="difficulty-badge difficulty-badge--beginner">Matin · Fondamentaux</span>
+                    <span class="duration">⏱ ~30 min</span>
+                </div>
+            </div>
+            <div class="lesson-body">
+                <p>Cette première leçon trace la frontière entre un <strong>assistant</strong> IA et un <strong>agent</strong> IA, et introduit le <strong>spectre d'autonomie</strong> que vous utiliserez pour décider de la liberté à accorder à un système. Tout au long de la session, la plateforme <strong>opcp-explorer</strong> constitue l'environnement sur lequel un agent agit — déployer, démarrer et gérer des applications via ses interfaces API, CLI et MCP.</p>
+
+                <h2>Objectifs pédagogiques</h2>
+                <ul>
+                    <li>Différencier un assistant IA d'un agent IA</li>
+                    <li>Situer un système sur le spectre d'autonomie</li>
+                    <li>Choisir un niveau d'autonomie adapté à une tâche et à son profil de risque</li>
+                </ul>
+
+                <h2>Assistant vs agent</h2>
+                <p>La différence fondamentale est <em>qui pilote la boucle</em>. Un assistant répond à une seule requête puis s'arrête. Un agent poursuit un objectif : il décide quoi faire ensuite, agit, observe le résultat et recommence jusqu'à atteindre l'objectif ou déclencher une condition d'arrêt.</p>
+
+                <table>
+                    <thead>
+                        <tr><th>Dimension</th><th>Assistant</th><th>Agent</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Initiative</td><td>Réagit à chaque invite</td><td>Poursuit un objectif sur plusieurs étapes</td></tr>
+                        <tr><td>Contrôle de la boucle</td><td>L'humain pilote chaque tour</td><td>Le système pilote ses propres tours</td></tr>
+                        <tr><td>Usage des outils</td><td>Suggère ou aucun</td><td>Appelle des outils et agit sur les résultats</td></tr>
+                        <tr><td>Mémoire</td><td>Surtout le tour courant</td><td>État à court terme + long terme</td></tr>
+                        <tr><td>Arrêt</td><td>Après une réponse</td><td>Sur objectif, limite ou garde-fou</td></tr>
+                        <tr><td>Exemple sur opcp-explorer</td><td>« Expliquer comment déployer une app »</td><td>« Déployer et vérifier cette app, réessayer en cas d'échec »</td></tr>
+                    </tbody>
+                </table>
+
+                <h2>Le spectre d'autonomie</h2>
+                <p>L'autonomie n'est pas binaire. Elle s'étend sur un spectre, du entièrement supervisé au entièrement autonome. Chaque palier accorde plus de liberté au système et supprime un point de contrôle humain ; chaque palier doit donc se justifier par un risque moindre ou des garde-fous plus solides.</p>
+                <ol>
+                    <li><strong>Suggérer</strong> — le système propose ; un humain effectue chaque action.</li>
+                    <li><strong>Confirmer chaque étape</strong> — le système agit, mais un humain approuve avant chaque action.</li>
+                    <li><strong>Agir avec points de contrôle</strong> — le système enchaîne plusieurs étapes, en s'arrêtant à des points définis pour approbation.</li>
+                    <li><strong>Agir et rendre compte</strong> — le système accomplit la tâche de façon autonome puis rend compte ; un humain peut intervenir ou revenir en arrière.</li>
+                    <li><strong>Entièrement autonome</strong> — le système agit sans revue humaine dans le périmètre accordé.</li>
+                </ol>
+
+                <div class="alert alert-info">
+                    <strong>Règle empirique :</strong> accordez le moins d'autonomie possible permettant encore à l'agent d'accomplir la tâche. Une autonomie plus élevée exige des garde-fous plus solides — les cinq couches que vous étudierez cet après-midi.
+                </div>
+
+                <h2>Cartographier l'autonomie sur opcp-explorer</h2>
+                <p>Sur opcp-explorer, une même opération peut se situer à différents points du spectre :</p>
+                <ul>
+                    <li><strong>Confirmer chaque étape</strong> — l'agent propose un déploiement ; un opérateur approuve avant exécution.</li>
+                    <li><strong>Agir avec points de contrôle</strong> — l'agent déploie en préproduction automatiquement mais s'arrête avant la mise en production.</li>
+                    <li><strong>Agir et rendre compte</strong> — l'agent redémarre une application plantée et consigne ce qu'il a fait.</li>
+                </ul>
+
+                <h2>Points clés à retenir</h2>
+                <ul>
+                    <li>Un assistant répond ; un agent poursuit un objectif en pilotant sa propre boucle.</li>
+                    <li>L'autonomie est un spectre, pas un interrupteur.</li>
+                    <li>Choisissez la plus faible autonomie qui fait le travail, et associez-la à des garde-fous.</li>
+                </ul>
+
+                <div class="alert alert-info">
+                    <strong>Suite :</strong> <a href="agent-anatomy-7-components.html">Anatomie d'un agent IA : les sept composants essentiels</a> — les pièces qui font fonctionner un agent.
+                </div>
+            </div>
+
+            <button class="btn btn-success btn-mark-complete" data-lesson-id="assistant-vs-agent">
+                Marquer comme terminé
+            </button>
+        </div>
+    </main>
+</body>
+</html>

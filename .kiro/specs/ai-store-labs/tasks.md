@@ -21,7 +21,7 @@ This implementation plan builds the AI Store Labs training platform incrementall
     - On invalid config: reject change, retain last valid config, log specific error
     - _Requirements: 16.1, 16.2, 16.3, 16.4, 16.5, 16.6_
 
-  - [ ]* 1.3 Write property tests for ConfigLoader
+  - [-]* 1.3 Write property tests for ConfigLoader
     - **Property 4: Configuration Validation Round-Trip**
     - **Property 5: Invalid Configuration Rejection**
     - **Validates: Requirements 3.2, 16.1, 16.2, 16.3, 16.5**
@@ -39,7 +39,7 @@ This implementation plan builds the AI Store Labs training platform incrementall
     - Ensure credentials never appear in log output
     - _Requirements: 3.8_
 
-  - [ ]* 2.3 Write property test for CredentialHandler
+  - [-]* 2.3 Write property test for CredentialHandler
     - **Property 10: Credential Retrieval and Non-Leakage**
     - **Validates: Requirements 3.8**
 
@@ -50,7 +50,7 @@ This implementation plan builds the AI Store Labs training platform incrementall
     - Implement `monitor(container_id, limits, on_exceed)` to watch and terminate on limit breach
     - _Requirements: 3.5, 3.6, 14.3_
 
-  - [ ]* 2.5 Write property test for ResourceLimiter
+  - [-]* 2.5 Write property test for ResourceLimiter
     - **Property 8: Resource Limits Translation**
     - **Validates: Requirements 3.5**
 
@@ -60,7 +60,7 @@ This implementation plan builds the AI Store Labs training platform incrementall
     - Implement `validate_exercise(exercise_id, steps)` running sequential step validation
     - _Requirements: 3.7_
 
-  - [ ]* 2.7 Write property test for ExerciseValidator
+  - [-]* 2.7 Write property test for ExerciseValidator
     - **Property 9: Exercise Step Assertion Evaluation**
     - **Validates: Requirements 3.7**
 
@@ -71,7 +71,7 @@ This implementation plan builds the AI Store Labs training platform incrementall
     - Always return non-empty checks list and textual feedback
     - _Requirements: 3.3_
 
-  - [ ]* 2.9 Write property test for AssessmentEngine
+  - [-]* 2.9 Write property test for AssessmentEngine
     - **Property 6: Assessment Result Consistency**
     - **Validates: Requirements 3.3**
 

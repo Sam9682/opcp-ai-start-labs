@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>From Assistant to Agent - AI Store Labs</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="site-header" role="banner">
+        <a href="." class="logo" aria-label="AI Store Labs Home">
+            <span>AI Store Labs</span>
+        </a>
+
+        <div class="header-actions">
+            <div class="progress-bar-container" aria-label="Overall progress">
+                <span class="progress-label">Progress:</span>
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <span class="progress-percent">0%</span>
+            </div>
+
+            <div class="locale-switcher" role="navigation" aria-label="Language selector">
+                <button class="active" data-locale="en" aria-label="English">EN</button>
+                <button data-locale="fr" aria-label="Français">FR</button>
+            </div>
+
+            <button class="hamburger-btn" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <aside class="sidebar" role="navigation" aria-label="Lesson navigation">
+        <div class="sidebar-section" data-track="morning">
+            <h2 class="sidebar-section-title">Morning — Fundamentals</h2>
+            <ul class="sidebar-nav" id="nav-morning">
+                <li><a href="assistant-vs-agent.html" class="active">From Assistant to Agent</a></li>
+                <li><a href="agent-anatomy-7-components.html">Anatomy: Seven Core Components</a></li>
+                <li><a href="agentic-loop-and-variants.html">The Agentic Loop &amp; Variants</a></li>
+                <li><a href="stopping-criteria.html">Stopping Criteria</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="afternoon">
+            <h2 class="sidebar-section-title">Afternoon — Design &amp; Governance</h2>
+            <ul class="sidebar-nav" id="nav-afternoon">
+                <li><a href="multi-agent-patterns.html">Multi-Agent Patterns</a></li>
+                <li><a href="when-not-multi-agent.html">When Not to Go Multi-Agent</a></li>
+                <li><a href="guardrails-5-layers.html">Guardrails: Five Layers</a></li>
+                <li><a href="human-in-the-loop-ovhcloud-policy.html">Human-in-the-Loop &amp; OVHcloud AI Policy</a></li>
+                <li><a href="threat-modeling-workshop.html">Workshop: Threat Modeling</a></li>
+                <li><a href="agent-design-capstone.html">Capstone: Agent Design</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="sandbox">
+            <h2 class="sidebar-section-title">Sandbox — opcp-explorer Platform</h2>
+            <ul class="sidebar-nav" id="nav-sandbox">
+                <li><a href="install-bare-metal.html">Installation on Bare-Metal Ubuntu</a></li>
+                <li><a href="adding-applications.html">Adding New Applications</a></li>
+                <li><a href="starting-applications.html">Starting Applications</a></li>
+                <li><a href="stopping-applications.html">Stopping Applications</a></li>
+                <li><a href="making-backups.html">Making Backups</a></li>
+                <li><a href="modifying-applications.html">Modifying Applications with AI</a></li>
+                <li><a href="mig-gpu.html">Docker with MIG GPU</a></li>
+                <li><a href="serverless-execution.html">Serverless Docker Execution</a></li>
+                <li><a href="billing-cost-tracking.html">Billing &amp; Cost Tracking</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content" role="main">
+        <div class="lesson-content">
+            <div class="lesson-header">
+                <h1>From Assistant to Agent: the Autonomy Spectrum</h1>
+                <div class="lesson-meta">
+                    <span class="difficulty-badge difficulty-badge--beginner">Morning · Fundamentals</span>
+                    <span class="duration">⏱ ~30 min</span>
+                </div>
+            </div>
+            <div class="lesson-body">
+                <p>This first lesson draws the line between an AI <strong>assistant</strong> and an AI <strong>agent</strong>, and introduces the <strong>autonomy spectrum</strong> you will use to decide how much freedom to grant a system. Throughout the session, the <strong>opcp-explorer</strong> platform is the environment an agent acts on — deploying, starting, and managing applications through its API, CLI, and MCP interfaces.</p>
+
+                <h2>Learning Objectives</h2>
+                <ul>
+                    <li>Differentiate an AI assistant from an AI agent</li>
+                    <li>Place a system on the autonomy spectrum</li>
+                    <li>Choose an appropriate level of autonomy for a given task and risk profile</li>
+                </ul>
+
+                <h2>Assistant vs Agent</h2>
+                <p>The core difference is <em>who drives the loop</em>. An assistant responds to a single request and then stops. An agent pursues a goal: it decides what to do next, acts, observes the outcome, and repeats until the goal is met or a stopping condition fires.</p>
+
+                <table>
+                    <thead>
+                        <tr><th>Dimension</th><th>Assistant</th><th>Agent</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Initiative</td><td>Reacts to each prompt</td><td>Pursues a goal across many steps</td></tr>
+                        <tr><td>Control of the loop</td><td>Human drives every turn</td><td>System drives its own turns</td></tr>
+                        <tr><td>Tool use</td><td>Suggests or none</td><td>Calls tools and acts on results</td></tr>
+                        <tr><td>Memory</td><td>Mostly the current turn</td><td>Short-term + long-term state</td></tr>
+                        <tr><td>Stopping</td><td>After one answer</td><td>On goal, limit, or guardrail</td></tr>
+                        <tr><td>Example on opcp-explorer</td><td>"Explain how to deploy an app"</td><td>"Deploy and verify this app, retry on failure"</td></tr>
+                    </tbody>
+                </table>
+
+                <h2>The Autonomy Spectrum</h2>
+                <p>Autonomy is not binary. It runs along a spectrum from fully supervised to fully autonomous. Each step grants the system more freedom and removes a point of human control, so each step must be justified by lower risk or stronger guardrails.</p>
+                <ol>
+                    <li><strong>Suggest</strong> — the system proposes; a human performs every action.</li>
+                    <li><strong>Confirm each step</strong> — the system acts, but a human approves before each action.</li>
+                    <li><strong>Act with checkpoints</strong> — the system runs multiple steps, pausing at defined checkpoints for approval.</li>
+                    <li><strong>Act and report</strong> — the system completes the task autonomously and reports afterward; a human can intervene or revert.</li>
+                    <li><strong>Fully autonomous</strong> — the system acts without human review inside its granted scope.</li>
+                </ol>
+
+                <div class="alert alert-info">
+                    <strong>Rule of thumb:</strong> grant the least autonomy that still lets the agent accomplish the task. Higher autonomy demands stronger guardrails — the five layers you will study this afternoon.
+                </div>
+
+                <h2>Mapping Autonomy to opcp-explorer</h2>
+                <p>On opcp-explorer, the same operation can sit at different points on the spectrum:</p>
+                <ul>
+                    <li><strong>Confirm each step</strong> — the agent proposes a deployment; an operator approves before it runs.</li>
+                    <li><strong>Act with checkpoints</strong> — the agent deploys to staging automatically but pauses before promoting to production.</li>
+                    <li><strong>Act and report</strong> — the agent restarts a crashed application and logs what it did.</li>
+                </ul>
+
+                <h2>Key Takeaways</h2>
+                <ul>
+                    <li>An assistant answers; an agent pursues a goal by driving its own loop.</li>
+                    <li>Autonomy is a spectrum, not a switch.</li>
+                    <li>Choose the lowest autonomy that gets the job done, and match it with guardrails.</li>
+                </ul>
+
+                <div class="alert alert-info">
+                    <strong>Next:</strong> <a href="agent-anatomy-7-components.html">Anatomy of an AI Agent: the Seven Core Components</a> — the parts that make an agent work.
+                </div>
+            </div>
+
+            <button class="btn btn-success btn-mark-complete" data-lesson-id="assistant-vs-agent">
+                Mark as Complete
+            </button>
+        </div>
+    </main>
+</body>
+</html>

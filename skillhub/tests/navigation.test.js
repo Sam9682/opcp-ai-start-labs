@@ -32,7 +32,7 @@ describe('Navigation Module', () => {
   });
 
   describe('renderSidebar()', () => {
-    it('renders lessons grouped by difficulty', () => {
+    it('renders lessons grouped by session track', () => {
       const container = document.createElement('div');
       container.className = 'sidebar';
       document.body.appendChild(container);
@@ -40,27 +40,27 @@ describe('Navigation Module', () => {
       renderSidebar(container, lessons, []);
 
       const sections = container.querySelectorAll('.sidebar-section');
-      expect(sections.length).toBe(3); // beginner, intermediate, advanced
+      expect(sections.length).toBe(3); // morning, afternoon, sandbox
 
       const titles = container.querySelectorAll('.sidebar-section-title');
-      expect(titles[0].textContent).toBe('Beginner');
-      expect(titles[1].textContent).toBe('Intermediate');
-      expect(titles[2].textContent).toBe('Advanced');
+      expect(titles[0].textContent).toBe('Morning — Fundamentals');
+      expect(titles[1].textContent).toBe('Afternoon — Design & Governance');
+      expect(titles[2].textContent).toBe('Sandbox — opcp-explorer Platform');
     });
 
-    it('shows correct number of lessons per difficulty group', () => {
+    it('shows correct number of lessons per track group', () => {
       const container = document.createElement('div');
       document.body.appendChild(container);
 
       renderSidebar(container, lessons, []);
 
       const navLists = container.querySelectorAll('.sidebar-nav');
-      // beginner: 4 lessons
+      // morning: 4 lessons
       expect(navLists[0].querySelectorAll('li').length).toBe(4);
-      // intermediate: 4 lessons
-      expect(navLists[1].querySelectorAll('li').length).toBe(4);
-      // advanced: 1 lesson
-      expect(navLists[2].querySelectorAll('li').length).toBe(1);
+      // afternoon: 6 lessons
+      expect(navLists[1].querySelectorAll('li').length).toBe(6);
+      // sandbox: 9 lessons
+      expect(navLists[2].querySelectorAll('li').length).toBe(9);
     });
 
     it('marks completed lessons with "completed" CSS class', () => {
@@ -130,9 +130,9 @@ describe('Navigation Module', () => {
       renderSidebar(container, lessons, []);
 
       const titles = container.querySelectorAll('.sidebar-section-title');
-      expect(titles[0].textContent).toBe('Débutant');
-      expect(titles[1].textContent).toBe('Intermédiaire');
-      expect(titles[2].textContent).toBe('Avancé');
+      expect(titles[0].textContent).toBe('Matin — Les fondamentaux');
+      expect(titles[1].textContent).toBe('Après-midi — Conception et gouvernance');
+      expect(titles[2].textContent).toBe('Bac à sable — plateforme opcp-explorer');
     });
 
     it('marks active lesson based on current URL', () => {

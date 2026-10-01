@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capstone: Designing an AI Agent End to End - AI Store Labs</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="site-header" role="banner">
+        <a href="." class="logo" aria-label="AI Store Labs Home">
+            <span>AI Store Labs</span>
+        </a>
+
+        <div class="header-actions">
+            <div class="progress-bar-container" aria-label="Overall progress">
+                <span class="progress-label">Progress:</span>
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <span class="progress-percent">0%</span>
+            </div>
+
+            <div class="locale-switcher" role="navigation" aria-label="Language selector">
+                <button class="active" data-locale="en" aria-label="English">EN</button>
+                <button data-locale="fr" aria-label="Français">FR</button>
+            </div>
+
+            <button class="hamburger-btn" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <aside class="sidebar" role="navigation" aria-label="Lesson navigation">
+        <div class="sidebar-section" data-track="morning">
+            <h2 class="sidebar-section-title">Morning — Fundamentals</h2>
+            <ul class="sidebar-nav" id="nav-morning">
+                <li><a href="assistant-vs-agent.html">From Assistant to Agent</a></li>
+                <li><a href="agent-anatomy-7-components.html">Anatomy: Seven Core Components</a></li>
+                <li><a href="agentic-loop-and-variants.html">The Agentic Loop &amp; Variants</a></li>
+                <li><a href="stopping-criteria.html">Stopping Criteria</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="afternoon">
+            <h2 class="sidebar-section-title">Afternoon — Design &amp; Governance</h2>
+            <ul class="sidebar-nav" id="nav-afternoon">
+                <li><a href="multi-agent-patterns.html">Multi-Agent Patterns</a></li>
+                <li><a href="when-not-multi-agent.html">When Not to Go Multi-Agent</a></li>
+                <li><a href="guardrails-5-layers.html">Guardrails: Five Layers</a></li>
+                <li><a href="human-in-the-loop-ovhcloud-policy.html">Human-in-the-Loop &amp; OVHcloud AI Policy</a></li>
+                <li><a href="threat-modeling-workshop.html">Workshop: Threat Modeling</a></li>
+                <li><a href="agent-design-capstone.html" class="active">Capstone: Agent Design</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="sandbox">
+            <h2 class="sidebar-section-title">Sandbox — opcp-explorer Platform</h2>
+            <ul class="sidebar-nav" id="nav-sandbox">
+                <li><a href="install-bare-metal.html">Installation on Bare-Metal Ubuntu</a></li>
+                <li><a href="adding-applications.html">Adding New Applications</a></li>
+                <li><a href="starting-applications.html">Starting Applications</a></li>
+                <li><a href="stopping-applications.html">Stopping Applications</a></li>
+                <li><a href="making-backups.html">Making Backups</a></li>
+                <li><a href="modifying-applications.html">Modifying Applications with AI</a></li>
+                <li><a href="mig-gpu.html">Docker with MIG GPU</a></li>
+                <li><a href="serverless-execution.html">Serverless Docker Execution</a></li>
+                <li><a href="billing-cost-tracking.html">Billing &amp; Cost Tracking</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content" role="main">
+        <div class="lesson-content">
+            <div class="lesson-header">
+                <h1>Capstone: Designing an AI Agent End to End</h1>
+                <div class="lesson-meta">
+                    <span class="difficulty-badge difficulty-badge--advanced">Afternoon · Capstone</span>
+                    <span class="duration">⏱ ~60 min</span>
+                </div>
+            </div>
+            <div class="lesson-body">
+                <p>This is the final deliverable of the session. You will design a complete AI agent that operates on opcp-explorer, bringing together everything from the day: the seven components, a loop variant and stopping criteria, a multi-agent decision, and all five guardrail layers. The output is a filled, documented agent-design deliverable.</p>
+
+                <h2>Learning Objectives</h2>
+                <ul>
+                    <li>Produce a fully documented design for a functional, reliable, controllable agent</li>
+                    <li>Justify every design choice against the day's concepts</li>
+                    <li>Confirm the design covers all five guardrail layers</li>
+                </ul>
+
+                <h2>Prerequisites</h2>
+                <ul>
+                    <li>Completed: the entire morning and afternoon tracks</li>
+                    <li>Completed: the <a href="threat-modeling-workshop.html">threat-modeling workshop</a></li>
+                    <li>The opcp-explorer connectivity lab (to ground your agent's tools)</li>
+                </ul>
+
+                <h2>What You Will Build</h2>
+                <p>A single agent-design document for an opcp-explorer agent of your choosing — for example a deploy-and-verify agent, a backup agent, or a cost-watchdog agent. Use the template and keep its headings.</p>
+
+                <div class="deliverable-callout alert alert-info">
+                    <strong>Deliverable:</strong> complete <code>deliverables/agent-design-template.md</code> (or <code>.fr.md</code>). This is your final, submittable artifact.
+                </div>
+
+                <h2>Design Steps</h2>
+                <ol>
+                    <li><strong>Goal &amp; autonomy</strong> — state the goal and place the agent on the autonomy spectrum.</li>
+                    <li><strong>Seven components</strong> — specify brain, short-term and long-term memory, tools, planner, execution loop, and guardrails.</li>
+                    <li><strong>Loop variant &amp; stopping criteria</strong> — choose ReAct / Plan-and-Execute / Reflexion and define explicit stops.</li>
+                    <li><strong>Multi-agent decision</strong> — single or multiple agents? Justify with the decision checklist.</li>
+                    <li><strong>Guardrails</strong> — a concrete control for each of the five layers.</li>
+                    <li><strong>Responsible-AI alignment</strong> — map transparency, accountability, data protection, security, and controllability.</li>
+                </ol>
+
+                <h2>Rubric</h2>
+                <p>Your design should satisfy each learning objective of the session:</p>
+                <ul>
+                    <li>Assistant vs agent and the right autonomy level — addressed in goal &amp; autonomy.</li>
+                    <li>Seven components and their roles — each specified.</li>
+                    <li>The agentic loop (Think → Act → Observe) — loop variant chosen and justified.</li>
+                    <li>Multi-agent pattern selection — decision made and justified.</li>
+                    <li>Guardrails (all five layers) — a control for each, confirmed below.</li>
+                    <li>Responsible-AI aligned with the OVHcloud AI Policy — mapping completed.</li>
+                </ul>
+
+                <h2>Self-Assessment: Design Covers Five Layers</h2>
+                <p>Tick each layer once your agent-design document specifies a concrete control for it. All five are required to mark the capstone complete.</p>
+                <div class="self-assessment" id="guardrail-self-assessment">
+                    <ul class="guardrail-checklist">
+                        <li><label><input type="checkbox" class="guardrail-check" data-layer="permissions"> Permissions — scoped token / tool allow-list / environment boundary</label></li>
+                        <li><label><input type="checkbox" class="guardrail-check" data-layer="operational-limits"> Operational limits — iteration / retry / budget / timeout caps</label></li>
+                        <li><label><input type="checkbox" class="guardrail-check" data-layer="human-approval"> Human approval — which actions require a human yes</label></li>
+                        <li><label><input type="checkbox" class="guardrail-check" data-layer="observability"> Observability — traces, logs, alerts</label></li>
+                        <li><label><input type="checkbox" class="guardrail-check" data-layer="kill-switch"> Kill switch — immediate stop and access revocation</label></li>
+                    </ul>
+                    <p class="assessment-result" role="status" aria-live="polite"></p>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>Future enhancement:</strong> an interactive SkillHub form that generates this design document from guided inputs is planned. For now, the markdown template is the canonical deliverable.
+                </div>
+
+                <button class="btn btn-success btn-mark-complete" data-lesson-id="agent-design-capstone" disabled>
+                    Mark as Complete
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initGuardrailChecklist } from '../js/self-assessment.js';
+        const container = document.getElementById('guardrail-self-assessment');
+        const resultEl = container.querySelector('.assessment-result');
+        const completeBtn = document.querySelector('.btn-mark-complete');
+        initGuardrailChecklist({ container, resultEl, completeBtn, locale: 'en' });
+    </script>
+</body>
+</html>

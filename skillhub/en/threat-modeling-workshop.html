@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workshop: Threat Modeling an AI Agent - AI Store Labs</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="site-header" role="banner">
+        <a href="." class="logo" aria-label="AI Store Labs Home">
+            <span>AI Store Labs</span>
+        </a>
+
+        <div class="header-actions">
+            <div class="progress-bar-container" aria-label="Overall progress">
+                <span class="progress-label">Progress:</span>
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <span class="progress-percent">0%</span>
+            </div>
+
+            <div class="locale-switcher" role="navigation" aria-label="Language selector">
+                <button class="active" data-locale="en" aria-label="English">EN</button>
+                <button data-locale="fr" aria-label="Français">FR</button>
+            </div>
+
+            <button class="hamburger-btn" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <aside class="sidebar" role="navigation" aria-label="Lesson navigation">
+        <div class="sidebar-section" data-track="morning">
+            <h2 class="sidebar-section-title">Morning — Fundamentals</h2>
+            <ul class="sidebar-nav" id="nav-morning">
+                <li><a href="assistant-vs-agent.html">From Assistant to Agent</a></li>
+                <li><a href="agent-anatomy-7-components.html">Anatomy: Seven Core Components</a></li>
+                <li><a href="agentic-loop-and-variants.html">The Agentic Loop &amp; Variants</a></li>
+                <li><a href="stopping-criteria.html">Stopping Criteria</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="afternoon">
+            <h2 class="sidebar-section-title">Afternoon — Design &amp; Governance</h2>
+            <ul class="sidebar-nav" id="nav-afternoon">
+                <li><a href="multi-agent-patterns.html">Multi-Agent Patterns</a></li>
+                <li><a href="when-not-multi-agent.html">When Not to Go Multi-Agent</a></li>
+                <li><a href="guardrails-5-layers.html">Guardrails: Five Layers</a></li>
+                <li><a href="human-in-the-loop-ovhcloud-policy.html">Human-in-the-Loop &amp; OVHcloud AI Policy</a></li>
+                <li><a href="threat-modeling-workshop.html" class="active">Workshop: Threat Modeling</a></li>
+                <li><a href="agent-design-capstone.html">Capstone: Agent Design</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="sandbox">
+            <h2 class="sidebar-section-title">Sandbox — opcp-explorer Platform</h2>
+            <ul class="sidebar-nav" id="nav-sandbox">
+                <li><a href="install-bare-metal.html">Installation on Bare-Metal Ubuntu</a></li>
+                <li><a href="adding-applications.html">Adding New Applications</a></li>
+                <li><a href="starting-applications.html">Starting Applications</a></li>
+                <li><a href="stopping-applications.html">Stopping Applications</a></li>
+                <li><a href="making-backups.html">Making Backups</a></li>
+                <li><a href="modifying-applications.html">Modifying Applications with AI</a></li>
+                <li><a href="mig-gpu.html">Docker with MIG GPU</a></li>
+                <li><a href="serverless-execution.html">Serverless Docker Execution</a></li>
+                <li><a href="billing-cost-tracking.html">Billing &amp; Cost Tracking</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content" role="main">
+        <div class="lesson-content">
+            <div class="lesson-header">
+                <h1>Workshop: Threat Modeling an AI Agent</h1>
+                <div class="lesson-meta">
+                    <span class="difficulty-badge difficulty-badge--advanced">Afternoon · Workshop</span>
+                    <span class="duration">⏱ ~45 min</span>
+                </div>
+            </div>
+            <div class="lesson-body">
+                <p>In this hands-on workshop you threat-model an agent that operates on opcp-explorer and define the guardrails that keep it safe. The output is a completed <strong>threat-model deliverable</strong> whose mitigations map onto the five guardrail layers.</p>
+
+                <h2>Learning Objectives</h2>
+                <ul>
+                    <li>Threat-model an opcp-explorer-connected agent</li>
+                    <li>Map each mitigation to a guardrail layer</li>
+                    <li>Confirm coverage of all five layers via self-assessment</li>
+                </ul>
+
+                <h2>Prerequisites</h2>
+                <ul>
+                    <li>Completed: <a href="guardrails-5-layers.html">Guardrails: the Five Layers of Control</a></li>
+                    <li>Completed: <a href="human-in-the-loop-ovhcloud-policy.html">Human-in-the-Loop &amp; the OVHcloud AI Policy</a></li>
+                    <li>The trace-reading lab (so you have seen a real failure)</li>
+                </ul>
+
+                <h2>Step 1 — Describe the System</h2>
+                <p>Pick an agent (e.g. a deploy-and-verify agent). Note its goal, its opcp-explorer tools, its autonomy level, and what it can touch. Record this in section 1 of the template.</p>
+
+                <h2>Step 2 — Find the Trust Boundaries</h2>
+                <p>Where does untrusted input enter? Prompts, tool outputs, repository files, other agents. Each boundary is a place a threat can cross.</p>
+
+                <h2>Step 3 — Enumerate Threats</h2>
+                <p>Cover at least the three agent-specific threats, grounded in the trace you annotated:</p>
+                <ul>
+                    <li><strong>Tool misuse</strong> — e.g. deploying to production unintentionally.</li>
+                    <li><strong>Prompt injection</strong> — a repo file telling the agent to exfiltrate a token.</li>
+                    <li><strong>Runaway loops</strong> — the repeated deploy failures you saw this morning.</li>
+                </ul>
+
+                <h2>Step 4 — Map Mitigations to Guardrail Layers</h2>
+                <p>For each threat, choose a mitigation and assign it to a guardrail layer. Fill the mapping table in the template. Then confirm coverage below.</p>
+
+                <div class="deliverable-callout alert alert-info">
+                    <strong>Deliverable:</strong> complete <code>deliverables/threat-model-template.md</code> (or the <code>.fr.md</code> version). Keep the headings; replace the italic prompts.
+                </div>
+
+                <h2>Self-Assessment: Five-Layer Coverage</h2>
+                <p>Tick a box once your threat model includes at least one mitigation mapped to that guardrail layer. All five are required to complete this workshop.</p>
+                <div class="self-assessment" id="guardrail-self-assessment">
+                    <ul class="guardrail-checklist">
+                        <li><label><input type="checkbox" class="guardrail-check" data-layer="permissions"> Permissions — scoped access / tool allow-list</label></li>
+                        <li><label><input type="checkbox" class="guardrail-check" data-layer="operational-limits"> Operational limits — iteration / retry / budget / timeout caps</label></li>
+                        <li><label><input type="checkbox" class="guardrail-check" data-layer="human-approval"> Human approval — a human yes before high-impact actions</label></li>
+                        <li><label><input type="checkbox" class="guardrail-check" data-layer="observability"> Observability — traces, logs, alerts</label></li>
+                        <li><label><input type="checkbox" class="guardrail-check" data-layer="kill-switch"> Kill switch — immediate stop and access revocation</label></li>
+                    </ul>
+                    <p class="assessment-result" role="status" aria-live="polite"></p>
+                </div>
+
+                <button class="btn btn-success btn-mark-complete" data-lesson-id="threat-modeling-workshop" disabled>
+                    Mark as Complete
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initGuardrailChecklist } from '../js/self-assessment.js';
+        const container = document.getElementById('guardrail-self-assessment');
+        const resultEl = container.querySelector('.assessment-result');
+        const completeBtn = document.querySelector('.btn-mark-complete');
+        initGuardrailChecklist({ container, resultEl, completeBtn, locale: 'en' });
+    </script>
+</body>
+</html>

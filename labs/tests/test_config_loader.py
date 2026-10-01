@@ -683,7 +683,13 @@ class TestConfigLoaderRealFile:
         config = loader.load()
 
         assert config.version == "1.0"
-        assert len(config.modules) == 9
+        # The catalog grows as agentic modules are added; assert the original
+        # sandbox modules remain and the agentic connectivity module is present.
+        module_ids = {m.id for m in config.modules}
+        assert len(config.modules) >= 9
+        assert "install-bare-metal" in module_ids
+        assert "billing-cost-tracking" in module_ids
+        assert "opcp-explorer-connect" in module_ids
         assert config.max_concurrent_containers == 10
         assert config.memory_ceiling_mb == 16384
         assert config.cpu_ceiling_cores == 8.0

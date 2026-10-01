@@ -35,25 +35,35 @@
     </header>
 
     <aside class="sidebar" role="navigation" aria-label="Lesson navigation">
-        <div class="sidebar-section">
-            <h2 class="sidebar-section-title">Beginner</h2>
-            <ul class="sidebar-nav" id="nav-beginner">
-                <li><a href="install-bare-metal.html">Installation on Bare-Metal Ubuntu</a></li>
-                <li><a href="adding-applications.html">Adding New Applications</a></li>
+        <div class="sidebar-section" data-track="morning">
+            <h2 class="sidebar-section-title">Morning — Fundamentals</h2>
+            <ul class="sidebar-nav" id="nav-morning">
+                <li><a href="assistant-vs-agent.html">From Assistant to Agent</a></li>
+                <li><a href="agent-anatomy-7-components.html">Anatomy: Seven Core Components</a></li>
+                <li><a href="agentic-loop-and-variants.html">The Agentic Loop &amp; Variants</a></li>
+                <li><a href="stopping-criteria.html">Stopping Criteria</a></li>
             </ul>
         </div>
-        <div class="sidebar-section">
-            <h2 class="sidebar-section-title">Intermediate</h2>
-            <ul class="sidebar-nav" id="nav-intermediate">
+        <div class="sidebar-section" data-track="afternoon">
+            <h2 class="sidebar-section-title">Afternoon — Design &amp; Governance</h2>
+            <ul class="sidebar-nav" id="nav-afternoon">
+                <li><a href="multi-agent-patterns.html">Multi-Agent Patterns</a></li>
+                <li><a href="when-not-multi-agent.html">When Not to Go Multi-Agent</a></li>
+                <li><a href="guardrails-5-layers.html">Guardrails: Five Layers</a></li>
+                <li><a href="human-in-the-loop-ovhcloud-policy.html">Human-in-the-Loop &amp; OVHcloud AI Policy</a></li>
+                <li><a href="threat-modeling-workshop.html">Workshop: Threat Modeling</a></li>
+                <li><a href="agent-design-capstone.html">Capstone: Agent Design</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="sandbox">
+            <h2 class="sidebar-section-title">Sandbox — opcp-explorer Platform</h2>
+            <ul class="sidebar-nav" id="nav-sandbox">
+                <li><a href="install-bare-metal.html">Installation on Bare-Metal Ubuntu</a></li>
+                <li><a href="adding-applications.html">Adding New Applications</a></li>
                 <li><a href="starting-applications.html">Starting Applications</a></li>
                 <li><a href="stopping-applications.html">Stopping Applications</a></li>
                 <li><a href="making-backups.html">Making Backups</a></li>
                 <li><a href="modifying-applications.html">Modifying Applications with AI</a></li>
-            </ul>
-        </div>
-        <div class="sidebar-section">
-            <h2 class="sidebar-section-title">Advanced</h2>
-            <ul class="sidebar-nav" id="nav-advanced">
                 <li><a href="mig-gpu.html">Docker with MIG GPU</a></li>
                 <li><a href="serverless-execution.html">Serverless Docker Execution</a></li>
                 <li><a href="billing-cost-tracking.html">Billing &amp; Cost Tracking</a></li>
@@ -64,27 +74,37 @@
     <main class="main-content" role="main">
         <div class="lesson-content">
             <div class="lesson-header">
-                <h1>Welcome to AI Store Labs</h1>
+                <h1>Agentic AI — One-Day Learning Session</h1>
                 <div class="lesson-meta">
                     <span class="difficulty-badge difficulty-badge--beginner">Getting Started</span>
                 </div>
             </div>
             <div class="lesson-body">
-                <p>Welcome to the AI-Powered-Store training platform. This SkillHub provides interactive lessons covering every aspect of the platform — from installation to advanced GPU management.</p>
+                <p>Welcome to the agentic-AI learning session. Over one day you will move from understanding what an AI agent is to designing a functional, reliable, and controllable agent of your own. Throughout, the <strong>opcp-explorer</strong> platform (AI-Powered-Store) is the live environment your agent acts on through its API, CLI, and MCP interfaces.</p>
 
-                <h2>How to Use SkillHub</h2>
-                <p>Navigate through lessons using the sidebar on the left. Lessons are organized by difficulty level:</p>
+                <h2>Programme</h2>
+                <p>The session is organized into two tracks, plus a sandbox reference:</p>
                 <ul>
-                    <li><strong>Beginner</strong> — Platform setup and basic operations</li>
-                    <li><strong>Intermediate</strong> — Application lifecycle and data management</li>
-                    <li><strong>Advanced</strong> — GPU workloads, serverless, and billing</li>
+                    <li><strong>Morning — Fundamentals (9:30–12:30)</strong> — Assistant vs agent and the autonomy spectrum, the seven core components, the Think → Act → Observe loop and its variants (ReAct, Plan-and-Execute, Reflexion), stopping criteria, and a hands-on trace-reading workshop.</li>
+                    <li><strong>Afternoon — Design &amp; Governance (13:30–17:00)</strong> — Multi-agent patterns and inter-agent communication, when not to go multi-agent, the five guardrail layers, human-in-the-loop governance and the OVHcloud AI Policy, plus two workshops: threat modeling and an end-to-end agent design capstone.</li>
+                    <li><strong>Sandbox — opcp-explorer</strong> — Platform operations (deploy, start, stop, modify, back up applications) that your agent orchestrates as its toolset.</li>
+                </ul>
+
+                <h2>Learning Objectives</h2>
+                <ul>
+                    <li>Differentiate an AI assistant from an AI agent and choose the right level of autonomy</li>
+                    <li>Identify the core components of an AI agent and the role of each</li>
+                    <li>Analyze the agentic execution loop (Think → Act → Observe)</li>
+                    <li>Design a multi-agent system and select the appropriate architectural pattern</li>
+                    <li>Govern agent autonomy through guardrails (permissions, limits, human validation, observability, kill switch)</li>
+                    <li>Apply responsible-AI practices aligned with the OVHcloud AI Policy</li>
                 </ul>
 
                 <h2>Tracking Your Progress</h2>
                 <p>As you complete each lesson, click the "Mark as Complete" button. Your progress is saved locally and displayed in the header progress bar.</p>
 
                 <div class="alert alert-info">
-                    <strong>Tip:</strong> Each lesson has an accompanying hands-on lab. Complete the reading first, then launch the lab for practical exercises.
+                    <strong>Tip:</strong> The morning trace-reading workshop and the opcp-explorer connectivity module are hands-on labs. Complete the reading first, then launch the lab for practical exercises.
                 </div>
             </div>
         </div>

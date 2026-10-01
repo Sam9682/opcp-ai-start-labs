@@ -1,0 +1,190 @@
+"""Property-based tests for CredentialHandler.
+
+Feature: ai-store-labs, Property 10: Credential Retrieval and Non-Leakage
+
+**Validates: Requirements 3.8**
+
+Property 10: For any credential key/value pair loaded from environment
+variables or a secrets file, the CredentialHandler returns the exact value
+when queried by key. Additionally, for any operation that produces log
+output, the log output never contains any credential value stored in the
+handler.
+
+These tests run without Docker, network, or a live platform: environment
+variables are set via monkeypatch and secrets are written to temp files.
+"""
+
+import json
+import logging
+
+from hypothesis import HealthCheck, given, settings
+from hypothesis import strategies as st
+
+from labs.core.credential_handler import CredentialHandler
+
+# ---------------------------------------------------------------------------
+# Strategies
+# ---------------------------------------------------------------------------
+
+# Credential key names: valid environment-variable-style identifiers.
+# Env var names on most platforms are uppercase letters, digits, underscores,
+# and must not start with a digit. We also avoid "=" and NUL which os.environ
+# rejects.
+_key_strategy = st.from_regex(r"[A-Z_][A-Z0-9_]{0,30}", fullmatch=True)
+
+# Credential values: non-empty printable strings. We exclude characters that
+# cannot appear in environment variable values (NUL) and keep them non-empty
+# so that redaction/containment checks are meaningful.
+_value_strategy = st.text(
+    alphabet=st.characters(
+        min_codepoint=33,
+        max_codepoint=126,
+    ),
+    min_size=1,
+    max_size=40,
+)
+
+# A mapping of distinct credential keys to values.
+_credentials_strategy = st.dictionaries(
+    keys=_key_strategy,
+    values=_value_strategy,
+    min_size=1,
+    max_size=8,
+)
+
+
+# ---------------------------------------------------------------------------
+# Part 1: Retrieval returns the exact stored value
+# ---------------------------------------------------------------------------
+
+
+@settings(max_examples=150, suppress_health_check=[HealthCheck.function_scoped_fixture])
+@given(credentials=_credentials_strategy)
+def test_get_credential_returns_exact_value_from_secrets_file(
+    credentials, tmp_path_factory
+):
+    """get_credential returns the exact value loaded from a secrets file.
+
+    Feature: ai-store-labs, Property 10: Credential Retrieval and Non-Leakage
+    Validates: Requirements 3.8
+    """
+    secrets_file = tmp_path_factory.mktemp("secrets") / "secrets.json"
+    secrets_file.write_text(json.dumps(credentials), encoding="utf-8")
+
+    handler = CredentialHandler(secrets_file=str(secrets_file))
+
+    for key, expected_value in credentials.items():
+        assert handler.get_credential(key) == expected_value
+
+
+@settings(max_examples=150, suppress_health_check=[HealthCheck.function_scoped_fixture])
+@given(credentials=_credentials_strategy)
+def test_get_credential_returns_exact_value_from_env(
+    credentials, monkeypatch
+):
+    """get_credential returns the exact value loaded from env vars.
+
+    Feature: ai-store-labs, Property 10: Credential Retrieval and Non-Leakage
+    Validates: Requirements 3.8
+    """
+    for key, value in credentials.items():
+        monkeypatch.setenv(key, value)
+
+    handler = CredentialHandler()
+
+    for key, expected_value in credentials.items():
+        assert handler.get_credential(key) == expected_value
+
+
+@settings(max_examples=150, suppress_health_check=[HealthCheck.function_scoped_fixture])
+@given(
+    env_credentials=_credentials_strategy,
+    file_credentials=_credentials_strategy,
+)
+def test_env_takes_priority_and_values_are_exact(
+    env_credentials, file_credentials, monkeypatch, tmp_path_factory
+):
+    """When a key is in both sources, env wins; values are always exact.
+
+    Feature: ai-store-labs, Property 10: Credential Retrieval and Non-Leakage
+    Validates: Requirements 3.8
+    """
+    secrets_file = tmp_path_factory.mktemp("secrets") / "secrets.json"
+    secrets_file.write_text(json.dumps(file_credentials), encoding="utf-8")
+
+    for key, value in env_credentials.items():
+        monkeypatch.setenv(key, value)
+
+    handler = CredentialHandler(secrets_file=str(secrets_file))
+
+    for key in set(env_credentials) | set(file_credentials):
+        expected = env_credentials.get(key, file_credentials.get(key))
+        assert handler.get_credential(key) == expected
+
+
+# ---------------------------------------------------------------------------
+# Part 2: Credential values never leak into log output
+# ---------------------------------------------------------------------------
+
+
+@settings(max_examples=150, suppress_health_check=[HealthCheck.function_scoped_fixture])
+@given(credentials=_credentials_strategy)
+def test_secrets_file_values_never_leak_into_logs(
+    credentials, tmp_path_factory, caplog
+):
+    """Log output never contains credential values loaded from a file.
+
+    Feature: ai-store-labs, Property 10: Credential Retrieval and Non-Leakage
+    Validates: Requirements 3.8
+    """
+    secrets_file = tmp_path_factory.mktemp("secrets") / "secrets.json"
+    secrets_file.write_text(json.dumps(credentials), encoding="utf-8")
+
+    handler = CredentialHandler(secrets_file=str(secrets_file))
+
+    test_logger = logging.getLogger("labs.core.credential_handler")
+
+    caplog.clear()
+    with caplog.at_level(
+        logging.DEBUG, logger="labs.core.credential_handler"
+    ):
+        # Attempt to leak every credential value through a log operation.
+        for key, value in credentials.items():
+            handler.get_credential(key)
+            test_logger.info("credential for %s is %s", key, value)
+            test_logger.warning("leaking value: " + value)
+
+    emitted = "\n".join(record.getMessage() for record in caplog.records)
+    for value in credentials.values():
+        assert value not in emitted
+
+
+@settings(max_examples=150, suppress_health_check=[HealthCheck.function_scoped_fixture])
+@given(credentials=_credentials_strategy)
+def test_env_values_never_leak_into_logs_after_retrieval(
+    credentials, monkeypatch, caplog
+):
+    """Log output never contains credential values from env after retrieval.
+
+    Feature: ai-store-labs, Property 10: Credential Retrieval and Non-Leakage
+    Validates: Requirements 3.8
+    """
+    for key, value in credentials.items():
+        monkeypatch.setenv(key, value)
+
+    handler = CredentialHandler()
+
+    test_logger = logging.getLogger("labs.core.credential_handler")
+
+    caplog.clear()
+    with caplog.at_level(
+        logging.DEBUG, logger="labs.core.credential_handler"
+    ):
+        for key, value in credentials.items():
+            # Retrieval registers the env value for redaction.
+            handler.get_credential(key)
+            test_logger.info("value is %s", value)
+
+    emitted = "\n".join(record.getMessage() for record in caplog.records)
+    for value in credentials.values():
+        assert value not in emitted

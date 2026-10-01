@@ -3,17 +3,49 @@ import {
   lessons,
   getLessonBySlug,
   getLessonsByDifficulty,
+  getLessonsByTrack,
   getPrerequisiteChain,
 } from '../js/lessons.js';
 
+const MORNING_SLUGS = [
+  'assistant-vs-agent',
+  'agent-anatomy-7-components',
+  'agentic-loop-and-variants',
+  'stopping-criteria',
+];
+
+const AFTERNOON_SLUGS = [
+  'multi-agent-patterns',
+  'when-not-multi-agent',
+  'guardrails-5-layers',
+  'human-in-the-loop-ovhcloud-policy',
+  'threat-modeling-workshop',
+  'agent-design-capstone',
+];
+
+const SANDBOX_SLUGS = [
+  'install-bare-metal',
+  'adding-applications',
+  'starting-applications',
+  'stopping-applications',
+  'making-backups',
+  'modifying-applications',
+  'mig-gpu',
+  'serverless-execution',
+  'billing-cost-tracking',
+];
+
 describe('Lesson Catalog', () => {
   describe('lessons data structure', () => {
-    it('contains exactly 9 lessons', () => {
-      expect(lessons).toHaveLength(9);
+    it('contains all morning, afternoon, and sandbox lessons', () => {
+      expect(lessons).toHaveLength(
+        MORNING_SLUGS.length + AFTERNOON_SLUGS.length + SANDBOX_SLUGS.length
+      );
     });
 
     it('each lesson has all required fields', () => {
       const validDifficulties = ['beginner', 'intermediate', 'advanced'];
+      const validTracks = ['morning', 'afternoon', 'sandbox'];
 
       for (const lesson of lessons) {
         expect(lesson).toHaveProperty('id');
@@ -21,6 +53,7 @@ describe('Lesson Catalog', () => {
         expect(lesson).toHaveProperty('title');
         expect(lesson.title).toHaveProperty('en');
         expect(lesson.title).toHaveProperty('fr');
+        expect(validTracks).toContain(lesson.track);
         expect(validDifficulties).toContain(lesson.difficulty);
         expect(lesson.estimatedMinutes).toBeGreaterThanOrEqual(1);
         expect(lesson.estimatedMinutes).toBeLessThanOrEqual(480);
@@ -46,6 +79,18 @@ describe('Lesson Catalog', () => {
       const slugs = lessons.map((l) => l.slug);
       expect(new Set(slugs).size).toBe(slugs.length);
     });
+
+    it('includes every agentic morning lesson', () => {
+      for (const slug of MORNING_SLUGS) {
+        expect(getLessonBySlug(slug)).toBeDefined();
+      }
+    });
+
+    it('includes every agentic afternoon lesson', () => {
+      for (const slug of AFTERNOON_SLUGS) {
+        expect(getLessonBySlug(slug)).toBeDefined();
+      }
+    });
   });
 
   describe('getLessonBySlug()', () => {
@@ -60,30 +105,21 @@ describe('Lesson Catalog', () => {
       expect(getLessonBySlug('non-existent')).toBeUndefined();
     });
 
-    it('returns correct lesson for mig-gpu slug', () => {
-      const lesson = getLessonBySlug('mig-gpu');
+    it('returns the first agentic lesson with no prerequisites', () => {
+      const lesson = getLessonBySlug('assistant-vs-agent');
       expect(lesson).toBeDefined();
-      expect(lesson.difficulty).toBe('advanced');
+      expect(lesson.track).toBe('morning');
+      expect(lesson.prerequisites).toEqual([]);
     });
   });
 
   describe('getLessonsByDifficulty()', () => {
-    it('returns beginner lessons', () => {
-      const beginner = getLessonsByDifficulty('beginner');
-      expect(beginner.length).toBe(4);
-      beginner.forEach((l) => expect(l.difficulty).toBe('beginner'));
-    });
-
-    it('returns intermediate lessons', () => {
-      const intermediate = getLessonsByDifficulty('intermediate');
-      expect(intermediate.length).toBe(4);
-      intermediate.forEach((l) => expect(l.difficulty).toBe('intermediate'));
-    });
-
-    it('returns advanced lessons', () => {
-      const advanced = getLessonsByDifficulty('advanced');
-      expect(advanced.length).toBe(1);
-      expect(advanced[0].id).toBe('mig-gpu');
+    it('returns only lessons of the requested difficulty', () => {
+      for (const difficulty of ['beginner', 'intermediate', 'advanced']) {
+        const group = getLessonsByDifficulty(difficulty);
+        expect(group.length).toBeGreaterThan(0);
+        group.forEach((l) => expect(l.difficulty).toBe(difficulty));
+      }
     });
 
     it('returns empty array for invalid difficulty', () => {
@@ -91,38 +127,64 @@ describe('Lesson Catalog', () => {
     });
   });
 
+  describe('getLessonsByTrack()', () => {
+    it('returns morning lessons in programme order', () => {
+      const morning = getLessonsByTrack('morning');
+      expect(morning.map((l) => l.slug)).toEqual(MORNING_SLUGS);
+    });
+
+    it('returns afternoon lessons in programme order', () => {
+      const afternoon = getLessonsByTrack('afternoon');
+      expect(afternoon.map((l) => l.slug)).toEqual(AFTERNOON_SLUGS);
+    });
+
+    it('returns sandbox lessons', () => {
+      const sandbox = getLessonsByTrack('sandbox');
+      expect(sandbox.map((l) => l.slug)).toEqual(SANDBOX_SLUGS);
+    });
+
+    it('returns empty array for an unknown track', () => {
+      expect(getLessonsByTrack('evening')).toEqual([]);
+    });
+  });
+
   describe('getPrerequisiteChain()', () => {
     it('returns empty array for lesson with no prerequisites', () => {
-      const chain = getPrerequisiteChain('install-bare-metal');
-      expect(chain).toEqual([]);
+      expect(getPrerequisiteChain('assistant-vs-agent')).toEqual([]);
+      expect(getPrerequisiteChain('install-bare-metal')).toEqual([]);
     });
 
     it('returns direct prerequisite for single-depth dependency', () => {
-      const chain = getPrerequisiteChain('adding-applications');
-      expect(chain).toEqual(['install-bare-metal']);
-    });
-
-    it('returns full chain in topological order for deep dependency', () => {
-      const chain = getPrerequisiteChain('stopping-applications');
-      expect(chain).toEqual([
-        'install-bare-metal',
-        'adding-applications',
-        'starting-applications',
+      expect(getPrerequisiteChain('agent-anatomy-7-components')).toEqual([
+        'assistant-vs-agent',
       ]);
     });
 
-    it('returns full chain for mig-gpu (3 levels deep)', () => {
-      const chain = getPrerequisiteChain('mig-gpu');
+    it('returns the full morning chain in topological order', () => {
+      expect(getPrerequisiteChain('stopping-criteria')).toEqual([
+        'assistant-vs-agent',
+        'agent-anatomy-7-components',
+        'agentic-loop-and-variants',
+      ]);
+    });
+
+    it('links the afternoon capstone back through the whole programme', () => {
+      const chain = getPrerequisiteChain('agent-design-capstone');
       expect(chain).toEqual([
-        'install-bare-metal',
-        'adding-applications',
-        'starting-applications',
+        'assistant-vs-agent',
+        'agent-anatomy-7-components',
+        'agentic-loop-and-variants',
+        'stopping-criteria',
+        'multi-agent-patterns',
+        'when-not-multi-agent',
+        'guardrails-5-layers',
+        'human-in-the-loop-ovhcloud-policy',
+        'threat-modeling-workshop',
       ]);
     });
 
     it('returns empty array for non-existent lesson', () => {
-      const chain = getPrerequisiteChain('non-existent');
-      expect(chain).toEqual([]);
+      expect(getPrerequisiteChain('non-existent')).toEqual([]);
     });
 
     it('does not include the lesson itself in the chain', () => {
@@ -132,19 +194,18 @@ describe('Lesson Catalog', () => {
     });
 
     it('produces no duplicate entries in the chain', () => {
-      // modifying-applications → adding-applications → install-bare-metal
-      const chain = getPrerequisiteChain('modifying-applications');
+      const chain = getPrerequisiteChain('agent-design-capstone');
       const uniqueChain = [...new Set(chain)];
       expect(chain).toEqual(uniqueChain);
     });
 
     it('returns prerequisites in correct topological order (earliest first)', () => {
-      const chain = getPrerequisiteChain('stopping-applications');
-      const installIdx = chain.indexOf('install-bare-metal');
-      const addingIdx = chain.indexOf('adding-applications');
-      const startingIdx = chain.indexOf('starting-applications');
-      expect(installIdx).toBeLessThan(addingIdx);
-      expect(addingIdx).toBeLessThan(startingIdx);
+      const chain = getPrerequisiteChain('stopping-criteria');
+      const a = chain.indexOf('assistant-vs-agent');
+      const b = chain.indexOf('agent-anatomy-7-components');
+      const c = chain.indexOf('agentic-loop-and-variants');
+      expect(a).toBeLessThan(b);
+      expect(b).toBeLessThan(c);
     });
   });
 
@@ -162,7 +223,6 @@ describe('Lesson Catalog', () => {
     });
 
     it('the prerequisite graph is acyclic (no circular dependencies)', () => {
-      // Simple cycle detection using DFS
       const visited = new Set();
       const stack = new Set();
 
@@ -186,6 +246,13 @@ describe('Lesson Catalog', () => {
       }
     });
 
+    it('every lesson belongs to a known track', () => {
+      const valid = ['morning', 'afternoon', 'sandbox'];
+      for (const lesson of lessons) {
+        expect(valid).toContain(lesson.track);
+      }
+    });
+
     it('all difficulty values are one of the valid enum values', () => {
       const valid = ['beginner', 'intermediate', 'advanced'];
       for (const lesson of lessons) {
@@ -197,6 +264,22 @@ describe('Lesson Catalog', () => {
       for (const lesson of lessons) {
         expect(lesson.title.en.length).toBeGreaterThan(0);
         expect(lesson.title.fr.length).toBeGreaterThan(0);
+      }
+    });
+
+    it('has no orphaned lessons (every lesson is either a root or reachable in a chain)', () => {
+      // A lesson is "connected" if it has prerequisites or is a prerequisite of
+      // another lesson. Roots (install-bare-metal, assistant-vs-agent) are allowed.
+      const referenced = new Set();
+      for (const lesson of lessons) {
+        for (const prereq of lesson.prerequisites) {
+          referenced.add(prereq);
+        }
+      }
+      for (const lesson of lessons) {
+        const isConnected =
+          lesson.prerequisites.length > 0 || referenced.has(lesson.id);
+        expect(isConnected).toBe(true);
       }
     });
   });

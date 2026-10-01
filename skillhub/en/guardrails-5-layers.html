@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guardrails: the Five Layers - AI Store Labs</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="site-header" role="banner">
+        <a href="." class="logo" aria-label="AI Store Labs Home">
+            <span>AI Store Labs</span>
+        </a>
+
+        <div class="header-actions">
+            <div class="progress-bar-container" aria-label="Overall progress">
+                <span class="progress-label">Progress:</span>
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <span class="progress-percent">0%</span>
+            </div>
+
+            <div class="locale-switcher" role="navigation" aria-label="Language selector">
+                <button class="active" data-locale="en" aria-label="English">EN</button>
+                <button data-locale="fr" aria-label="Français">FR</button>
+            </div>
+
+            <button class="hamburger-btn" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <aside class="sidebar" role="navigation" aria-label="Lesson navigation">
+        <div class="sidebar-section" data-track="morning">
+            <h2 class="sidebar-section-title">Morning — Fundamentals</h2>
+            <ul class="sidebar-nav" id="nav-morning">
+                <li><a href="assistant-vs-agent.html">From Assistant to Agent</a></li>
+                <li><a href="agent-anatomy-7-components.html">Anatomy: Seven Core Components</a></li>
+                <li><a href="agentic-loop-and-variants.html">The Agentic Loop &amp; Variants</a></li>
+                <li><a href="stopping-criteria.html">Stopping Criteria</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="afternoon">
+            <h2 class="sidebar-section-title">Afternoon — Design &amp; Governance</h2>
+            <ul class="sidebar-nav" id="nav-afternoon">
+                <li><a href="multi-agent-patterns.html">Multi-Agent Patterns</a></li>
+                <li><a href="when-not-multi-agent.html">When Not to Go Multi-Agent</a></li>
+                <li><a href="guardrails-5-layers.html" class="active">Guardrails: Five Layers</a></li>
+                <li><a href="human-in-the-loop-ovhcloud-policy.html">Human-in-the-Loop &amp; OVHcloud AI Policy</a></li>
+                <li><a href="threat-modeling-workshop.html">Workshop: Threat Modeling</a></li>
+                <li><a href="agent-design-capstone.html">Capstone: Agent Design</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="sandbox">
+            <h2 class="sidebar-section-title">Sandbox — opcp-explorer Platform</h2>
+            <ul class="sidebar-nav" id="nav-sandbox">
+                <li><a href="install-bare-metal.html">Installation on Bare-Metal Ubuntu</a></li>
+                <li><a href="adding-applications.html">Adding New Applications</a></li>
+                <li><a href="starting-applications.html">Starting Applications</a></li>
+                <li><a href="stopping-applications.html">Stopping Applications</a></li>
+                <li><a href="making-backups.html">Making Backups</a></li>
+                <li><a href="modifying-applications.html">Modifying Applications with AI</a></li>
+                <li><a href="mig-gpu.html">Docker with MIG GPU</a></li>
+                <li><a href="serverless-execution.html">Serverless Docker Execution</a></li>
+                <li><a href="billing-cost-tracking.html">Billing &amp; Cost Tracking</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content" role="main">
+        <div class="lesson-content">
+            <div class="lesson-header">
+                <h1>Guardrails: the Five Layers of Control</h1>
+                <div class="lesson-meta">
+                    <span class="difficulty-badge difficulty-badge--advanced">Afternoon · Design &amp; Governance</span>
+                    <span class="duration">⏱ ~45 min</span>
+                </div>
+            </div>
+            <div class="lesson-body">
+                <p>Guardrails are the controls that bound what an agent may do. The more autonomy you grant (from the morning's spectrum), the stronger the guardrails must be. This lesson presents five complementary layers — think defense in depth, not a single switch.</p>
+
+                <h2>Learning Objectives</h2>
+                <ul>
+                    <li>Name and explain the five guardrail layers</li>
+                    <li>Map each layer to a concrete control on opcp-explorer</li>
+                    <li>Combine layers into defense in depth</li>
+                </ul>
+
+                <h2>Defense in Depth</h2>
+                <pre><code>flowchart TD
+    L1[1. Permissions] --> L2[2. Operational limits]
+    L2 --> L3[3. Human approval]
+    L3 --> L4[4. Observability]
+    L4 --> L5[5. Kill switch]</code></pre>
+                <p class="caption">Each layer catches what the previous one misses. No single layer is sufficient alone.</p>
+
+                <h2>Layer 1 — Permissions</h2>
+                <p>What the agent is <em>allowed</em> to touch. Scoped tokens, allow-lists of tools, read-only vs read-write access, environment boundaries (staging vs production). On opcp-explorer: a token scoped to <code>apps:read</code> and <code>apps:write</code> but never <code>billing:*</code>, limited to one project.</p>
+
+                <h2>Layer 2 — Operational Limits</h2>
+                <p>How much the agent may do. Max loop iterations, retry/error ceilings, token and spend budgets, rate limits, wall-clock timeouts. These are the enforced form of the morning's stopping criteria. On opcp-explorer: "at most 5 deploy attempts, 10 minutes, €X spend."</p>
+
+                <h2>Layer 3 — Human Approval</h2>
+                <p>Where a person must say yes. A human-in-the-loop checkpoint before high-impact or irreversible actions. On opcp-explorer: the agent may deploy to staging autonomously, but promoting to production requires operator approval.</p>
+
+                <h2>Layer 4 — Observability</h2>
+                <p>Being able to see what the agent did. Structured execution traces, logs, metrics, and alerts — the trace you annotated this morning. Without observability, the other layers are unverifiable. On opcp-explorer: every tool call and decision is logged with inputs, outputs, and the stopping reason.</p>
+
+                <h2>Layer 5 — Kill Switch</h2>
+                <p>The ability to stop the agent immediately. A single, reliable control that halts the loop and revokes access, regardless of the agent's state. On opcp-explorer: an operator command that terminates the agent's session and invalidates its token.</p>
+
+                <h2>The Five Layers at a Glance</h2>
+                <table>
+                    <thead>
+                        <tr><th>Layer</th><th>Question it answers</th><th>opcp-explorer control</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Permissions</td><td>What may it touch?</td><td>Scoped token, tool allow-list</td></tr>
+                        <tr><td>Operational limits</td><td>How much may it do?</td><td>Retry/iteration/spend caps</td></tr>
+                        <tr><td>Human approval</td><td>What needs a human yes?</td><td>Approval before production</td></tr>
+                        <tr><td>Observability</td><td>Can we see what it did?</td><td>Structured traces and logs</td></tr>
+                        <tr><td>Kill switch</td><td>Can we stop it now?</td><td>Session terminate + token revoke</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-info">
+                    <strong>Design tip:</strong> set each layer in proportion to autonomy and impact. A low-autonomy, reversible action needs light guardrails; a high-autonomy, irreversible one needs all five.
+                </div>
+
+                <h2>Key Takeaways</h2>
+                <ul>
+                    <li>Five layers: permissions, operational limits, human approval, observability, kill switch.</li>
+                    <li>They work together as defense in depth — no single layer suffices.</li>
+                    <li>Scale each layer to the agent's autonomy and the action's impact.</li>
+                </ul>
+
+                <div class="alert alert-info">
+                    <strong>Next:</strong> <a href="human-in-the-loop-ovhcloud-policy.html">Human-in-the-Loop Governance and the OVHcloud AI Policy</a>.
+                </div>
+            </div>
+
+            <button class="btn btn-success btn-mark-complete" data-lesson-id="guardrails-5-layers">
+                Mark as Complete
+            </button>
+        </div>
+    </main>
+</body>
+</html>

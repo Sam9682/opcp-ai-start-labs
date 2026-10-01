@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Agentic Loop and its Variants - AI Store Labs</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <header class="site-header" role="banner">
+        <a href="." class="logo" aria-label="AI Store Labs Home">
+            <span>AI Store Labs</span>
+        </a>
+
+        <div class="header-actions">
+            <div class="progress-bar-container" aria-label="Overall progress">
+                <span class="progress-label">Progress:</span>
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <span class="progress-percent">0%</span>
+            </div>
+
+            <div class="locale-switcher" role="navigation" aria-label="Language selector">
+                <button class="active" data-locale="en" aria-label="English">EN</button>
+                <button data-locale="fr" aria-label="Français">FR</button>
+            </div>
+
+            <button class="hamburger-btn" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <aside class="sidebar" role="navigation" aria-label="Lesson navigation">
+        <div class="sidebar-section" data-track="morning">
+            <h2 class="sidebar-section-title">Morning — Fundamentals</h2>
+            <ul class="sidebar-nav" id="nav-morning">
+                <li><a href="assistant-vs-agent.html">From Assistant to Agent</a></li>
+                <li><a href="agent-anatomy-7-components.html">Anatomy: Seven Core Components</a></li>
+                <li><a href="agentic-loop-and-variants.html" class="active">The Agentic Loop &amp; Variants</a></li>
+                <li><a href="stopping-criteria.html">Stopping Criteria</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="afternoon">
+            <h2 class="sidebar-section-title">Afternoon — Design &amp; Governance</h2>
+            <ul class="sidebar-nav" id="nav-afternoon">
+                <li><a href="multi-agent-patterns.html">Multi-Agent Patterns</a></li>
+                <li><a href="when-not-multi-agent.html">When Not to Go Multi-Agent</a></li>
+                <li><a href="guardrails-5-layers.html">Guardrails: Five Layers</a></li>
+                <li><a href="human-in-the-loop-ovhcloud-policy.html">Human-in-the-Loop &amp; OVHcloud AI Policy</a></li>
+                <li><a href="threat-modeling-workshop.html">Workshop: Threat Modeling</a></li>
+                <li><a href="agent-design-capstone.html">Capstone: Agent Design</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-section" data-track="sandbox">
+            <h2 class="sidebar-section-title">Sandbox — opcp-explorer Platform</h2>
+            <ul class="sidebar-nav" id="nav-sandbox">
+                <li><a href="install-bare-metal.html">Installation on Bare-Metal Ubuntu</a></li>
+                <li><a href="adding-applications.html">Adding New Applications</a></li>
+                <li><a href="starting-applications.html">Starting Applications</a></li>
+                <li><a href="stopping-applications.html">Stopping Applications</a></li>
+                <li><a href="making-backups.html">Making Backups</a></li>
+                <li><a href="modifying-applications.html">Modifying Applications with AI</a></li>
+                <li><a href="mig-gpu.html">Docker with MIG GPU</a></li>
+                <li><a href="serverless-execution.html">Serverless Docker Execution</a></li>
+                <li><a href="billing-cost-tracking.html">Billing &amp; Cost Tracking</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="main-content" role="main">
+        <div class="lesson-content">
+            <div class="lesson-header">
+                <h1>The Agentic Loop: Think → Act → Observe</h1>
+                <div class="lesson-meta">
+                    <span class="difficulty-badge difficulty-badge--intermediate">Morning · Fundamentals</span>
+                    <span class="duration">⏱ ~45 min</span>
+                </div>
+            </div>
+            <div class="lesson-body">
+                <p>What makes an agent an agent is the <strong>loop</strong>. Rather than answering once, the agent repeatedly thinks about what to do, acts, and observes the result — feeding each observation back into the next decision. This lesson covers the base loop and three widely used variants.</p>
+
+                <h2>Learning Objectives</h2>
+                <ul>
+                    <li>Describe the Think → Act → Observe cycle and its data flow</li>
+                    <li>Compare ReAct, Plan-and-Execute, and Reflexion</li>
+                    <li>Choose a loop variant for a task on opcp-explorer</li>
+                </ul>
+
+                <h2>The Base Loop</h2>
+                <pre><code>flowchart LR
+    Think[Think: reason about the goal and next step]
+    Act[Act: call a tool]
+    Observe[Observe: read the result]
+    Think --> Act --> Observe --> Think
+    Observe --> Done{Stop?}
+    Done -->|yes| End[Return result]</code></pre>
+                <ul>
+                    <li><strong>Think</strong> — the brain reasons over the goal and current state, and decides the next action.</li>
+                    <li><strong>Act</strong> — the agent invokes a tool (e.g., call the opcp-explorer deploy API).</li>
+                    <li><strong>Observe</strong> — the agent reads the tool's output and updates its memory.</li>
+                </ul>
+                <p>The loop repeats until a stopping condition is met — the subject of the next lesson.</p>
+
+                <h2>Variant 1 — ReAct (Reason + Act)</h2>
+                <p>ReAct interleaves reasoning and acting at every step. The agent writes a short thought, takes one action, observes, then thinks again. It is simple, transparent, and well suited to tasks where the next step depends heavily on the last result.</p>
+                <pre><code>Thought: The app isn't running. I should start it.
+Action: opcp.start(app="demo")
+Observation: status = "starting"
+Thought: Wait and check health.
+Action: opcp.status(app="demo")
+Observation: health = "healthy" → done</code></pre>
+
+                <h2>Variant 2 — Plan-and-Execute</h2>
+                <p>The agent first produces a full plan, then executes the steps, optionally re-planning if something fails. This separates slow, expensive planning from fast execution and makes the intended sequence auditable before anything happens.</p>
+                <pre><code>Plan: [clone, build, start, verify-health]
+Execute step 1..4, re-plan only on failure</code></pre>
+                <p>Good for multi-step tasks with a predictable structure — such as a full deploy pipeline on opcp-explorer.</p>
+
+                <h2>Variant 3 — Reflexion</h2>
+                <p>Reflexion adds a self-critique step. After an attempt, the agent reflects on what went wrong, writes a lesson to memory, and retries with that insight. It trades extra loop iterations for higher eventual success on hard tasks.</p>
+                <pre><code>Attempt → fail → Reflect("build failed: missing dependency")
+→ store lesson → Retry with fix</code></pre>
+
+                <h2>Choosing a Variant</h2>
+                <table>
+                    <thead>
+                        <tr><th>Variant</th><th>Best when</th><th>Cost</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>ReAct</td><td>Next step depends on last result; need transparency</td><td>Low</td></tr>
+                        <tr><td>Plan-and-Execute</td><td>Predictable multi-step pipeline; want an auditable plan</td><td>Medium</td></tr>
+                        <tr><td>Reflexion</td><td>Hard tasks that benefit from learning across attempts</td><td>High</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-info">
+                    <strong>Note:</strong> variants combine. A Plan-and-Execute agent can use ReAct within a step and Reflexion when a step fails.
+                </div>
+
+                <h2>Key Takeaways</h2>
+                <ul>
+                    <li>The agentic loop is Think → Act → Observe, repeated.</li>
+                    <li>ReAct interleaves; Plan-and-Execute plans upfront; Reflexion learns from failure.</li>
+                    <li>Pick the cheapest variant that reliably solves the task.</li>
+                </ul>
+
+                <div class="alert alert-info">
+                    <strong>Next:</strong> <a href="stopping-criteria.html">Stopping Criteria: Preventing Infinite Loops</a>.
+                </div>
+            </div>
+
+            <button class="btn btn-success btn-mark-complete" data-lesson-id="agentic-loop-and-variants">
+                Mark as Complete
+            </button>
+        </div>
+    </main>
+</body>
+</html>

@@ -91,10 +91,32 @@ modules:
       memory_mb: 512
       time_minutes: 30
 
+  - id: "opcp-explorer-connect"
+    name: "Connecting an Agent to opcp-explorer"
+    order: 10
+    prerequisites: []
+    session_time_limit_minutes: 60
+    resource_limits:
+      cpu_cores: 1.0
+      memory_mb: 1024
+      time_minutes: 30
+
+  - id: "trace-reading"
+    name: "Reading an Agent Execution Trace"
+    order: 11
+    prerequisites: ["opcp-explorer-connect"]
+    session_time_limit_minutes: 60
+    resource_limits:
+      cpu_cores: 1.0
+      memory_mb: 512
+      time_minutes: 30
+
 endpoints:
   platform_api: "https://store.example.com/api"
   platform_cli: "/usr/local/bin/aipoweredstore_cli.py"
   health_check: "https://store.example.com/health"
+  opcp_explorer_api: "https://opcp.example.com/api"
+  opcp_explorer_mcp: "https://opcp.example.com/mcp"
 
 global:
   max_concurrent_containers: 10

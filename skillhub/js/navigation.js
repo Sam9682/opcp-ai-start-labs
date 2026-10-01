@@ -1,7 +1,8 @@
 /**
  * Navigation Module - Sidebar navigation, hamburger menu, and lesson routing.
  *
- * Groups lessons by difficulty in the sidebar.
+ * Groups lessons by session track in the sidebar (morning fundamentals,
+ * afternoon design & governance, and the opcp-explorer sandbox).
  * Provides hamburger menu toggle for viewports ≤ 768px.
  * Marks completed lessons with checkmark icon and "completed" CSS class.
  *
@@ -13,14 +14,23 @@
 import { isLessonComplete } from './progress.js';
 import { detectLocale } from './i18n.js';
 
-/** @type {string[]} Difficulty levels in display order */
-const DIFFICULTY_ORDER = ['beginner', 'intermediate', 'advanced'];
+/** @type {string[]} Session tracks in display order */
+const TRACK_ORDER = ['morning', 'afternoon', 'sandbox'];
 
-/** @type {Record<string, {en: string, fr: string}>} Section titles per difficulty */
+/** @type {Record<string, {en: string, fr: string}>} Section titles per track */
 const SECTION_TITLES = {
-  beginner: { en: 'Beginner', fr: 'Débutant' },
-  intermediate: { en: 'Intermediate', fr: 'Intermédiaire' },
-  advanced: { en: 'Advanced', fr: 'Avancé' }
+  morning: {
+    en: 'Morning — Fundamentals',
+    fr: 'Matin — Les fondamentaux'
+  },
+  afternoon: {
+    en: 'Afternoon — Design & Governance',
+    fr: 'Après-midi — Conception et gouvernance'
+  },
+  sandbox: {
+    en: 'Sandbox — opcp-explorer Platform',
+    fr: 'Bac à sable — plateforme opcp-explorer'
+  }
 };
 
 /**
@@ -52,8 +62,8 @@ export function renderSidebar(container, lessons, progress) {
   // Clear existing sidebar content
   container.innerHTML = '';
 
-  for (const difficulty of DIFFICULTY_ORDER) {
-    const groupLessons = lessons.filter((l) => l.difficulty === difficulty);
+  for (const track of TRACK_ORDER) {
+    const groupLessons = lessons.filter((l) => l.track === track);
     if (groupLessons.length === 0) {
       continue;
     }
@@ -61,11 +71,12 @@ export function renderSidebar(container, lessons, progress) {
     // Create section
     const section = document.createElement('div');
     section.className = 'sidebar-section';
+    section.setAttribute('data-track', track);
 
     // Section title
     const title = document.createElement('h3');
     title.className = 'sidebar-section-title';
-    title.textContent = SECTION_TITLES[difficulty][locale] || SECTION_TITLES[difficulty].en;
+    title.textContent = SECTION_TITLES[track][locale] || SECTION_TITLES[track].en;
     section.appendChild(title);
 
     // Navigation list
