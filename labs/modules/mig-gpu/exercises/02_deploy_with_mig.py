@@ -460,3 +460,75 @@ def _parse_cli_alternatives(output: str) -> list[dict]:
                     "compute_capability": parts[1],
                 })
     return alternatives
+
+
+def _parse_compute_capability(value) -> float:
+    """Convert a MIG compute-capability value into a comparable float.
+
+    MIG profiles express compute capability as a fraction of a physical GPU
+    sliced into 7 compute units (e.g. "1/7", "3/7", "7/7"). Plain numbers and
+    numeric strings are also accepted and used directly.
+
+    Args:
+        value: Compute capability as a "n/d" string, a number, or a numeric
+            string.
+
+    Returns:
+        The capability as a float. Returns 0.0 when the value cannot be parsed.
+    """
+    if isinstance(value, (int, float)):
+        return float(value)
+    if not isinstance(value, str):
+        return 0.0
+    text = value.strip()
+    if not text:
+        return 0.0
+    if "/" in text:
+        numerator, _, denominator = text.partition("/")
+        try:
+            num = float(numerator.strip())
+            den = float(denominator.strip())
+        except ValueError:
+            return 0.0
+        if den == 0:
+            return 0.0
+        return num / den
+    try:
+        return float(text)
+    except ValueError:
+        return 0.0
+
+
+def suggest_alternative_profiles(
+    requested_profile: dict,
+    available_profiles: list[dict],
+) -> list[dict]:
+    """Suggest alternative MIG profiles closest in compute capability.
+
+    When a requested MIG profile is unavailable due to capacity, the platform
+    recommends available profiles ordered by how close their compute capability
+    is to the requested one. The first entry is the closest match (Req 11.4).
+
+    Args:
+        requested_profile: The unavailable profile that was requested. Must
+            carry a ``compute_capability`` value.
+        available_profiles: Profiles currently available on the platform.
+
+    Returns:
+        The available profiles sorted by ascending distance in compute
+        capability from the requested profile. Ties are broken deterministically
+        by profile id. Returns an empty list only when no profiles are
+        available.
+    """
+    if not available_profiles:
+        return []
+
+    requested_cap = _parse_compute_capability(
+        requested_profile.get("compute_capability")
+    )
+
+    def _sort_key(profile: dict):
+        cap = _parse_compute_capability(profile.get("compute_capability"))
+        return (abs(cap - requested_cap), str(profile.get("id", "")))
+
+    return sorted(available_profiles, key=_sort_key)

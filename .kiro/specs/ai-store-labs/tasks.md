@@ -21,7 +21,7 @@ This implementation plan builds the AI Store Labs training platform incrementall
     - On invalid config: reject change, retain last valid config, log specific error
     - _Requirements: 16.1, 16.2, 16.3, 16.4, 16.5, 16.6_
 
-  - [-]* 1.3 Write property tests for ConfigLoader
+  - [x]* 1.3 Write property tests for ConfigLoader
     - **Property 4: Configuration Validation Round-Trip**
     - **Property 5: Invalid Configuration Rejection**
     - **Validates: Requirements 3.2, 16.1, 16.2, 16.3, 16.5**
@@ -39,7 +39,7 @@ This implementation plan builds the AI Store Labs training platform incrementall
     - Ensure credentials never appear in log output
     - _Requirements: 3.8_
 
-  - [-]* 2.3 Write property test for CredentialHandler
+  - [x]* 2.3 Write property test for CredentialHandler
     - **Property 10: Credential Retrieval and Non-Leakage**
     - **Validates: Requirements 3.8**
 
@@ -50,7 +50,7 @@ This implementation plan builds the AI Store Labs training platform incrementall
     - Implement `monitor(container_id, limits, on_exceed)` to watch and terminate on limit breach
     - _Requirements: 3.5, 3.6, 14.3_
 
-  - [-]* 2.5 Write property test for ResourceLimiter
+  - [x]* 2.5 Write property test for ResourceLimiter
     - **Property 8: Resource Limits Translation**
     - **Validates: Requirements 3.5**
 
@@ -60,7 +60,7 @@ This implementation plan builds the AI Store Labs training platform incrementall
     - Implement `validate_exercise(exercise_id, steps)` running sequential step validation
     - _Requirements: 3.7_
 
-  - [-]* 2.7 Write property test for ExerciseValidator
+  - [x]* 2.7 Write property test for ExerciseValidator
     - **Property 9: Exercise Step Assertion Evaluation**
     - **Validates: Requirements 3.7**
 
@@ -71,7 +71,7 @@ This implementation plan builds the AI Store Labs training platform incrementall
     - Always return non-empty checks list and textual feedback
     - _Requirements: 3.3_
 
-  - [-]* 2.9 Write property test for AssessmentEngine
+  - [x]* 2.9 Write property test for AssessmentEngine
     - **Property 6: Assessment Result Consistency**
     - **Validates: Requirements 3.3**
 
@@ -82,7 +82,7 @@ This implementation plan builds the AI Store Labs training platform incrementall
     - Implement `is_module_complete(student_id, module_name)` checking all exercises passed
     - _Requirements: 3.4_
 
-  - [ ]* 2.11 Write property test for ProgressTracker
+  - [x]* 2.11 Write property test for ProgressTracker
     - **Property 7: Server-Side Progress Persistence Round-Trip**
     - **Validates: Requirements 3.4**
 
@@ -94,7 +94,7 @@ This implementation plan builds the AI Store Labs training platform incrementall
     - Enforce prerequisite checks before session start
     - _Requirements: 3.1, 4.4, 14.3, 14.4, 14.5_
 
-  - [ ]* 2.13 Write property tests for LabRunner
+  - [x]* 2.13 Write property tests for LabRunner
     - **Property 11: Prerequisite Enforcement**
     - **Property 18: Runner Output Structure Invariant**
     - **Validates: Requirements 3.1, 4.4**
@@ -120,7 +120,7 @@ This implementation plan builds the AI Store Labs training platform incrementall
     - Validate README.md content for required sections: title, objective, prerequisite list, exercise table
     - _Requirements: 4.5, 4.6_
 
-  - [ ]* 4.4 Write property test for module structure validator
+  - [x]* 4.4 Write property test for module structure validator
     - **Property 12: Module Structure Validation**
     - **Validates: Requirements 4.5, 4.6**
 
@@ -143,7 +143,7 @@ This implementation plan builds the AI Store Labs training platform incrementall
     - Output always "en" or "fr"
     - _Requirements: 1.1, 1.5, 1.6_
 
-  - [ ]* 5.3 Write property test for I18n module
+  - [x]* 5.3 Write property test for I18n module
     - **Property 1: Locale Resolution Priority**
     - **Validates: Requirements 1.1, 1.5**
 
@@ -159,7 +159,7 @@ This implementation plan builds the AI Store Labs training platform incrementall
     - Completion percentage: `round(completedCount / totalCount * 100)`, integer in [0, 100]
     - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-  - [ ]* 5.6 Write property tests for Progress Tracker
+  - [x]* 5.6 Write property tests for Progress Tracker
     - **Property 2: Client-Side Progress Persistence Round-Trip**
     - **Property 3: Completion Percentage Calculation**
     - **Validates: Requirements 2.1, 2.2, 2.3**
@@ -214,7 +214,7 @@ This implementation plan builds the AI Store Labs training platform incrementall
     - Validate application appears in registry within 30s
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-  - [ ]* 8.3 Write property test for application metadata validation
+  - [x]* 8.3 Write property test for application metadata validation
     - **Property 13: Application Metadata Validation**
     - **Validates: Requirements 6.3**
 
@@ -225,7 +225,7 @@ This implementation plan builds the AI Store Labs training platform incrementall
     - Display per-check pass/fail results
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
-  - [ ]* 8.5 Write property test for validation result display
+  - [x]* 8.5 Write property test for validation result display
     - **Property 14: Validation Result Display Completeness**
     - **Validates: Requirements 7.5**
 
@@ -254,7 +254,7 @@ This implementation plan builds the AI Store Labs training platform incrementall
     - Validate GPU allocation within 30s, compute accessibility within 60s, profile release within 30s
     - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5_
 
-  - [ ]* 8.10 Write property test for MIG profile suggestion
+  - [x]* 8.10 Write property test for MIG profile suggestion
     - **Property 15: MIG Profile Alternative Suggestion**
     - **Validates: Requirements 11.4**
 
@@ -270,7 +270,7 @@ This implementation plan builds the AI Store Labs training platform incrementall
     - Validate resource count matching within 1% tolerance, alert triggering within 30s, report completeness
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5, 13.6_
 
-  - [ ]* 8.13 Write property tests for billing module
+  - [x]* 8.13 Write property tests for billing module
     - **Property 16: Numeric Tolerance Comparison**
     - **Property 17: Usage Report Field Completeness**
     - **Validates: Requirements 13.2, 13.5, 13.6**
@@ -308,13 +308,13 @@ This implementation plan builds the AI Store Labs training platform incrementall
     - Create `skillhub/tests/lessons.test.js` (lesson catalog validation)
     - _Requirements: 17.1_
 
-  - [ ]* 10.5 Write integration tests
+  - [x]* 10.5 Write integration tests
     - Create `labs/tests/integration/test_docker.py` (container lifecycle with Docker)
     - Create `labs/tests/integration/test_e2e.py` (full workflow end-to-end)
     - Test: docker-compose up → /health returns 200, container spawning with limits, config hot-reload
     - _Requirements: 15.7_
 
-- [-] 11. Final checkpoint
+- [x] 11. Final checkpoint
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
