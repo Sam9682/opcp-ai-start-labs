@@ -151,3 +151,96 @@ Ordering summary:
 - The exploration test (Task 1) asserts on the `index.html` source text via `fs.readFileSync` rather than importing/executing the page; it is expected to FAIL on unfixed code, which confirms the bug.
 - Preservation tests (Task 2) must PASS on the unfixed code before the fix is applied — locale detection is upstream of the redirect target and is unchanged by the fix.
 - Task 3.4 is optional; skipping it does not block Task 4, but Task 4 still requires the full suite and the SCORM build to succeed.
+
+---
+
+## Iteration 2 Tasks — Location-Anchored Locale Redirect
+
+### Overview (Iteration 2)
+
+Iteration 1 shipped the explicit-file redirect but the course still 404s in SCORM Cloud because the redirect target is a **relative** URL. When the SCO is served at a URL with no trailing slash (`.../scorm<hash>`), the browser resolves `en/index.html` against the parent directory and drops the SCO root segment. Iteration 2 anchors the redirect to the launch document own directory via a pure `resolveLocaleTarget(pathname, locale)` helper, so the target resolves inside the SCO root regardless of trailing slash. Single-file change in `skillhub/index.html`; detection, `<noscript>` fallback, and the build are unchanged.
+
+- [x] 5. Write bug condition exploration test for the relative-redirect base defect (BEFORE implementing the fix)
+  - **Property 3: Bug Condition** - Location-Anchored Redirect Resolves Inside the SCO Root
+  - **CRITICAL**: This test MUST FAIL on Iteration 1 code - failure confirms the no-trailing-slash defect
+  - **DO NOT attempt to fix the test or the code when it fails**
+  - **GOAL**: Surface the counterexample where a relative redirect against a no-trailing-slash launch URL resolves OUTSIDE the SCO root
+  - Add tests to `skillhub/tests/scorm-launch-redirect.test.js` (or a new sibling file) that model the redirect resolution. Resolve the launch page target against a no-trailing-slash base using the standard URL API (`new URL(target, base)`), where `target` is the string the Iteration 1 page passes to `window.location.replace` (`locale + '/index.html'`) and `base` is a SCORM-Cloud-style URL ending in `.../scorm7ed41bcd-f4ce` (no slash).
+  - Assert the resolved URL path contains the SCO root segment (e.g. `/scorm7ed41bcd-f4ce/en/index.html`). On Iteration 1 code this FAILS because the segment is dropped (`/courses/<id>/en/index.html`). Use `new URL(target, base)` as the oracle — this was confirmed empirically: `new URL('en/index.html', '.../scorm<hash>')` resolves to `.../courses/<id>/en/index.html`, dropping `scorm<hash>`.
+  - Also assert the source of `skillhub/index.html` derives the target from `window.location` (e.g. references `window.location.pathname`) rather than passing a bare relative string - FAILS on Iteration 1 (bare `locale + '/index.html'`).
+  - Run on Iteration 1 code via `npm test` in WSL Ubuntu-24.04
+  - **EXPECTED OUTCOME**: Test FAILS (correct - proves the base-URL resolution defect)
+  - Document the counterexample (resolved URL drops `scorm<hash>` and 404s)
+  - _Requirements: 4.1, 4.2, 5.1, 5.2_
+
+- [x] 6. Write preservation tests for Iteration 2 (BEFORE implementing the fix)
+  - **Property 4: Preservation** - Trailing-Slash Launches and Detection Unchanged
+  - **IMPORTANT**: Observation-first - these must PASS on Iteration 1 code
+  - Assert that for a launch URL that already ends in a slash, resolving the Iteration 1 relative target yields the correct SCO-root-relative landing page (`.../skillhub_scorm/en/index.html`). This behavior is preserved by the fix.
+  - Reuse / keep the Iteration 1 locale-detection preservation property tests (`scorm-launch-locale-preservation.property.test.js`) and the explicit-file `<noscript>` assertions - detection and fallback are unchanged by Iteration 2.
+  - Add a build-contract preservation assertion (Req 6.4): manifest still declares `href="index.html"`.
+  - Run on Iteration 1 code via `npm test` in WSL Ubuntu-24.04
+  - **EXPECTED OUTCOME**: Tests PASS (confirms the trailing-slash + detection + build baseline to preserve)
+  - _Requirements: 5.3, 6.1, 6.2, 6.3, 6.4_
+
+- [x] 7. Apply the location-anchored redirect fix
+
+  - [x] 7.1 Add `resolveLocaleTarget` and rewire `redirect(locale)` in `skillhub/index.html`
+    - Add a pure helper `resolveLocaleTarget(pathname, locale)` that derives the SCO root from the final path segment: if the segment is empty (trailing slash) keep the path; if it is an explicit `*.html` launch file strip it; otherwise (a directory name such as SCORM Cloud's `scorm<hash>` served with NO trailing slash) KEEP it and append `/`. Then return `root + locale + '/index.html'`. CRITICAL: do NOT use a naive `pathname.replace(/[^/]*$/, '')` — it drops the `scorm<hash>` SCO-root segment on the no-slash launch URL and reproduces the 404.
+    - Change `redirect(locale)` to call `window.location.replace(resolveLocaleTarget(window.location.pathname, locale))`
+    - Leave locale detection untouched: `detectLocaleAndRedirect`, the `localStorage` lookup, the browser-language branch, and the `en` default remain exactly as written
+    - Keep the Iteration 1 `<noscript>` explicit-file links (`en/index.html`, `fr/index.html`) unchanged
+    - Make NO change to `scripts/build-scorm.mjs`
+    - _Bug_Condition: isBugCondition2(X) = targetIsRelative(X) AND NOT endsWithSlash(X.pathname)_
+    - _Expected_Behavior: target = scoRoot(pathname) + locale + "/index.html" AND resolvesInsideScoRoot = true AND is404 = false_
+    - _Preservation: detection, <noscript> fallback, trailing-slash resolution, and build/manifest contract unchanged_
+    - _Requirements: 5.1, 5.2_
+
+  - [x] 7.2 Verify the Iteration 2 bug condition exploration test now passes
+    - **IMPORTANT**: Re-run the SAME test from task 5 - do NOT write a new test
+    - Run via `npm test`
+    - **EXPECTED OUTCOME**: Test PASSES (resolved target now preserves the SCO root segment for no-trailing-slash launch URLs)
+    - _Requirements: 5.1, 5.2_
+
+  - [x] 7.3 Verify Iteration 2 preservation tests still pass
+    - **IMPORTANT**: Re-run the SAME tests from task 6 (and the Iteration 1 preservation suite) - do NOT write new tests
+    - Run via `npm test`
+    - **EXPECTED OUTCOME**: Tests PASS (trailing-slash resolution, locale detection, `<noscript>` fallback, and build contract unchanged)
+    - _Requirements: 5.3, 6.1, 6.2, 6.3, 6.4_
+
+- [x] 8. Checkpoint - Ensure all tests pass and rebuild the package
+  - Run `npm test` in WSL Ubuntu-24.04 and confirm the full suite passes (Iteration 2 exploration test now green, all preservation tests green, Iteration 1 tests still green, existing suites unaffected except the known pre-existing `navigation.test.js` failure)
+  - Run `npm run build:scorm` and confirm the rebuilt `scorm/skillhub_scorm/index.html` carries the location-anchored redirect
+  - Note for manual verification: re-upload to SCORM Cloud and confirm the locale landing page loads (no 404)
+  - _Requirements: 4.1, 4.2, 5.1, 5.2, 5.3, 6.1, 6.2, 6.3, 6.4_
+
+## Iteration 2 Task Dependency Graph
+
+```
+Task 5 (Bug Condition exploration test, must FAIL on Iteration 1 code)
+Task 6 (Preservation tests, must PASS on Iteration 1 code)
+        |
+        v
+Task 7.1 (Add resolveLocaleTarget + rewire redirect in skillhub/index.html)
+        |
+        +---------------+
+        v               v
+Task 7.2           Task 7.3
+(re-run Task 5,    (re-run Task 6,
+ now PASSES)        still PASSES)
+        |               |
+        +-------+-------+
+                v
+Task 8 (Checkpoint - full suite + SCORM rebuild)
+```
+
+```json
+{
+  "waves": [
+    { "wave": 1, "tasks": ["5", "6"], "dependsOn": [] },
+    { "wave": 2, "tasks": ["7.1"], "dependsOn": ["5", "6"] },
+    { "wave": 3, "tasks": ["7.2", "7.3"], "dependsOn": ["7.1"] },
+    { "wave": 4, "tasks": ["8"], "dependsOn": ["7.2", "7.3"] }
+  ]
+}
+```

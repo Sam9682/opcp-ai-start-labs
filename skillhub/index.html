@@ -54,8 +54,27 @@
                 redirect(locale);
             }
 
+            // Resolve the locale landing page relative to the SCO ROOT, not to the
+            // (possibly trailing-slash-less) launch URL. SCORM Cloud serves the SCO
+            // at a URL with no trailing slash (e.g. ".../scorm<hash>"), where a plain
+            // relative "en/index.html" would resolve one directory ABOVE the SCO root
+            // and 404. We branch on the final path segment: keep it as the SCO-root
+            // directory unless it is an explicit *.html launch file (then strip it).
+            function resolveLocaleTarget(pathname, locale) {
+                var lastSeg = pathname.substring(pathname.lastIndexOf('/') + 1);
+                var root;
+                if (lastSeg === '') {
+                    root = pathname;                       // already ends with "/"
+                } else if (/\.html?$/i.test(lastSeg)) {
+                    root = pathname.replace(/[^/]*$/, ''); // strip explicit launch file
+                } else {
+                    root = pathname + '/';                 // SCO-root dir segment -> keep it
+                }
+                return root + locale + '/index.html';
+            }
+
             function redirect(locale) {
-                window.location.replace(locale + '/index.html');
+                window.location.replace(resolveLocaleTarget(window.location.pathname, locale));
             }
 
             detectLocaleAndRedirect();

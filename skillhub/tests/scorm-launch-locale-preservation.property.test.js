@@ -72,6 +72,10 @@ function runLaunchRedirect() {
   let captured = null;
   const windowSandbox = {
     location: {
+      // Realistic SCO-root launch pathname so the live resolveLocaleTarget
+      // (which reads window.location.pathname) resolves correctly. The test
+      // asserts only the SELECTED LOCALE, not the full path.
+      pathname: '/skillhub_scorm/index.html',
       replace(target) {
         captured = target;
       },
@@ -94,10 +98,13 @@ function runLaunchRedirect() {
     throw new Error('Launch page did not call window.location.replace');
   }
 
-  // The selected locale is the leading path segment before the first "/".
-  // This deliberately ignores the trailing "/" vs "/index.html" so the test is
-  // insensitive to the redirect-target fix and only asserts locale selection.
-  const locale = captured.split('/')[0];
+  // The redirect target is now an absolute, SCO-root-anchored path such as
+  // "/skillhub_scorm/en/index.html". The selected locale is the path segment
+  // immediately before the trailing "index.html". This deliberately ignores the
+  // anchoring details so the test stays insensitive to the redirect-target fix
+  // and only asserts locale selection.
+  const segs = captured.split('/').filter(Boolean);
+  const locale = segs[segs.length - 2];
   return locale;
 }
 

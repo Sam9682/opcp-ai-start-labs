@@ -89,3 +89,88 @@ END FOR
 - **Counterexample:** launching the built package in SCORM Cloud detects `en`, redirects to `en/`, and the host returns "Page not found" — the course never loads a lesson.
 
 Locale selection (stored preference → browser language → default `en`) is upstream of the redirect target and is unchanged by the fix (clauses 3.1–3.3).
+
+---
+
+# Iteration 2 — Relative Redirect Breaks on No-Trailing-Slash Launch URL
+
+## Introduction (Iteration 2)
+
+The Iteration 1 fix (redirect to the explicit file `locale + '/index.html'` instead of the bare directory `locale + '/'`) shipped and is verified in the package, yet SCORM Cloud still shows "Oops! Page not found!" The screenshot URL ends at the content root with **no trailing slash** (`.../courses/34ARXMUXR9/scorm7ed41bcd-f4ce`).
+
+The remaining defect is **base-URL resolution of the relative redirect**. `skillhub/index.html` calls `window.location.replace('en/index.html')` with a *relative* target. The browser resolves a relative URL against the current document's base URL. When SCORM Cloud serves the launch page at a URL **without a trailing slash**, the last path segment (`scorm7ed41bcd-f4ce`) is treated as a file name and dropped during resolution, so `en/index.html` resolves against the parent directory (`.../courses/34ARXMUXR9/en/index.html`) instead of the SCO root (`.../scorm7ed41bcd-f4ce/en/index.html`). The locale landing page is not found and the host returns 404.
+
+The whole course is built on root-relative assumptions that only hold when the launch URL ends in a slash: `en/index.html` loads `../assets/css/style.css` (one level up from `en/`) and links to sibling lesson pages. So the fix must make the launch page redirect resolve to the SCO root regardless of whether the host presents the launch URL with or without a trailing slash.
+
+**The fix** is to compute the redirect target from `window.location` so it is anchored to the SCO launch document's own directory rather than to an ambiguous relative base: strip any trailing file-name segment from `window.location.pathname`, ensure a single trailing slash, then append `locale + '/index.html'`. Navigate to that resolved path. The `<noscript>` links (static HTML, no script base to normalize) keep the explicit-file form from Iteration 1.
+
+**Reproduction:** Build the package and launch in SCORM Cloud. Observe the address bar lands on a path where `en/`/`fr/` sits one directory *above* the SCO root (missing the `scorm<hash>` segment), producing 404. Equivalent local reproduction: serve the package with a static host and request the SCO at a URL with no trailing slash (e.g. `.../skillhub_scorm` rather than `.../skillhub_scorm/`).
+
+**Affected files:**
+- `skillhub/index.html` — the launch/redirect page; the `redirect(locale)` function changes from a bare relative string to a location-anchored absolute path
+- `skillhub/tests/` (vitest) — add regression coverage for the base-URL resolution behavior
+
+## Bug Analysis (Iteration 2)
+
+### Current Behavior (Defect)
+
+4.1 WHEN the launch page runs `window.location.replace('en/index.html')` AND the current document URL has no trailing slash THEN the browser resolves the relative target against the parent directory, dropping the SCO root segment, and the request 404s
+4.2 WHEN SCORM Cloud (or any static host) serves the SCO launch page at a URL without a trailing slash THEN the relative redirect points outside the SCO root and no locale landing page loads
+
+### Expected Behavior (Correct)
+
+5.1 WHEN the launch page performs the locale redirect THEN the system SHALL navigate to a path anchored to the launch document own directory (the SCO root), independent of whether the launch URL ends with a trailing slash, so `locale/index.html` always resolves inside the SCO root
+5.2 WHEN the SCO root path is derived from `window.location.pathname` THEN the system SHALL treat the final segment correctly: strip it only when it is an explicit `*.html` launch file; otherwise (a directory name such as SCORM Cloud's `scorm<hash>` served with no trailing slash, or an already-slash-terminated path) KEEP it as the SCO root, normalize to a single trailing slash, and append `locale + '/index.html'`. The SCO-root segment MUST NOT be dropped.
+5.3 WHEN the course is launched on a host that serves the SCO at a URL WITH a trailing slash THEN the system SHALL CONTINUE TO resolve to the same correct locale landing page (behavior preserved)
+
+### Unchanged Behavior (Regression Prevention)
+
+6.1 WHEN a stored preference `skillhub-locale` is `fr` or `en` THEN the system SHALL CONTINUE TO honor the stored preference over browser detection
+6.2 WHEN there is no stored preference THEN the system SHALL CONTINUE TO select `fr` for a French browser language and otherwise default to `en`
+6.3 WHEN JavaScript is disabled THEN the `<noscript>` fallback links SHALL CONTINUE TO point to the explicit files `en/index.html` / `fr/index.html` from Iteration 1
+6.4 WHEN the SCORM package is built THEN `scripts/build-scorm.mjs` SHALL CONTINUE TO copy the root `index.html` verbatim and declare it as `href="index.html"` in `imsmanifest.xml`
+
+## Bug Condition Derivation (Iteration 2)
+
+**Input domain:** `X` = a redirect produced by the launch page for a detected locale `L in {"en","fr"}`, where the launch document is served at pathname `P`. Let `endsWithSlash(P)` be whether `P` ends with `/`.
+
+### Bug Condition — `isBugCondition2(X)`
+
+```pascal
+FUNCTION isBugCondition2(X)
+  INPUT: X of type RedirectRequest { locale: L, pathname: P }
+  OUTPUT: boolean
+
+  // Bug triggers when the redirect target is RELATIVE (not anchored to the SCO
+  // root) AND the launch URL has no trailing slash, so relative resolution drops
+  // the SCO root segment.
+  RETURN targetIsRelative(X) AND NOT endsWithSlash(X.pathname)
+END FUNCTION
+```
+
+In the Iteration 1 code `targetIsRelative(X)` is always true (the target is the bare relative string `locale + '/index.html'`), so every launch at a no-trailing-slash URL triggers the bug.
+
+### Property — Fix Checking
+
+```pascal
+FOR ALL X WHERE isBugCondition2(X) DO
+  result <- launchRedirect2(X)        // F2 = Iteration 2 fixed launch page
+  ASSERT result.target = scoRoot(X.pathname) + X.locale + "/index.html"
+     AND result.resolvesInsideScoRoot = true
+     AND result.is404 = false
+END FOR
+```
+
+### Property — Preservation Checking
+
+```pascal
+FOR ALL X WHERE NOT isBugCondition2(X) DO
+  ASSERT F1(X) = F2(X)   // trailing-slash launches resolve to the same target
+END FOR
+```
+
+- **F1** — the Iteration 1 launch page (explicit-file relative target).
+- **F2** — the Iteration 2 launch page (location-anchored absolute target).
+- **Counterexample:** SCORM Cloud serves the SCO at `.../scorm7ed41bcd-f4ce` (no slash); `window.location.replace('en/index.html')` resolves to `.../courses/34ARXMUXR9/en/index.html` (SCO root segment dropped) and returns "Page not found".
+
+Locale selection (stored preference -> browser language -> default `en`) remains upstream of the redirect target and is unchanged (clauses 6.1, 6.2).
