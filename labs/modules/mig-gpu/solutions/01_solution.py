@@ -13,7 +13,7 @@ def get_solution() -> dict:
     """
     return {
         "method": "cli",
-        "cli_path": "aipoweredstore_cli.py",
+        "cli_path": "opcp-explorer.py",
         "api_endpoint": "http://localhost:5000/api",
     }
 
@@ -47,7 +47,7 @@ def get_cli_command() -> str:
     Returns:
         The CLI command string.
     """
-    return "aipoweredstore_cli.py gpu list-profiles"
+    return "opcp-explorer.py gpu list-profiles"
 
 
 def get_api_command() -> str:

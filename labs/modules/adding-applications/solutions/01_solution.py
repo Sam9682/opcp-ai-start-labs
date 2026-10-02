@@ -1,7 +1,7 @@
 """Reference solution for Exercise 1: CLI Application Registration.
 
 Demonstrates the correct approach to registering an application
-using the aipoweredstore_cli.py command-line tool.
+using the opcp-explorer.py command-line tool.
 """
 
 
@@ -16,7 +16,7 @@ def get_solution() -> dict:
         "description": "A sample application registered during the Adding Applications lab",
         "git_url": "https://github.com/training/sample-app",
         "docker_image": "training/sample-app:latest",
-        "cli_path": "aipoweredstore_cli.py",
+        "cli_path": "opcp-explorer.py",
     }
 
 
@@ -27,7 +27,7 @@ def get_expected_command() -> str:
         The full CLI command string that should be constructed.
     """
     return (
-        "aipoweredstore_cli.py app register "
+        "opcp-explorer.py app register "
         "--name 'my-training-app' "
         "--description 'A sample application registered during the Adding Applications lab' "
         "--git-url 'https://github.com/training/sample-app' "
@@ -41,4 +41,4 @@ def get_verification_command() -> str:
     Returns:
         The CLI command to list registered applications.
     """
-    return "aipoweredstore_cli.py app list"
+    return "opcp-explorer.py app list"

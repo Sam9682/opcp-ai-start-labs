@@ -10,7 +10,7 @@ set -e
 echo "=== Starting Applications Lab Module - Teardown ==="
 
 # Configuration
-CLI_PATH="${AIPS_CLI_PATH:-/usr/local/bin/aipoweredstore_cli.py}"
+CLI_PATH="${AIPS_CLI_PATH:-/usr/local/bin/opcp-explorer.py}"
 APP_NAME="${AIPS_TEST_APP:-test-app}"
 KEEP_RUNNING="${KEEP_RUNNING:-false}"
 

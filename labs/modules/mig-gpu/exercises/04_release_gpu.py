@@ -188,7 +188,7 @@ class ReleaseGPUExercise(Exercise):
             "POST /api/deployments with action='stop'.",
             "Verify allocation removal: GET /api/gpu/allocations?app=<app_name>",
             "The profile must disappear from active allocations within 30s.",
-            "If using CLI: aipoweredstore_cli.py gpu release --app <app_name>",
+            "If using CLI: opcp-explorer.py gpu release --app <app_name>",
         ]
 
     def get_instructions(self) -> Optional[str]:
@@ -201,7 +201,7 @@ class ReleaseGPUExercise(Exercise):
             '     "action": "stop"\n'
             "   }\n"
             "   Or via CLI:\n"
-            "   aipoweredstore_cli.py gpu release --app my-gpu-app\n\n"
+            "   opcp-explorer.py gpu release --app my-gpu-app\n\n"
             "2. Verify the MIG profile is removed from active allocations:\n"
             "   GET /api/gpu/allocations?app=my-gpu-app\n\n"
             "3. The profile must no longer appear in the active GPU\n"
@@ -276,7 +276,7 @@ def _release_via_cli(app_name: str, mig_profile: str) -> dict:
     """
     import subprocess
 
-    cli_path = "/usr/local/bin/aipoweredstore_cli.py"
+    cli_path = "/usr/local/bin/opcp-explorer.py"
     cmd = [cli_path, "gpu", "release", "--app", app_name]
     if mig_profile:
         cmd.extend(["--profile", mig_profile])

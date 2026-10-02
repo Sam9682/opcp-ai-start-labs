@@ -30,15 +30,12 @@ Cette formation vous permet de :
 ## Durée Estimée
 
 ### Temps Total : ~1 journée (environ 10 heures)
-- **Module 1 : Installation sur Bare-Metal Ubuntu** (~120 min)
-- **Module 2 : Ajout de Nouvelles Applications** (~60 min)
-- **Module 3 : Démarrage des Applications** (~45 min)
-- **Module 4 : Arrêt des Applications** (~30 min)
-- **Module 5 : Réalisation de Sauvegardes** (~60 min)
-- **Module 6 : Modification d'Applications avec l'IA** (~90 min)
-- **Module 7 : Docker avec MIG GPU** (~90 min)
-- **Module 8 : Exécution Serverless Docker** (~75 min)
-- **Module 9 : Facturation et Suivi des Coûts** (~60 min)
+- **Module 1 : Installation sur Bare-Metal Ubuntu** (~20 min)
+- **Module 2 : Ajout de Nouvelles Applications** (~10 min)
+- **Module 3 : Démarrage des Applications** (~5 min)
+- **Module 4 : Arrêt des Applications** (~5 min)
+- **Module 5 : Réalisation de Sauvegardes** (~5 min)
+- **Module 6 : Modification d'Applications avec l'IA** (~20 min)
 
 ## Prérequis Techniques
 
@@ -56,7 +53,6 @@ Avant de commencer, assurez-vous de disposer des éléments suivants :
 - Docker (version 20.10+) et docker-compose
 - AWS CLI (pour le stockage S3 OVH)
 - Terraform
-- Amazon Kiro CLI
 - OVH CLI (shai)
 
 ### Configuration Réseau et Stockage
@@ -82,11 +78,11 @@ Les leçons sont organisées en trois niveaux de difficulté :
 
 ## Modules de Formation
 
-### Module 1 : Installation sur Bare-Metal Ubuntu (Débutant, ~120 min)
+### Module 1 : Installation sur Bare-Metal Ubuntu (Débutant, ~20 min)
 
 Déploiement complet de la plateforme AI-Powered-Store sur un serveur Ubuntu :
 - Installation des dépendances système (python3, pip, venv, net-tools, unzip)
-- Installation des outils CLI (Kiro CLI, OVH shai, AWS CLI, Terraform)
+- Installation des outils CLI (OVH shai, Terraform)
 - Configuration réseau Netplan (priorisation interfaces publique/privée)
 - Installation de Docker et docker-compose
 - Installation des drivers NVIDIA et support GPU (optionnel)
@@ -96,17 +92,17 @@ Déploiement complet de la plateforme AI-Powered-Store sur un serveur Ubuntu :
 
 **Script automatisé** : `init_pltf.sh` pour exécuter toutes les étapes automatiquement.
 
-### Module 2 : Ajout de Nouvelles Applications (Débutant, ~60 min)
+### Module 2 : Ajout de Nouvelles Applications (Débutant, ~20 min)
 
 Enregistrement et gestion des applications sur la plateforme :
 - **Via l'interface web** : formulaire d'ajout dans le panneau d'administration
-- **Via le CLI** : commande `python aipoweredstore_cli.py add-app`
+- **Via le CLI** : commande `python opcp-explorer.py add-app`
 - **Via l'API REST** : endpoint POST `/api/applications`
 - Gestion des métadonnées (nom, description, URL, dépôt Git)
 - Modification et suppression d'applications existantes
 - Export de la liste des applications en PDF
 
-### Module 3 : Démarrage des Applications (Intermédiaire, ~45 min)
+### Module 3 : Démarrage des Applications (Intermédiaire, ~5 min)
 
 Lancement et vérification des applications déployées :
 - Utilisation du script `deployApp.sh` pour démarrer une application
@@ -115,7 +111,7 @@ Lancement et vérification des applications déployées :
 - Vérification de la santé et de la connectivité
 - Résolution des problèmes courants de démarrage
 
-### Module 4 : Arrêt des Applications (Intermédiaire, ~30 min)
+### Module 4 : Arrêt des Applications (Intermédiaire, ~5 min)
 
 Procédures d'arrêt gracieux et gestion des ressources :
 - Arrêt d'une application individuelle (`docker-compose down`)
@@ -123,7 +119,7 @@ Procédures d'arrêt gracieux et gestion des ressources :
 - Nettoyage des ressources Docker (volumes, réseaux)
 - Compréhension des hooks d'arrêt et de la persistance des données
 
-### Module 5 : Réalisation de Sauvegardes (Intermédiaire, ~60 min)
+### Module 5 : Réalisation de Sauvegardes (Intermédiaire, ~20 min)
 
 Sauvegarde et restauration des données applicatives :
 - Dump de bases de données PostgreSQL
@@ -132,41 +128,14 @@ Sauvegarde et restauration des données applicatives :
 - Planification de sauvegardes automatiques
 - Vérification de l'intégrité des sauvegardes
 
-### Module 6 : Modification d'Applications avec l'IA (Intermédiaire, ~90 min)
+### Module 6 : Modification d'Applications avec l'IA (Intermédiaire, ~20 min)
 
 Utilisation d'outils IA pour personnaliser les applications :
-- Workflow de modification assistée par IA avec Kiro CLI
+- Workflow de modification assistée par IA avec Shai CLI
 - Application des changements aux applications en production
 - Tests des modifications dans des environnements isolés
 - Rollback des changements si nécessaire
 - Bonnes pratiques pour le développement assisté par IA
-
-### Module 7 : Docker avec MIG GPU (Avancé, ~90 min)
-
-Partitionnement GPU avec la technologie NVIDIA MIG :
-- Architecture MIG et partitionnement GPU
-- Activation et configuration du mode MIG
-- Création d'instances GPU et d'instances de calcul
-- Attribution de slices MIG à des conteneurs Docker
-- Supervision de l'utilisation GPU par instance
-
-### Module 8 : Exécution Serverless Docker (Avancé, ~75 min)
-
-Configuration du mode d'exécution serverless :
-- Modèle d'exécution serverless (démarrage à la demande, arrêt sur inactivité)
-- Configuration du timeout d'inactivité et des paramètres d'auto-scaling
-- Activation de conteneurs basée sur les requêtes
-- Suivi des performances de démarrage à froid (cold-start)
-- Optimisation des images Docker pour un démarrage rapide
-
-### Module 9 : Facturation et Suivi des Coûts (Avancé, ~60 min)
-
-Monitoring de la consommation de ressources et gestion des coûts :
-- Modèle de coûts : CPU (core-heures), RAM (GB-heures), GPU (GPU-heures), Stockage (GB-mois), Réseau (GB transférés)
-- Rapports d'utilisation par application
-- Configuration d'alertes de facturation et de seuils
-- Export des données d'utilisation
-- Optimisation des coûts avec le serverless et l'auto-scaling
 
 ## Résultats Attendus
 

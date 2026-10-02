@@ -49,7 +49,7 @@ class ListMIGProfilesExercise(Exercise):
         Args:
             submission: Must contain:
                 - cli_path (str, optional): Path to CLI tool
-                  (defaults to /usr/local/bin/aipoweredstore_cli.py)
+                  (defaults to /usr/local/bin/opcp-explorer.py)
                 - api_endpoint (str, optional): Platform API endpoint
                   (defaults to http://localhost:5000/api)
                 - method (str, optional): Query method - "cli" or "api"
@@ -59,7 +59,7 @@ class ListMIGProfilesExercise(Exercise):
             Dict with profile listing results.
         """
         cli_path = submission.get(
-            "cli_path", "/usr/local/bin/aipoweredstore_cli.py"
+            "cli_path", "/usr/local/bin/opcp-explorer.py"
         )
         api_endpoint = submission.get(
             "api_endpoint", "http://localhost:5000/api"
@@ -167,7 +167,7 @@ class ListMIGProfilesExercise(Exercise):
 
     def get_hints(self) -> list[str]:
         return [
-            "Use 'aipoweredstore_cli.py gpu list-profiles' to see available MIG profiles.",
+            "Use 'opcp-explorer.py gpu list-profiles' to see available MIG profiles.",
             "Each profile shows its compute capability and allocated memory.",
             "Profiles with higher compute capability provide more GPU cores.",
         ]

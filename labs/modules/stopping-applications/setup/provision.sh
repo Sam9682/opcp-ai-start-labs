@@ -6,13 +6,13 @@
 #
 # Prerequisites:
 # - AI-Powered-Store platform is running
-# - CLI tool is available at /usr/local/bin/aipoweredstore_cli.py
+# - CLI tool is available at /usr/local/bin/opcp-explorer.py
 # - A test application has been registered (from adding-applications module)
 
 set -euo pipefail
 
 APP_NAME="${APP_NAME:-test-stop-app}"
-CLI_PATH="${CLI_PATH:-/usr/local/bin/aipoweredstore_cli.py}"
+CLI_PATH="${CLI_PATH:-/usr/local/bin/opcp-explorer.py}"
 APP_PORT="${APP_PORT:-8080}"
 
 echo "=== Stopping Applications Lab - Environment Provisioning ==="

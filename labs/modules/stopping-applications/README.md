@@ -16,7 +16,7 @@ process termination verification, and timeout recovery strategies.
 
 | # | Exercise Name | Objective |
 |---|---------------|-----------|
-| 1 | Stop Application via CLI | Stop a running application using the `aipoweredstore_cli.py` command-line tool |
+| 1 | Stop Application via CLI | Stop a running application using the `opcp-explorer.py` command-line tool |
 | 2 | Stop Application via REST API | Stop a running application using `POST /api/deployments` with action "stop" |
 | 3 | Confirm Graceful Shutdown | Verify graceful shutdown: process termination, port refusal, and zero exit code |
 

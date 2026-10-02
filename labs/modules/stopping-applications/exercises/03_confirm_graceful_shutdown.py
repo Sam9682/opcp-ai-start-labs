@@ -69,7 +69,7 @@ class ConfirmGracefulShutdownExercise(Exercise):
         """
         app_name = submission.get("app_name", "")
         cli_path = submission.get(
-            "cli_path", "/usr/local/bin/aipoweredstore_cli.py"
+            "cli_path", "/usr/local/bin/opcp-explorer.py"
         )
         host = submission.get("host", "localhost")
         port = submission.get("port")

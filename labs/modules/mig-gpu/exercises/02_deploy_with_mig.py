@@ -339,7 +339,7 @@ def _deploy_via_cli(
     """
     import subprocess
 
-    cli_path = "/usr/local/bin/aipoweredstore_cli.py"
+    cli_path = "/usr/local/bin/opcp-explorer.py"
     try:
         proc = subprocess.run(
             [

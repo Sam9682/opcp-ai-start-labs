@@ -5,7 +5,7 @@ using the AI-Powered-Store CLI tool.
 """
 
 
-def solve_stop_via_cli(app_name: str, cli_path: str = "/usr/local/bin/aipoweredstore_cli.py"):
+def solve_stop_via_cli(app_name: str, cli_path: str = "/usr/local/bin/opcp-explorer.py"):
     """Reference solution for Exercise 1: Stop Application via CLI.
 
     Steps:
@@ -31,19 +31,19 @@ def solve_stop_via_cli(app_name: str, cli_path: str = "/usr/local/bin/aipowereds
 # Example CLI commands for learner reference:
 #
 # 1. Check application status:
-#    $ aipoweredstore_cli.py status my-app
+#    $ opcp-explorer.py status my-app
 #    Output: Application 'my-app' is running on port 8080
 #
 # 2. Stop application gracefully:
-#    $ aipoweredstore_cli.py stop my-app
+#    $ opcp-explorer.py stop my-app
 #    Output: Stopping application 'my-app'...
 #            Application 'my-app' stopped successfully (exit code: 0)
 #
 # 3. Verify termination:
-#    $ aipoweredstore_cli.py status my-app
+#    $ opcp-explorer.py status my-app
 #    Output: Application 'my-app' is stopped
 #
 # 4. If stop times out (30s), use force-stop:
-#    $ aipoweredstore_cli.py force-stop my-app
+#    $ opcp-explorer.py force-stop my-app
 #    Output: Force-stopping application 'my-app'...
 #            Application 'my-app' terminated

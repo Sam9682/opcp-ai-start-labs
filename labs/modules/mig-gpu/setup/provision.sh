@@ -20,7 +20,7 @@ MODULE_DIR="$(dirname "$SCRIPT_DIR")"
 
 # Default configuration
 PLATFORM_API_URL="${PLATFORM_API_URL:-https://store.example.com/api}"
-CLI_PATH="${CLI_PATH:-aipoweredstore_cli.py}"
+CLI_PATH="${CLI_PATH:-opcp-explorer.py}"
 TIMEOUT_SECONDS=30
 
 echo "=== Docker Applications with MIG GPU Lab - Environment Setup ==="

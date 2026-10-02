@@ -3,7 +3,7 @@
 #
 # This script prepares the lab environment by verifying that:
 # 1. The AI-Powered-Store platform is running and accessible
-# 2. The CLI tool (aipoweredstore_cli.py) is available
+# 2. The CLI tool (opcp-explorer.py) is available
 # 3. The REST API endpoint is reachable
 # 4. The web interface is accessible
 #
@@ -20,7 +20,7 @@ MODULE_DIR="$(dirname "$SCRIPT_DIR")"
 # Default configuration
 PLATFORM_API_URL="${PLATFORM_API_URL:-https://store.example.com/api}"
 PLATFORM_WEB_URL="${PLATFORM_WEB_URL:-https://store.example.com}"
-CLI_PATH="${CLI_PATH:-aipoweredstore_cli.py}"
+CLI_PATH="${CLI_PATH:-opcp-explorer.py}"
 TIMEOUT_SECONDS=30
 
 echo "=== Adding Applications Lab - Environment Setup ==="

@@ -17,7 +17,7 @@ TOOL_SURFACE = {
     "list_apps": {
         "description": "List applications visible to the token's scope.",
         "api": {"method": "GET", "path": "/api/apps"},
-        "cli": "aipoweredstore_cli.py apps list",
+        "cli": "opcp-explorer.py apps list",
         "mcp": {"tool": "list_apps"},
         "required_scopes": ["apps:read"],
         "params": [],
@@ -25,7 +25,7 @@ TOOL_SURFACE = {
     "deploy_app": {
         "description": "Clone and deploy an application from a repository.",
         "api": {"method": "POST", "path": "/api/apps/deploy"},
-        "cli": "aipoweredstore_cli.py apps deploy",
+        "cli": "opcp-explorer.py apps deploy",
         "mcp": {"tool": "deploy_app"},
         "required_scopes": ["apps:write", "deploy:execute"],
         "params": ["repo_url", "app_name"],
@@ -33,7 +33,7 @@ TOOL_SURFACE = {
     "start_app": {
         "description": "Start a deployed application.",
         "api": {"method": "POST", "path": "/api/apps/{app}/start"},
-        "cli": "aipoweredstore_cli.py apps start",
+        "cli": "opcp-explorer.py apps start",
         "mcp": {"tool": "start_app"},
         "required_scopes": ["apps:write"],
         "params": ["app_name"],
@@ -41,7 +41,7 @@ TOOL_SURFACE = {
     "stop_app": {
         "description": "Stop a running application.",
         "api": {"method": "POST", "path": "/api/apps/{app}/stop"},
-        "cli": "aipoweredstore_cli.py apps stop",
+        "cli": "opcp-explorer.py apps stop",
         "mcp": {"tool": "stop_app"},
         "required_scopes": ["apps:write"],
         "params": ["app_name"],
@@ -49,7 +49,7 @@ TOOL_SURFACE = {
     "app_status": {
         "description": "Read the status and health of an application.",
         "api": {"method": "GET", "path": "/api/apps/{app}/status"},
-        "cli": "aipoweredstore_cli.py apps status",
+        "cli": "opcp-explorer.py apps status",
         "mcp": {"tool": "app_status"},
         "required_scopes": ["apps:read"],
         "params": ["app_name"],

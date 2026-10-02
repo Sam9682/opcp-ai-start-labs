@@ -1,6 +1,6 @@
 """Exercise 1: Stop Application via CLI.
 
-Stop a running application using the aipoweredstore_cli.py command-line tool.
+Stop a running application using the opcp-explorer.py command-line tool.
 Validates that the application is running before stopping, verifies process
 termination and port refusal within 5 seconds, and handles 30-second timeout
 with a force-stop suggestion.
@@ -32,7 +32,7 @@ class StopViaCLIExercise(Exercise):
     @property
     def description(self) -> str:
         return (
-            "Stop a running application using the aipoweredstore_cli.py "
+            "Stop a running application using the opcp-explorer.py "
             "command-line tool and verify graceful shutdown."
         )
 
@@ -55,7 +55,7 @@ class StopViaCLIExercise(Exercise):
             submission: Must contain:
                 - app_name (str): Name of the application to stop
                 - cli_path (str, optional): Path to CLI tool
-                  (defaults to /usr/local/bin/aipoweredstore_cli.py)
+                  (defaults to /usr/local/bin/opcp-explorer.py)
                 - host (str, optional): Application host (defaults to localhost)
                 - port (int, optional): Application port to verify refusal
 
@@ -65,7 +65,7 @@ class StopViaCLIExercise(Exercise):
         """
         app_name = submission.get("app_name", "")
         cli_path = submission.get(
-            "cli_path", "/usr/local/bin/aipoweredstore_cli.py"
+            "cli_path", "/usr/local/bin/opcp-explorer.py"
         )
         host = submission.get("host", "localhost")
         port = submission.get("port")
@@ -214,7 +214,7 @@ class StopViaCLIExercise(Exercise):
 
     def get_hints(self) -> list[str]:
         return [
-            "Use 'aipoweredstore_cli.py stop <app_name>' to stop an application.",
+            "Use 'opcp-explorer.py stop <app_name>' to stop an application.",
             "The application must be in a running state before you can stop it.",
             "If the stop command times out after 30 seconds, try force-stop.",
         ]
@@ -226,7 +226,7 @@ class StopViaCLIExercise(Exercise):
             "Steps:\n"
             "1. Verify the target application is currently running\n"
             "2. Execute the stop command: "
-            "`aipoweredstore_cli.py stop <app_name>`\n"
+            "`opcp-explorer.py stop <app_name>`\n"
             "3. Verify the application process has terminated\n"
             "4. Confirm the application's port refuses new connections\n\n"
             "The stop operation should complete gracefully within 30 seconds. "

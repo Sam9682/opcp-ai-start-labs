@@ -9,9 +9,6 @@ inclusion: auto
 ```
 .
 ├── .git/                           # Git repository
-├── .kiro/                          # Kiro AI assistant configuration
-│   ├── hooks/                      # Agent hooks for automation
-│   └── steering/                   # AI steering documents
 ├── conf/                           # Configuration files
 │   ├── deploy.ini                  # Deployment configuration
 │   └── nginx.conf.template         # Nginx template with ${USER_ID} placeholder

@@ -22,7 +22,7 @@ This lab module guides learners through the complete installation of the AI-Powe
 
 ## Estimated Duration
 
-120 minutes
+20 minutes
 
 ## Difficulty
 

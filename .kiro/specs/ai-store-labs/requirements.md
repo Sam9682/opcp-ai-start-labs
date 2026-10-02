@@ -95,7 +95,7 @@ This document defines the requirements for the **Agentic AI OPCP Labs** training
 
 #### Acceptance Criteria
 
-1. THE Lab_Module for adding applications SHALL include exercises covering: application registration via CLI (`aipoweredstore_cli.py`), application registration via REST API (`POST /api/applications`), and application registration via web interface.
+1. THE Lab_Module for adding applications SHALL include exercises covering: application registration via CLI (`opcp-explorer.py`), application registration via REST API (`POST /api/applications`), and application registration via web interface.
 2. WHEN a learner completes an application registration exercise, THE Exercise_Validator SHALL confirm within 30 seconds that the registered application appears in the platform's application registry by querying `GET /api/applications`.
 3. THE Lab_Module for adding applications SHALL include exercises for configuring application metadata: name (required, string, 1-64 characters), description (required, string), git_url (required, valid URL), and Docker image (optional, string).
 4. IF an application registration fails due to invalid parameters, THEN THE Exercise_Validator SHALL display the specific validation error returned by the platform API including the field name and constraint violated.

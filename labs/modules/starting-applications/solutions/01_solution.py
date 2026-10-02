@@ -1,14 +1,14 @@
 """Solution for Exercise 01: Start Application via CLI.
 
 Reference solution demonstrating how to start an application
-using the aipoweredstore_cli.py command-line tool.
+using the opcp-explorer.py command-line tool.
 """
 
 import subprocess
 import sys
 
 
-def start_application_cli(app_name: str, cli_path: str = "/usr/local/bin/aipoweredstore_cli.py") -> None:
+def start_application_cli(app_name: str, cli_path: str = "/usr/local/bin/opcp-explorer.py") -> None:
     """Start an application using the platform CLI.
 
     Args:

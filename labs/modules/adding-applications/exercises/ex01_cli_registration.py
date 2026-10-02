@@ -1,6 +1,6 @@
 """Exercise 1: CLI Application Registration.
 
-Register a new application using the aipoweredstore_cli.py CLI tool
+Register a new application using the opcp-explorer.py CLI tool
 and verify it appears in the platform's application registry.
 """
 
@@ -32,7 +32,7 @@ class CLIRegistrationExercise(Exercise):
     def description(self) -> str:
         return (
             "Register a new application on the AI-Powered-Store platform "
-            "using the aipoweredstore_cli.py command-line tool. Verify that "
+            "using the opcp-explorer.py command-line tool. Verify that "
             "the application appears in the platform registry within 30 seconds."
         )
 
@@ -72,7 +72,7 @@ class CLIRegistrationExercise(Exercise):
             }
 
         # Build CLI command arguments
-        cli_path = submission.get("cli_path", "aipoweredstore_cli.py")
+        cli_path = submission.get("cli_path", "opcp-explorer.py")
         app_name = submission["name"]
         app_description = submission["description"]
         app_git_url = submission["git_url"]
@@ -173,22 +173,22 @@ class CLIRegistrationExercise(Exercise):
 
     def get_hints(self) -> list[str]:
         return [
-            "Use 'aipoweredstore_cli.py app register --help' to see available options.",
+            "Use 'opcp-explorer.py app register --help' to see available options.",
             "The --name flag accepts 1-64 characters.",
             "The --git-url must be a valid HTTP or HTTPS URL.",
-            "After registration, the app should appear in 'aipoweredstore_cli.py app list'.",
+            "After registration, the app should appear in 'opcp-explorer.py app list'.",
         ]
 
     def get_instructions(self) -> Optional[str]:
         return (
             "Register a new application using the CLI tool:\n\n"
             "1. Open a terminal in the lab environment\n"
-            "2. Run: aipoweredstore_cli.py app register \\\n"
+            "2. Run: opcp-explorer.py app register \\\n"
             "     --name 'my-app' \\\n"
             "     --description 'My first application' \\\n"
             "     --git-url 'https://github.com/user/repo'\n"
             "3. Verify the application appears in the registry:\n"
-            "   aipoweredstore_cli.py app list\n\n"
+            "   opcp-explorer.py app list\n\n"
             "Constraints:\n"
             "- name: 1-64 characters\n"
             "- description: non-empty string\n"

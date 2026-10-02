@@ -65,4 +65,4 @@ def get_cli_command() -> str:
     Returns:
         The CLI command string for GPU release.
     """
-    return "aipoweredstore_cli.py gpu release --app mig-training-app"
+    return "opcp-explorer.py gpu release --app mig-training-app"

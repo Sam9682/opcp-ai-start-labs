@@ -8,7 +8,7 @@
 set -euo pipefail
 
 APP_NAME="${APP_NAME:-test-stop-app}"
-CLI_PATH="${CLI_PATH:-/usr/local/bin/aipoweredstore_cli.py}"
+CLI_PATH="${CLI_PATH:-/usr/local/bin/opcp-explorer.py}"
 
 echo "=== Stopping Applications Lab - Environment Teardown ==="
 echo "Application: ${APP_NAME}"

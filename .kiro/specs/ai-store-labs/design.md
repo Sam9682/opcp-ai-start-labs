@@ -420,7 +420,7 @@ modules:
 
 endpoints:
   platform_api: "https://store.example.com/api"
-  platform_cli: "/usr/local/bin/aipoweredstore_cli.py"
+  platform_cli: "/usr/local/bin/opcp-explorer.py"
   health_check: "https://store.example.com/health"
 
 global:

@@ -59,7 +59,7 @@
                 <h1>Installation on Bare-Metal Ubuntu with Agentic AI</h1>
                 <div class="lesson-meta">
                     <span class="difficulty-badge difficulty-badge--beginner">Beginner</span>
-                    <span class="duration">⏱ ~120 min</span>
+                    <span class="duration">⏱ ~20 min</span>
                 </div>
             </div>
             <div class="lesson-body">
@@ -83,18 +83,9 @@ sudo apt install -y python3 python3-pip python3-venv net-tools unzip</code></pre
                 <h2>Step 2: Install CLI Tools</h2>
                 <p>Install the command-line tools needed for platform management:</p>
 
-                <h3>Amazon Kiro CLI</h3>
-                <pre><code>curl -fsSL https://cli.kiro.dev/install | bash</code></pre>
-
                 <h3>OVH CLI (shai)</h3>
                 <pre><code>curl -fsSL https://raw.githubusercontent.com/ovh/shai/main/install.sh | sh
 echo 'export PATH="~/.local/bin:$PATH"' >> ~/.bashrc</code></pre>
-
-                <h3>AWS CLI</h3>
-                <pre><code>curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip -q awscliv2.zip
-sudo ./aws/install
-rm -rf aws awscliv2.zip</code></pre>
 
                 <h3>Terraform</h3>
                 <pre><code>curl -s "https://releases.hashicorp.com/terraform/1.14.5/terraform_1.14.5_linux_amd64.zip" -o "terraform.zip"

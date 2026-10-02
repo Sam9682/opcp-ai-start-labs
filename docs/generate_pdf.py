@@ -421,14 +421,14 @@ p {
         <div class="timeline-item">
             <div class="timeline-badge beginner">1</div>
             <div class="timeline-content">
-                <h4>Installation sur Bare-Metal Ubuntu — ~120 min</h4>
+                <h4>Installation sur Bare-Metal Ubuntu — ~20 min</h4>
                 <p>Déploiement complet : dépendances système, CLI tools (Shai, OVH S3, Terraform, Tofu), Docker, drivers NVIDIA, configuration réseau et S3.</p>
             </div>
         </div>
         <div class="timeline-item">
             <div class="timeline-badge beginner">2</div>
             <div class="timeline-content">
-                <h4>Ajout de Nouvelles Applications — ~60 min</h4>
+                <h4>Ajout de Nouvelles Applications — ~20 min</h4>
                 <p>Enregistrement d'applications via l'interface web, le CLI ou l'API REST. Gestion des métadonnées et du cycle CRUD.</p>
             </div>
         </div>
@@ -439,28 +439,28 @@ p {
         <div class="timeline-item">
             <div class="timeline-badge intermediate">3</div>
             <div class="timeline-content">
-                <h4>Démarrage des Applications — ~45 min</h4>
+                <h4>Démarrage des Applications — ~5 min</h4>
                 <p>Utilisation de deployApp.sh, orchestration Docker, surveillance des logs et vérification de la connectivité.</p>
             </div>
         </div>
         <div class="timeline-item">
             <div class="timeline-badge intermediate">4</div>
             <div class="timeline-content">
-                <h4>Arrêt des Applications — ~30 min</h4>
+                <h4>Arrêt des Applications — ~5 min</h4>
                 <p>Arrêt gracieux, nettoyage des ressources Docker, hooks d'arrêt et persistance des données.</p>
             </div>
         </div>
         <div class="timeline-item">
             <div class="timeline-badge intermediate">5</div>
             <div class="timeline-content">
-                <h4>Réalisation de Sauvegardes — ~60 min</h4>
+                <h4>Réalisation de Sauvegardes — ~20 min</h4>
                 <p>Dump PostgreSQL, sync vers OVH S3, restauration, planification automatique et vérification d'intégrité.</p>
             </div>
         </div>
         <div class="timeline-item">
             <div class="timeline-badge intermediate">6</div>
             <div class="timeline-content">
-                <h4>Modification d'Applications avec l'IA — ~90 min</h4>
+                <h4>Modification d'Applications avec l'IA — ~20 min</h4>
                 <p>Workflow SHAI CLI pour modifier le code, tester en isolation et déployer les changements validés.</p>
             </div>
         </div>
@@ -474,7 +474,7 @@ p {
         <div class="timeline-item">
             <div class="timeline-badge advanced">7</div>
             <div class="timeline-content">
-                <h4>Docker avec MIG GPU — ~90 min</h4>
+                <h4>Docker avec MIG GPU — ~10 min</h4>
                 <p>Partitionnement NVIDIA MIG, création d'instances GPU, attribution de slices à des conteneurs Docker et monitoring.</p>
             </div>
         </div>
@@ -488,7 +488,7 @@ p {
         <div class="timeline-item">
             <div class="timeline-badge advanced">9</div>
             <div class="timeline-content">
-                <h4>Facturation et Suivi des Coûts — ~60 min</h4>
+                <h4>Facturation et Suivi des Coûts — ~20 min</h4>
                 <p>Modèle de coûts (CPU, RAM, GPU, stockage, réseau), rapports par application, alertes et optimisation.</p>
             </div>
         </div>

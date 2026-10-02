@@ -2,7 +2,7 @@
 
 ## Objective
 
-Learn how to register and deploy new applications on the AI-Powered-Store platform using three different methods: the CLI tool (`aipoweredstore_cli.py`), the REST API (`POST /api/applications`), and the web interface. This module covers application metadata requirements, validation rules, and verification that registered applications appear in the platform registry.
+Learn how to register and deploy new applications on the AI-Powered-Store platform using three different methods: the CLI tool (`opcp-explorer.py`), the REST API (`POST /api/applications`), and the web interface. This module covers application metadata requirements, validation rules, and verification that registered applications appear in the platform registry.
 
 ## Prerequisites
 
@@ -14,6 +14,6 @@ Learn how to register and deploy new applications on the AI-Powered-Store platfo
 
 | # | Exercise Name | Objective |
 |---|---------------|-----------|
-| 1 | CLI Application Registration | Register a new application using the `aipoweredstore_cli.py` CLI tool |
+| 1 | CLI Application Registration | Register a new application using the `opcp-explorer.py` CLI tool |
 | 2 | REST API Application Registration | Register a new application using the REST API `POST /api/applications` endpoint |
 | 3 | Web Interface Application Registration | Register a new application using the platform web interface |

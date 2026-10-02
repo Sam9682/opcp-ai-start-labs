@@ -1,6 +1,6 @@
 """Exercise 01: Start Application via CLI.
 
-Learners use the aipoweredstore_cli.py command-line tool to start
+Learners use the opcp-explorer.py command-line tool to start
 a registered application on the AI-Powered-Store platform.
 """
 
@@ -14,7 +14,7 @@ from labs.templates.exercise_base import Exercise
 class StartViaCLIExercise(Exercise):
     """Start a registered application using the platform CLI."""
 
-    CLI_PATH = "/usr/local/bin/aipoweredstore_cli.py"
+    CLI_PATH = "/usr/local/bin/opcp-explorer.py"
     STATUS_TIMEOUT_SECONDS = 120
     STATUS_POLL_INTERVAL_SECONDS = 5
 
@@ -30,7 +30,7 @@ class StartViaCLIExercise(Exercise):
     def description(self) -> str:
         return (
             "Launch a registered application using the "
-            "aipoweredstore_cli.py command-line tool and verify "
+            "opcp-explorer.py command-line tool and verify "
             "it reaches a running state."
         )
 
@@ -207,7 +207,7 @@ class StartViaCLIExercise(Exercise):
     def get_hints(self) -> list[str]:
         return [
             "Make sure the application has been registered before attempting to start it.",
-            "Use 'aipoweredstore_cli.py app list' to see available applications.",
+            "Use 'opcp-explorer.py app list' to see available applications.",
             "Check the platform logs if the start command fails.",
         ]
 
@@ -215,7 +215,7 @@ class StartViaCLIExercise(Exercise):
         return (
             "Use the AI-Powered-Store CLI to start a registered application.\n\n"
             "Command format:\n"
-            "  aipoweredstore_cli.py app start <app_name>\n\n"
+            "  opcp-explorer.py app start <app_name>\n\n"
             "The exercise will verify that:\n"
             "1. The CLI command completes successfully (exit code 0)\n"
             "2. The application reaches a 'running' state within 120 seconds"

@@ -11,7 +11,7 @@ set -e
 echo "=== Starting Applications Lab Module - Environment Provisioning ==="
 
 # Configuration (can be overridden by environment variables)
-CLI_PATH="${AIPS_CLI_PATH:-/usr/local/bin/aipoweredstore_cli.py}"
+CLI_PATH="${AIPS_CLI_PATH:-/usr/local/bin/opcp-explorer.py}"
 API_BASE_URL="${AIPS_API_URL:-https://store.example.com}"
 APP_NAME="${AIPS_TEST_APP:-test-app}"
 
