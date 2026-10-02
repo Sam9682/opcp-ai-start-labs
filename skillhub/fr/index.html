@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Store Labs - SkillHub</title>
+    <title>Agentic AI OPCP Labs - SkillHub</title>
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
     <header class="site-header" role="banner">
-        <a href="." class="logo" aria-label="Accueil AI Store Labs">
-            <span>AI Store Labs</span>
+        <a href="." class="logo" aria-label="Accueil Agentic AI OPCP Labs">
+            <span>Agentic AI OPCP Labs</span>
         </a>
 
         <div class="header-actions">
@@ -36,7 +36,7 @@
 
     <aside class="sidebar" role="navigation" aria-label="Navigation des leçons">
         <div class="sidebar-section" data-track="morning">
-            <h2 class="sidebar-section-title">Matin — Les fondamentaux</h2>
+            <h2 class="sidebar-section-title">Matin — Introduction et fondamentaux</h2>
             <ul class="sidebar-nav" id="nav-morning">
                 <li><a href="assistant-vs-agent.html">De l'assistant à l'agent</a></li>
                 <li><a href="agent-anatomy-7-components.html">Anatomie : les sept composants</a></li>
@@ -45,7 +45,7 @@
             </ul>
         </div>
         <div class="sidebar-section" data-track="afternoon">
-            <h2 class="sidebar-section-title">Après-midi — Conception et gouvernance</h2>
+            <h2 class="sidebar-section-title">Conception et gouvernance</h2>
             <ul class="sidebar-nav" id="nav-afternoon">
                 <li><a href="multi-agent-patterns.html">Patrons multi-agents</a></li>
                 <li><a href="when-not-multi-agent.html">Quand éviter le multi-agents</a></li>
@@ -58,15 +58,12 @@
         <div class="sidebar-section" data-track="sandbox">
             <h2 class="sidebar-section-title">Bac à sable — plateforme opcp-explorer</h2>
             <ul class="sidebar-nav" id="nav-sandbox">
-                <li><a href="install-bare-metal.html">Installation sur Ubuntu Bare-Metal</a></li>
-                <li><a href="adding-applications.html">Ajout de nouvelles applications</a></li>
-                <li><a href="starting-applications.html">Démarrage des applications</a></li>
-                <li><a href="stopping-applications.html">Arrêt des applications</a></li>
-                <li><a href="making-backups.html">Sauvegardes</a></li>
-                <li><a href="modifying-applications.html">Modification d'applications avec l'IA</a></li>
-                <li><a href="mig-gpu.html">Docker avec GPU MIG</a></li>
-                <li><a href="serverless-execution.html">Exécution Docker Serverless</a></li>
-                <li><a href="billing-cost-tracking.html">Facturation et suivi des coûts</a></li>
+                <li><a href="install-bare-metal.html">Installation sur Ubuntu Bare-Metal avec l'IA agentique</a></li>
+                <li><a href="adding-applications.html">Ajout de nouvelles applications avec l'IA agentique</a></li>
+                <li><a href="starting-applications.html">Démarrage des applications avec l'IA agentique</a></li>
+                <li><a href="stopping-applications.html">Arrêt des applications avec l'IA agentique</a></li>
+                <li><a href="making-backups.html">Sauvegardes avec l'IA agentique</a></li>
+                <li><a href="modifying-applications.html">Modification d'applications avec l'IA agentique</a></li>
             </ul>
         </div>
     </aside>
@@ -74,19 +71,19 @@
     <main class="main-content" role="main">
         <div class="lesson-content">
             <div class="lesson-header">
-                <h1>IA agentique — session de formation d'une journée</h1>
+                <h1>IA agentique — session de formation de 3 heures</h1>
                 <div class="lesson-meta">
                     <span class="difficulty-badge difficulty-badge--beginner">Premiers pas</span>
                 </div>
             </div>
             <div class="lesson-body">
-                <p>Bienvenue dans la session de formation sur l'IA agentique. En une journée, vous passerez de la compréhension de ce qu'est un agent IA à la conception de votre propre agent fonctionnel, fiable et contrôlable. Tout au long du parcours, la plateforme <strong>opcp-explorer</strong> (AI-Powered-Store) constitue l'environnement réel sur lequel votre agent agit via ses interfaces API, CLI et MCP.</p>
+                <p>Bienvenue dans la session de formation sur l'IA agentique. En trois heures, vous passerez de la compréhension de ce qu'est un agent IA à la conception de votre propre agent fonctionnel, fiable et contrôlable. Tout au long du parcours, la plateforme <strong>opcp-explorer</strong> (AI-Powered-Store) constitue l'environnement réel sur lequel votre agent agit via ses interfaces API, CLI et MCP.</p>
 
                 <h2>Programme</h2>
                 <p>La session est organisée en deux parcours, plus un bac à sable de référence :</p>
                 <ul>
-                    <li><strong>Matin — Les fondamentaux (9h30–12h30)</strong> — Assistant vs agent et le spectre d'autonomie, les sept composants essentiels, la boucle Penser → Agir → Observer et ses variantes (ReAct, Plan-and-Execute, Reflexion), les critères d'arrêt, et un atelier pratique de lecture de trace.</li>
-                    <li><strong>Après-midi — Conception et gouvernance (13h30–17h00)</strong> — Patrons multi-agents et communication inter-agents, quand éviter le multi-agents, les cinq couches de garde-fous, la gouvernance human-in-the-loop et la politique IA OVHcloud, ainsi que deux ateliers : modélisation des menaces et projet final de conception d'agent de bout en bout.</li>
+                    <li><strong>Introduction et fondamentaux (90 premières minutes)</strong> — Assistant vs agent et le spectre d'autonomie, les sept composants essentiels, la boucle Penser → Agir → Observer et ses variantes (ReAct, Plan-and-Execute, Reflexion), les critères d'arrêt, et un atelier pratique de lecture de trace.</li>
+                    <li><strong>Conception et gouvernance (90 dernières minutes)</strong> — Patrons multi-agents et communication inter-agents, quand éviter le multi-agents, les cinq couches de garde-fous, la gouvernance human-in-the-loop et la politique IA OVHcloud, ainsi que deux ateliers : modélisation des menaces et projet final de conception d'agent de bout en bout.</li>
                     <li><strong>Bac à sable — opcp-explorer</strong> — Opérations de la plateforme (déployer, démarrer, arrêter, modifier, sauvegarder des applications) que votre agent orchestre comme boîte à outils.</li>
                 </ul>
 

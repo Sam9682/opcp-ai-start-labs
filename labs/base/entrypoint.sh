@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# AI Store Labs - Exercise Container Entrypoint
+# Agentic AI OPCP Labs - Exercise Container Entrypoint
 # Sets up the exercise environment before handing off to the exercise command.
 
 # Ensure results directory exists and is writable

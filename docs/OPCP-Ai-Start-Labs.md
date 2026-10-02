@@ -1,8 +1,8 @@
-# AI Store Labs - Présentation pour les Clients
+# Agentic AI OPCP Labs - Présentation pour les Clients
 
 ## Introduction
 
-Bienvenue dans la plateforme de formation AI Store Labs (SkillHub). Ce programme interactif vous permet de découvrir et maîtriser la plateforme AI-Powered-Store (OPCP) dans un environnement structuré et pratique, avec des leçons progressives accompagnées d'exercices hands-on.
+Bienvenue dans la plateforme de formation Agentic AI OPCP Labs (SkillHub). Ce programme interactif vous permet de découvrir et maîtriser la plateforme AI-Powered-Store (OPCP) dans un environnement structuré et pratique, avec des leçons progressives accompagnées d'exercices hands-on.
 
 ## Objectif de l'Offre
 

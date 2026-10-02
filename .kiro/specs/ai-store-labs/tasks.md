@@ -1,8 +1,8 @@
-# Implementation Plan: AI Store Labs
+# Implementation Plan: Agentic AI OPCP Labs
 
 ## Overview
 
-This implementation plan builds the AI Store Labs training platform incrementally: starting with project scaffolding and configuration, then the core lab framework, SkillHub frontend, Flask application, lab modules, and finally integration and testing. Each task builds on previous work to ensure no orphaned code.
+This implementation plan builds the Agentic AI OPCP Labs training platform incrementally: starting with project scaffolding and configuration, then the core lab framework, SkillHub frontend, Flask application, lab modules, and finally integration and testing. Each task builds on previous work to ensure no orphaned code.
 
 ## Tasks
 

@@ -30,9 +30,6 @@ const SANDBOX_SLUGS = [
   'stopping-applications',
   'making-backups',
   'modifying-applications',
-  'mig-gpu',
-  'serverless-execution',
-  'billing-cost-tracking',
 ];
 
 describe('Lesson Catalog', () => {
@@ -98,7 +95,7 @@ describe('Lesson Catalog', () => {
       const lesson = getLessonBySlug('install-bare-metal');
       expect(lesson).toBeDefined();
       expect(lesson.id).toBe('install-bare-metal');
-      expect(lesson.title.en).toBe('Installation on Bare-Metal Ubuntu');
+      expect(lesson.title.en).toBe('Installation on Bare-Metal Ubuntu with Agentic AI');
     });
 
     it('returns undefined for a non-existent slug', () => {
@@ -188,8 +185,8 @@ describe('Lesson Catalog', () => {
     });
 
     it('does not include the lesson itself in the chain', () => {
-      const chain = getPrerequisiteChain('billing-cost-tracking');
-      expect(chain).not.toContain('billing-cost-tracking');
+      const chain = getPrerequisiteChain('making-backups');
+      expect(chain).not.toContain('making-backups');
       expect(chain).toEqual(['install-bare-metal']);
     });
 

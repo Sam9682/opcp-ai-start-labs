@@ -1,4 +1,4 @@
-# AI Store Labs
+# Agentic AI OPCP Labs
 
 Interactive training platform for the OPCP AI-Powered-Store. Provides a bilingual (EN/FR) static training website (SkillHub) and a Python-based lab framework for hands-on exercises in Docker containers.
 

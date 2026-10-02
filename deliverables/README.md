@@ -5,9 +5,9 @@ English and French (`.fr.md`).
 
 | Template | Used in | Purpose |
 |----------|---------|---------|
-| `trace-annotation-worksheet.md` | Morning — trace-reading lab | Annotate the sample execution trace |
-| `threat-model-template.md` | Afternoon — threat-modeling workshop | Threat-model an agent; map mitigations to the five guardrail layers |
-| `agent-design-template.md` | Afternoon — design capstone | The final, fully documented agent design |
+| `trace-annotation-worksheet.md` | trace-reading lab | Annotate the sample execution trace |
+| `threat-model-template.md` | threat-modeling workshop | Threat-model an agent; map mitigations to the five guardrail layers |
+| `agent-design-template.md` | design capstone | The final, fully documented agent design |
 
 ## How to use
 

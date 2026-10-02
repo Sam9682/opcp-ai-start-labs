@@ -43,8 +43,8 @@ describe('Navigation Module', () => {
       expect(sections.length).toBe(3); // morning, afternoon, sandbox
 
       const titles = container.querySelectorAll('.sidebar-section-title');
-      expect(titles[0].textContent).toBe('Morning — Fundamentals');
-      expect(titles[1].textContent).toBe('Afternoon — Design & Governance');
+      expect(titles[0].textContent).toBe('Introduction & Fundamentals');
+      expect(titles[1].textContent).toBe('Design & Governance');
       expect(titles[2].textContent).toBe('Sandbox — opcp-explorer Platform');
     });
 
@@ -59,8 +59,8 @@ describe('Navigation Module', () => {
       expect(navLists[0].querySelectorAll('li').length).toBe(4);
       // afternoon: 6 lessons
       expect(navLists[1].querySelectorAll('li').length).toBe(6);
-      // sandbox: 9 lessons
-      expect(navLists[2].querySelectorAll('li').length).toBe(9);
+      // sandbox: 6 lessons
+      expect(navLists[2].querySelectorAll('li').length).toBe(6);
     });
 
     it('marks completed lessons with "completed" CSS class', () => {
@@ -100,14 +100,14 @@ describe('Navigation Module', () => {
 
     it('uses localStorage progress when progressData does not include a lesson', () => {
       // Mark a lesson complete in localStorage
-      localStorageMock.setItem('skillhub_lesson_complete_mig-gpu', 'true');
+      localStorageMock.setItem('skillhub_lesson_complete_making-backups', 'true');
 
       const container = document.createElement('div');
       document.body.appendChild(container);
 
       renderSidebar(container, lessons, []);
 
-      const migLink = container.querySelector('a[data-lesson-id="mig-gpu"]');
+      const migLink = container.querySelector('a[data-lesson-id="making-backups"]');
       expect(migLink.classList.contains('completed')).toBe(true);
     });
 
@@ -130,8 +130,8 @@ describe('Navigation Module', () => {
       renderSidebar(container, lessons, []);
 
       const titles = container.querySelectorAll('.sidebar-section-title');
-      expect(titles[0].textContent).toBe('Matin — Les fondamentaux');
-      expect(titles[1].textContent).toBe('Après-midi — Conception et gouvernance');
+      expect(titles[0].textContent).toBe('Matin — Introduction et fondamentaux');
+      expect(titles[1].textContent).toBe('Conception et gouvernance');
       expect(titles[2].textContent).toBe('Bac à sable — plateforme opcp-explorer');
     });
 
@@ -262,8 +262,8 @@ describe('Navigation Module', () => {
 
     it('uses detected locale when invalid locale is provided', () => {
       // No stored locale preference, defaults to "en"
-      navigateToLesson('mig-gpu', 'invalid');
-      expect(window.location.href).toBe('/en/mig-gpu.html');
+      navigateToLesson('making-backups', 'invalid');
+      expect(window.location.href).toBe('/en/making-backups.html');
     });
 
     it('uses stored locale preference when locale is invalid', () => {

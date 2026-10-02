@@ -1,4 +1,4 @@
-"""End-to-end integration tests for the AI Store Labs platform.
+"""End-to-end integration tests for the Agentic AI OPCP Labs platform.
 
 Covers the full workflow described in the design:
 

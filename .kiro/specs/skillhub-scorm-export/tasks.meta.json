@@ -1,0 +1,265 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Create `skillhub/js/scorm/api-discovery.js`": [
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930569144
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930577887
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930800079
+      }
+    ],
+    "2.1 Create `skillhub/js/scorm/scorm-api.js`": [
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930569294
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930579289
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930801450
+      }
+    ],
+    "3.1 Create `skillhub/js/scorm/progress-bridge.js`": [
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930569459
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930580685
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930802902
+      }
+    ],
+    "4. Checkpoint - Ensure all leaf-module tests pass": [
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930569606
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930966126
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930997874
+      }
+    ],
+    "5.1 Create `skillhub/js/scorm/scorm-adapter.js`": [
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930569730
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930813722
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930948442
+      }
+    ],
+    "6.1 Create `skillhub/js/scorm/scorm-bootstrap.js`": [
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930569903
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790931025990
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790931169167
+      }
+    ],
+    "7. Checkpoint - Ensure runtime tests pass": [
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930570035
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790931179353
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790931204433
+      }
+    ],
+    "8.1 Add the four SCORM 1.2 `.xsd` templates under `scripts/scorm-templates/`": [
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930570169
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930581989
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930804056
+      }
+    ],
+    "9.1 Create `scripts/build-scorm.mjs` with individually testable steps": [
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930570302
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790931026953
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790931168028
+      }
+    ],
+    "9.2 Add the `build:scorm` npm script": [
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930570433
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790931208632
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790931345095
+      }
+    ],
+    "10.1 Inject the single bootstrap tag during the build": [
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930570551
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790931209714
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790931344083
+      }
+    ],
+    "12. Final checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930570697
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790931353712
+      },
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790931368806
+      }
+    ],
+    "1. Implement LMS API discovery module": [
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930800222
+      }
+    ],
+    "2. Implement defensive SCORM API wrapper": [
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930801618
+      }
+    ],
+    "3. Implement progress bridge (localStorage ⇄ suspend_data)": [
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930803249
+      }
+    ],
+    "8. Add SCORM 1.2 schema template assets": [
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930804197
+      }
+    ],
+    "5. Implement the ScormAdapter orchestrator": [
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790930948669
+      }
+    ],
+    "6. Implement the bootstrap entry point": [
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790931169305
+      }
+    ],
+    "10. Wire the bootstrap script into templates during build (non-invasive)": [
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790931344225
+      }
+    ],
+    "9. Implement the build/packaging script": [
+      {
+        "executionId": "042587d2-1239-4b87-b404-3ce98cc79b2f",
+        "chatSessionId": "sess_914c696f-65cc-4968-8d1b-dd8781bbe3d1",
+        "timestamp": 1790931345236
+      }
+    ]
+  }
+}

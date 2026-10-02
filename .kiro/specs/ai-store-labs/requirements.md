@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This document defines the requirements for the **AI Store Labs** training project — a SkillHub-based interactive learning platform for the OPCP AI-Powered-Store. The project provides a static HTML training website (EN/FR) with guided lessons and a Python-based lab framework for hands-on exercises. The architecture mirrors the reference project `opcp-openstack-first-steps`, adapted to the AI-Powered-Store platform's capabilities (Docker containerization, CLI/API/Web management, GPU sharing, serverless execution, billing, backups, and AI agents).
+This document defines the requirements for the **Agentic AI OPCP Labs** training project — a SkillHub-based interactive learning platform for the OPCP AI-Powered-Store. The project provides a static HTML training website (EN/FR) with guided lessons and a Python-based lab framework for hands-on exercises. The architecture mirrors the reference project `opcp-openstack-first-steps`, adapted to the AI-Powered-Store platform's capabilities (Docker containerization, CLI/API/Web management, GPU sharing, serverless execution, billing, backups, and AI agents).
 
 ## Glossary
 

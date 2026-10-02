@@ -1,4 +1,4 @@
-"""Lab API routes for the AI Store Labs Flask application."""
+"""Lab API routes for the Agentic AI OPCP Labs Flask application."""
 
 import logging
 from dataclasses import asdict

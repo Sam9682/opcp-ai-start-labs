@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "vitest --run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "build:scorm": "node scripts/build-scorm.mjs"
   },
   "devDependencies": {
     "vitest": "2.1.8",

@@ -1,4 +1,4 @@
-"""Integration tests for the AI Store Labs platform.
+"""Integration tests for the Agentic AI OPCP Labs platform.
 
 These tests exercise real Docker containers and the full request/response
 workflow end to end. They are marked with ``@pytest.mark.integration`` and

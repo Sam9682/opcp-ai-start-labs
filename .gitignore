@@ -1,0 +1,44 @@
+# SCORM packages
+/scorm/skillhub_scorm
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+venv/
+.venv/
+env/
+.mypy_cache/
+.hypothesis/
+
+# Node / JavaScript
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker
+*.log
+
+# Environment / secrets
+.env
+.env.*
+*.pem
+*.key
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

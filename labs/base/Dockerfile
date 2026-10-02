@@ -1,7 +1,7 @@
 FROM python:3.11
 
 LABEL maintainer="OPCP AI-Powered-Store Training Team"
-LABEL description="Base container image for AI Store Labs exercise execution"
+LABEL description="Base container image for Agentic AI OPCP Labs exercise execution"
 
 WORKDIR /lab
 

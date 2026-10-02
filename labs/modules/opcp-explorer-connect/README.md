@@ -6,7 +6,7 @@ Learn how an AI agent uses the opcp-explorer platform (AI-Powered-Store) as its
 toolset. This module covers the three interfaces an agent can act through — the
 REST API, the CLI, and MCP (Model Context Protocol) — how to authenticate with a
 scoped token, and how to perform a basic tool call such as listing or deploying
-an application. These are the "tools" component from the morning anatomy lesson,
+an application. These are the "tools" component from the introduction anatomy lesson,
 made concrete.
 
 By default every exercise runs against a **simulated** endpoint so the lab works

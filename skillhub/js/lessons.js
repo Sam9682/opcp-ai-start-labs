@@ -166,8 +166,8 @@ export const lessons = [
     id: "install-bare-metal",
     slug: "install-bare-metal",
     title: {
-      en: "Installation on Bare-Metal Ubuntu",
-      fr: "Installation sur Ubuntu Bare-Metal"
+      en: "Installation on Bare-Metal Ubuntu with Agentic AI",
+      fr: "Installation sur Ubuntu Bare-Metal avec l'IA agentique"
     },
     track: "sandbox",
     difficulty: "beginner",
@@ -178,8 +178,8 @@ export const lessons = [
     id: "adding-applications",
     slug: "adding-applications",
     title: {
-      en: "Adding New Applications",
-      fr: "Ajout de nouvelles applications"
+      en: "Adding New Applications with Agentic AI",
+      fr: "Ajout de nouvelles applications avec l'IA agentique"
     },
     track: "sandbox",
     difficulty: "beginner",
@@ -190,8 +190,8 @@ export const lessons = [
     id: "starting-applications",
     slug: "starting-applications",
     title: {
-      en: "Starting Applications",
-      fr: "Démarrage des applications"
+      en: "Starting Applications with Agentic AI",
+      fr: "Démarrage des applications avec l'IA agentique"
     },
     track: "sandbox",
     difficulty: "beginner",
@@ -202,8 +202,8 @@ export const lessons = [
     id: "stopping-applications",
     slug: "stopping-applications",
     title: {
-      en: "Stopping Applications",
-      fr: "Arrêt des applications"
+      en: "Stopping Applications with Agentic AI",
+      fr: "Arrêt des applications avec l'IA agentique"
     },
     track: "sandbox",
     difficulty: "beginner",
@@ -214,8 +214,8 @@ export const lessons = [
     id: "making-backups",
     slug: "making-backups",
     title: {
-      en: "Making Backups",
-      fr: "Création de sauvegardes"
+      en: "Making Backups with Agentic AI",
+      fr: "Création de sauvegardes avec l'IA agentique"
     },
     track: "sandbox",
     difficulty: "intermediate",
@@ -226,49 +226,13 @@ export const lessons = [
     id: "modifying-applications",
     slug: "modifying-applications",
     title: {
-      en: "Modifying Existing Applications",
-      fr: "Modification des applications existantes"
+      en: "Modifying Existing Applications with Agentic AI",
+      fr: "Modification des applications existantes avec l'IA agentique"
     },
     track: "sandbox",
     difficulty: "intermediate",
     estimatedMinutes: 90,
     prerequisites: ["adding-applications"]
-  },
-  {
-    id: "mig-gpu",
-    slug: "mig-gpu",
-    title: {
-      en: "Docker Applications with MIG GPU",
-      fr: "Applications Docker avec GPU MIG"
-    },
-    track: "sandbox",
-    difficulty: "advanced",
-    estimatedMinutes: 120,
-    prerequisites: ["starting-applications"]
-  },
-  {
-    id: "serverless-execution",
-    slug: "serverless-execution",
-    title: {
-      en: "Serverless Docker Execution",
-      fr: "Exécution Docker sans serveur"
-    },
-    track: "sandbox",
-    difficulty: "intermediate",
-    estimatedMinutes: 60,
-    prerequisites: ["starting-applications"]
-  },
-  {
-    id: "billing-cost-tracking",
-    slug: "billing-cost-tracking",
-    title: {
-      en: "Billing and Cost Tracking",
-      fr: "Facturation et suivi des coûts"
-    },
-    track: "sandbox",
-    difficulty: "intermediate",
-    estimatedMinutes: 60,
-    prerequisites: ["install-bare-metal"]
   }
 ];
 

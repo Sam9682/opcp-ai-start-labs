@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# env_setup.sh - Validates prerequisites for AI Store Labs
+# env_setup.sh - Validates prerequisites for Agentic AI OPCP Labs
 #
 # Checks:
 #   - Python 3.9+ is available
@@ -17,7 +17,7 @@ NC='\033[0m' # No Color
 
 errors=0
 
-echo "=== AI Store Labs - Environment Setup Validation ==="
+echo "=== Agentic AI OPCP Labs - Environment Setup Validation ==="
 echo ""
 
 # Check Python 3.9+

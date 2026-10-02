@@ -560,12 +560,12 @@ p {
 
     <div class="cta">
         <h3>Prêt à démarrer ?</h3>
-        <p>Contactez notre équipe pour planifier votre session de formation AI Store Labs.</p>
+        <p>Contactez notre équipe pour planifier votre session de formation Agentic AI OPCP Labs.</p>
         <div class="contact">psmc@ovhcloud.com</div>
     </div>
 
     <div class="footer">
-        <p>© PSMC OVHcloud — Programme OPCP AI Store Labs</p>
+        <p>© PSMC OVHcloud — Programme OPCP Agentic AI OPCP Labs</p>
     </div>
 </div>
 

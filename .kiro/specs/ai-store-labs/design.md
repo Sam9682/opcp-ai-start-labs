@@ -1,8 +1,8 @@
-# Design Document: AI Store Labs
+# Design Document: Agentic AI OPCP Labs
 
 ## Overview
 
-The AI Store Labs project is an interactive training platform for the OPCP AI-Powered-Store. It consists of two main subsystems:
+The Agentic AI OPCP Labs project is an interactive training platform for the OPCP AI-Powered-Store. It consists of two main subsystems:
 
 1. **SkillHub** — A static HTML training website with bilingual support (EN/FR), lesson navigation, progress tracking, and code highlighting.
 2. **Lab Framework** — A Python-based engine that orchestrates, validates, and tracks hands-on lab exercises within Docker containers.

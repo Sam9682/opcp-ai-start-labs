@@ -1,0 +1,2671 @@
+# Documentation technique — Système de e-learning SCORM (charte graphique OVHcloud)
+
+**But de ce document** : permettre de reproduire, pour une nouvelle formation, le même système visuel, technique et pédagogique que celui construit pour "Résultats & communication financière" chez OVHcloud. Ce document est prévu pour être donné tel quel à une instance de Claude (nouveau projet, nouveau compte) avec une consigne du type : *"Voici la documentation technique d'un système de formation e-learning SCORM que je veux réutiliser pour un nouveau sujet : [décrire le sujet]. Construis le module d'introduction en suivant strictement cette documentation."*
+
+---
+
+## 1. Vue d'ensemble du système
+
+Chaque formation est découpée en **modules indépendants**, chacun étant un package **SCORM 1.2** autonome (un .zip par module : Introduction, Module 1, Module 2, etc.). Chaque module est une page HTML unique (SPA légère) avec plusieurs "écrans" internes affichés/masqués en JavaScript, une barre latérale de navigation persistante, et un suivi de progression SCORM.
+
+**Stack technique** : HTML/CSS/JS vanilla uniquement — aucune dépendance externe, aucun framework, aucun build step. Tout doit fonctionner en ouvrant `index.html` directement dans un navigateur (mode aperçu autonome) ou une fois zippé et importé dans un LMS (Bealink/SkillHub ou autre LMS compatible SCORM 1.2).
+
+**Pourquoi ce choix** : simplicité de maintenance, aucune dépendance à héberger, compatible avec n'importe quel LMS SCORM 1.2, et facilement modifiable directement par un instructional designer non-développeur (texte en clair dans le HTML).
+
+---
+
+## 2. Arborescence d'un module
+
+```
+mon-module/
+├── imsmanifest.xml       ← manifeste SCORM 1.2 (obligatoire à la racine du zip)
+├── index.html            ← la totalité du module (tous les écrans)
+├── README.txt            ← notes de livraison pour la personne qui reçoit le zip
+├── css/
+│   └── style.css         ← feuille de style unique, système de design complet
+├── js/
+│   ├── scorm-api.js      ← connecteur SCORM 1.2 (communication avec le LMS)
+│   └── app.js            ← moteur de navigation + interactions
+└── assets/
+    ├── *.jpg / *.png     ← photos réelles (jamais générées, toujours de vraies photos)
+    └── *.mp3             ← extraits audio réels le cas échéant
+```
+
+**Règle de livraison** : le zip est construit de façon à ce que `imsmanifest.xml` soit **directement à la racine** du zip (pas dans un sous-dossier), sinon le LMS ne reconnaît pas le package.
+
+```bash
+cd mon-module/
+zip -r ../Formation_ModuleX_SCORM12.zip . -x ".*"
+```
+
+---
+
+## 3. Le connecteur SCORM (`js/scorm-api.js`)
+
+Ce fichier ne change jamais d'un module à l'autre — copier-coller intégral. Il cherche l'API SCORM du LMS en remontant les fenêtres parentes, et devient un no-op silencieux (avec `console.warn`) si aucun LMS n'est trouvé — ce qui permet de prévisualiser le module en ouvrant simplement le fichier HTML dans un navigateur.
+
+```javascript
+/**
+ * Minimal SCORM 1.2 API wrapper.
+ * Locates the LMS API object by walking up the window/opener chain,
+ * then exposes a small, safe interface used by js/app.js.
+ * If no LMS is found (e.g. local preview in a browser), calls are
+ * no-ops and logged to the console so the module still runs standalone.
+ */
+(function (window) {
+  "use strict";
+
+  var SCORM = {
+    api: null,
+    found: false,
+    initialized: false
+  };
+
+  function findAPI(win) {
+    var attempts = 0;
+    while (win.API == null && win.parent != null && win.parent !== win && attempts < 500) {
+      attempts++;
+      win = win.parent;
+    }
+    return win.API || null;
+  }
+
+  function locateAPI() {
+    var api = null;
+    if (window.API) {
+      api = window.API;
+    } else if (window.parent && window.parent !== window) {
+      api = findAPI(window.parent);
+    }
+    if (!api && window.opener) {
+      api = findAPI(window.opener);
+    }
+    return api;
+  }
+
+  SCORM.init = function () {
+    SCORM.api = locateAPI();
+    SCORM.found = !!SCORM.api;
+
+    if (!SCORM.found) {
+      console.warn("[SCORM] No LMS API found — running in standalone preview mode.");
+      return false;
+    }
+
+    var result = SCORM.api.LMSInitialize("");
+    SCORM.initialized = (result === "true" || result === true);
+    if (!SCORM.initialized) {
+      console.warn("[SCORM] LMSInitialize failed:", SCORM.getLastError());
+    }
+    return SCORM.initialized;
+  };
+
+  SCORM.set = function (key, value) {
+    if (!SCORM.found) {
+      console.log("[SCORM preview] set " + key + " = " + value);
+      return true;
+    }
+    var result = SCORM.api.LMSSetValue(key, value);
+    SCORM.save();
+    return result === "true" || result === true;
+  };
+
+  SCORM.get = function (key) {
+    if (!SCORM.found) {
+      return "";
+    }
+    return SCORM.api.LMSGetValue(key);
+  };
+
+  SCORM.save = function () {
+    if (!SCORM.found) return true;
+    var result = SCORM.api.LMSCommit("");
+    return result === "true" || result === true;
+  };
+
+  SCORM.quit = function () {
+    if (!SCORM.found) return true;
+    SCORM.set("cmi.core.exit", "suspend");
+    SCORM.save();
+    var result = SCORM.api.LMSFinish("");
+    return result === "true" || result === true;
+  };
+
+  SCORM.getLastError = function () {
+    if (!SCORM.found) return "0";
+    return SCORM.api.LMSGetLastError();
+  };
+
+  // Convenience helpers used by app.js
+  SCORM.setLocation = function (location) {
+    return SCORM.set("cmi.core.lesson_location", String(location));
+  };
+
+  SCORM.getLocation = function () {
+    return SCORM.get("cmi.core.lesson_location");
+  };
+
+  SCORM.setStatus = function (status) {
+    // status: "incomplete" | "completed" | "passed" | "failed"
+    return SCORM.set("cmi.core.lesson_status", status);
+  };
+
+  SCORM.getStatus = function () {
+    return SCORM.get("cmi.core.lesson_status");
+  };
+
+  window.SCORM = SCORM;
+
+  window.addEventListener("beforeunload", function () {
+    SCORM.quit();
+  });
+})(window);
+
+```
+
+---
+
+## 4. Le moteur de navigation (`js/app.js`) — version cœur
+
+Ce fichier gère : la navigation entre écrans, la barre de progression, les quiz à feedback, les cartes à retourner, et le suivi SCORM (bookmark + statut). **Il détecte automatiquement le nombre d'écrans** (`document.querySelectorAll(".screen").length`) — donc un module de 3 écrans ou de 15 écrans utilise exactement le même fichier, sans aucune modification.
+
+```javascript
+(function () {
+  "use strict";
+
+  var TOTAL_SCREENS = document.querySelectorAll(".screen").length || 1;
+  var current = 1;
+
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function $all(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+
+  function renderScreen(n) {
+    $all(".screen").forEach(function (el) {
+      el.classList.toggle("is-active", parseInt(el.dataset.screen, 10) === n);
+    });
+
+    $all(".step").forEach(function (el) {
+      var stepNum = parseInt(el.dataset.step, 10);
+      el.classList.toggle("is-active", stepNum === n);
+      el.classList.toggle("is-done", stepNum < n);
+      el.setAttribute("aria-current", stepNum === n ? "step" : "false");
+    });
+
+    $all(".fraction").forEach(function (el) { el.textContent = n + "/" + TOTAL_SCREENS; });
+    var pct = Math.round((n / TOTAL_SCREENS) * 100);
+    $all(".progress-fill").forEach(function (el) { el.style.width = pct + "%"; });
+    $all(".page-indicator").forEach(function (el) { el.textContent = n + " / " + TOTAL_SCREENS; });
+
+    var liveRegion = $("#live-announcer");
+    if (liveRegion) {
+      var titleEl = $('.screen[data-screen="' + n + '"] h1, .screen[data-screen="' + n + '"] h2');
+      liveRegion.textContent = titleEl ? "Écran " + n + " sur " + TOTAL_SCREENS + " : " + titleEl.textContent : "";
+    }
+
+    window.scrollTo(0, 0);
+
+    // SCORM bookkeeping
+    window.SCORM.setLocation(String(n));
+    if (n === TOTAL_SCREENS) {
+      window.SCORM.setStatus("completed");
+    }
+    window.SCORM.save();
+  }
+
+  function goTo(n) {
+    if (n < 1 || n > TOTAL_SCREENS) return;
+    current = n;
+    renderScreen(current);
+  }
+
+  function initQuizzes() {
+    $all(".quiz-card").forEach(function (card) {
+      var feedback = $(".quiz-feedback", card);
+      var options = $all(".quiz-option", card);
+      var answered = false;
+      options.forEach(function (opt) {
+        opt.addEventListener("click", function () {
+          if (answered) return;
+          answered = true;
+          var isCorrect = opt.dataset.correct === "true";
+          options.forEach(function (o) {
+            o.disabled = true;
+            if (o.dataset.correct === "true") o.classList.add("is-correct");
+          });
+          if (!isCorrect) opt.classList.add("is-wrong");
+          feedback.textContent = opt.dataset.feedback || "";
+          feedback.classList.add(isCorrect ? "is-correct" : "is-wrong");
+          feedback.hidden = false;
+        });
+      });
+    });
+  }
+
+  function initFlipCards() {
+    $all(".flip-card").forEach(function (card) {
+      card.addEventListener("click", function () {
+        card.classList.toggle("is-flipped");
+        card.setAttribute("aria-pressed", card.classList.contains("is-flipped") ? "true" : "false");
+      });
+      card.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          card.click();
+        }
+      });
+    });
+  }
+
+  function initLiveTicker() {
+    var line = document.getElementById("tickerLine");
+    if (!line) return;
+
+    var svg = line.closest("svg");
+    var dot = document.getElementById("tickerDot");
+    var priceEl = document.getElementById("tickerPrice");
+    var deltaEl = document.getElementById("tickerDelta");
+
+    var xs = [0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400, 440, 480, 520, 560, 600];
+    var PRICE_MIN = 10.5, PRICE_MAX = 17.5;
+    var Y_TOP = 8, Y_BOTTOM = 110;
+
+    function priceToY(p) {
+      var t = (p - PRICE_MIN) / (PRICE_MAX - PRICE_MIN);
+      t = Math.max(0, Math.min(1, t));
+      return Y_BOTTOM - t * (Y_BOTTOM - Y_TOP);
+    }
+
+    // Seed initial prices so the starting shape matches the static markup
+    var prices = [11.4, 11.6, 11.3, 12.0, 11.8, 12.6, 12.3, 13.2, 12.9, 13.9, 13.5, 14.5, 14.1, 15.1, 14.7, 15.6];
+    var lastDisplayed = prices[prices.length - 1];
+
+    function render(pointPrices) {
+      var pts = xs.map(function (x, i) { return x + "," + priceToY(pointPrices[i]).toFixed(1); }).join(" ");
+      line.setAttribute("points", pts);
+      if (dot) {
+        dot.setAttribute("cx", xs[xs.length - 1]);
+        dot.setAttribute("cy", priceToY(pointPrices[pointPrices.length - 1]).toFixed(1));
+      }
+    }
+
+    render(prices);
+
+    var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) return;
+
+    function nextPrice(p) {
+      var delta = (Math.random() - 0.42) * 0.9;
+      var next = p + delta;
+      if (next < PRICE_MIN + 0.3) next = p + Math.abs(delta);
+      if (next > PRICE_MAX - 0.3) next = p - Math.abs(delta);
+      return Math.round(next * 100) / 100;
+    }
+
+    function tick() {
+      var from = prices.slice();
+      var next = prices.slice(1);
+      next.push(nextPrice(prices[prices.length - 1]));
+
+      var newest = next[next.length - 1];
+      var change = ((newest - lastDisplayed) / lastDisplayed) * 100;
+      if (priceEl) priceEl.textContent = newest.toFixed(2).replace(".", ",") + " €";
+      if (deltaEl) {
+        var up = change >= 0;
+        deltaEl.textContent = (up ? "▲ +" : "▼ ") + change.toFixed(1).replace("-", "") + " %";
+        deltaEl.style.color = up ? "var(--lime)" : "#FF8A8A";
+      }
+      lastDisplayed = newest;
+
+      var start = null;
+      var DURATION = 900;
+      function frame(ts) {
+        if (!start) start = ts;
+        var progress = Math.min(1, (ts - start) / DURATION);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        var interpolated = from.map(function (v, i) {
+          return v + (next[i] - v) * eased;
+        });
+        render(interpolated);
+        if (progress < 1) {
+          requestAnimationFrame(frame);
+        } else {
+          prices = next;
+        }
+      }
+      requestAnimationFrame(frame);
+    }
+
+    setInterval(tick, 2000);
+  }
+
+  function init() {
+    window.SCORM.init();
+    var resumed = parseInt(window.SCORM.getLocation(), 10);
+    if (resumed && resumed >= 1 && resumed <= TOTAL_SCREENS) {
+      current = resumed;
+    }
+    if (window.SCORM.getStatus() === "" || window.SCORM.getStatus() === undefined) {
+      window.SCORM.setStatus("incomplete");
+    }
+
+    $all("[data-next]").forEach(function (btn) {
+      btn.addEventListener("click", function () { goTo(current + 1); });
+    });
+    $all("[data-prev]").forEach(function (btn) {
+      btn.addEventListener("click", function () { goTo(current - 1); });
+    });
+    $all(".step").forEach(function (el) {
+      el.addEventListener("click", function () {
+        goTo(parseInt(el.dataset.step, 10));
+      });
+    });
+    $all("[data-finish]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        window.SCORM.setStatus("completed");
+        window.SCORM.save();
+        btn.textContent = btn.dataset.doneLabel || (btn.textContent + " ✓");
+        btn.disabled = true;
+      });
+    });
+
+    renderScreen(current);
+    initQuizzes();
+    initFlipCards();
+    initLiveTicker();
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
+})();
+
+```
+
+> **Important** : si le nouveau module a besoin de composants interactifs supplémentaires (glisser-déposer, document à zones cliquables, etc.), voir la section 11 (Annexe) qui contient une version étendue de ce fichier avec ces fonctions en plus — à fusionner avec cette base, pas à remplacer.
+
+---
+
+## 5. Le manifeste SCORM 1.2 (`imsmanifest.xml`)
+
+Template à dupliquer pour chaque module, en changeant uniquement les identifiants et titres (surlignés ci-dessous par leur contenu).
+
+```xml
+<?xml version="1.0" standalone="no" ?>
+<manifest identifier="OVHCLOUD_COMFIN_MODULE3_001" version="1"
+  xmlns="http://www.imsproject.org/xsd/imscp_rootv1p1p2"
+  xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_rootv1p2"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.imsproject.org/xsd/imscp_rootv1p1p2 imscp_rootv1p1p2.xsd
+                      http://www.imsglobal.org/xsd/imsmd_rootv1p2p1 imsmd_rootv1p2p1.xsd
+                      http://www.adlnet.org/xsd/adlcp_rootv1p2 adlcp_rootv1p2.xsd">
+  <metadata>
+    <schema>ADL SCORM</schema>
+    <schemaversion>1.2</schemaversion>
+  </metadata>
+  <organizations default="ORG_COMFIN_M3">
+    <organization identifier="ORG_COMFIN_M3">
+      <title>Résultats &amp; communication financière — Module 3</title>
+      <item identifier="ITEM_M3" identifierref="RES_M3" isvisible="true">
+        <title>Module 3 : Lire et comprendre les résultats OVHcloud</title>
+        <adlcp:masteryscore>0</adlcp:masteryscore>
+      </item>
+    </organization>
+  </organizations>
+  <resources>
+    <resource identifier="RES_M3" type="webcontent" adlcp:scormtype="sco" href="index.html">
+      <file href="index.html"/>
+      <file href="css/style.css"/>
+      <file href="js/scorm-api.js"/>
+      <file href="js/app.js"/>
+      <file href="assets/raquel-ebitda.mp3"/>
+      <file href="assets/raquel-cashflow.mp3"/>
+    </resource>
+  </resources>
+</manifest>
+
+```
+
+**À adapter à chaque nouveau module** :
+- `identifier="OVHCLOUD_COMFIN_MODULE3_001"` → un identifiant unique par module
+- Les deux `<title>` → le vrai titre du module
+- La liste des `<file href="...">` → tous les fichiers réellement utilisés (CSS, JS, et **chaque** image/audio référencé dans le HTML — un fichier non listé ici ne sera pas packagé par certains LMS)
+
+---
+
+## 6. Système de design — jetons CSS
+
+Toutes les couleurs, polices et espacements sont définis comme variables CSS en haut de `style.css`, jamais en dur ailleurs. **Point de vigilance n°1** (voir section 9) : toujours vérifier qu'une variable utilisée existe bien dans ce bloc avant de l'utiliser ailleurs — un nom mal orthographié ne provoque aucune erreur visible, juste un style qui ne s'applique pas silencieusement.
+
+```css
+:root {
+  --navy: #061AA3;        /* couleur de marque principale, titres et texte fort */
+  --navy-deep: #050F7A;   /* dégradés, fonds sombres */
+  --navy-darker: #030B5C; /* boutons primaires, fonds très sombres */
+  --ink: #10163F;         /* texte courant */
+  --lime: #C6F24E;        /* accent vif — succès, progression, badges positifs */
+  --cyan: #29E0E0;        /* accent secondaire — dégradés, liens actifs */
+  --gray-700: #4B5567;    /* texte secondaire */
+  --gray-500: #737C8D;    /* texte tertiaire, labels */
+  --gray-300: #D7DBE3;    /* bordures */
+  --gray-100: #F4F5F8;    /* fonds neutres (scene-card, quiz-card) */
+  --white: #FFFFFF;
+  --radius-lg: 16px;      /* cartes, encadrés */
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --sidebar-w: 292px;     /* largeur fixe de la barre latérale */
+  --rail-w: 300px;        /* largeur fixe de la colonne de droite */
+}
+```
+
+**Police** : Plus Jakarta Sans (Google Fonts), chargée via `@import` en haut du CSS — géométrique, moderne, lisible à toutes les tailles.
+
+```css
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+```
+
+---
+
+## 7. Structure de mise en page (layout)
+
+Chaque écran suit la même ossature à trois zones :
+
+```
+┌─────────────┬──────────────────────────────┬─────────────┐
+│             │                               │             │
+│   SIDEBAR   │        CONTENU PRINCIPAL       │    RAIL     │
+│  (navy,     │  (blanc, eyebrow+titre+corps)  │  (Alex +    │
+│  fixe,      │                                │   tips,     │
+│  292px)     │                                │   300px)    │
+│             │                                │             │
+├─────────────┴──────────────────────────────┴─────────────┤
+│              BARRE DE NAVIGATION (page X/N, ← →)           │
+└──────────────────────────────────────────────────────────┘
+```
+
+**Squelette HTML minimal d'un module** (à dupliquer pour chaque nouveau module, en changeant le contenu des écrans) :
+
+```html
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nom du module</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="sr-only" id="live-announcer" aria-live="polite"></div>
+
+<div class="shell">
+  <nav class="sidebar" aria-label="Navigation du module">
+    <div class="sidebar-heading" style="margin-top:4px;">
+      <div class="eyebrow-side">Module X</div>
+      <div class="title">Titre du module</div>
+    </div>
+    <div class="progress-block">
+      <div class="progress-row">
+        <span class="label">Progression</span>
+        <span class="fraction">1/N</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:0%"></div></div>
+    </div>
+    <ul class="steps" role="list">
+      <li><button class="step is-active" data-step="1"><span class="badge">1</span> Nom de l'écran 1</button></li>
+      <!-- un <li> par écran -->
+    </ul>
+    <div class="sidebar-footer">Nom de la formation<br>OVHcloud</div>
+  </nav>
+
+  <main class="main">
+    <section class="screen is-active" data-screen="1" aria-label="...">
+      <div class="content-screen">
+        <div class="content-col">
+          <p class="eyebrow">Sur-titre</p>
+          <h2 class="headline">Titre de l'écran</h2>
+          <!-- blocs de contenu ici, voir section 8 -->
+        </div>
+        <aside class="rail">
+          <!-- quote-card / tip-card ici, voir section 8 -->
+        </aside>
+      </div>
+      <div class="nav-bar">
+        <span class="page-indicator">1 / N</span>
+        <div class="nav-actions">
+          <button class="btn btn-primary small" data-next>Suivant →</button>
+        </div>
+      </div>
+    </section>
+    <!-- un <section class="screen" data-screen="N"> par écran -->
+  </main>
+</div>
+
+<footer class="brand-footer"><span>Nom de la formation — Nom du module</span></footer>
+
+<script src="js/scorm-api.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
+```
+
+**Règles importantes de layout** (bugs déjà rencontrés, voir section 9 pour le détail) :
+- Le premier écran ("Bienvenue"/hero) peut être sans `rail` (colonne de droite) si le contenu doit prendre toute la largeur — ajouter `style="max-width:none;"` sur `.content-screen` et `.content-col` dans ce cas précis.
+- Tous les autres écrans gardent `.content-screen` sans style additionnel (le CSS gère déjà le bon alignement et la largeur max de 1180px, alignées à gauche, pas centrées).
+
+---
+
+## 8. Bibliothèque de composants (cœur — non interactifs et semi-interactifs)
+
+Chaque bloc ci-dessous est un pattern HTML à copier-coller dans `.content-col`, empilable librement.
+
+### Titre avec dégradé sur un mot-clé
+```html
+<h2 class="headline">Tu fais partie d'une entreprise <span class="accent">cotée en bourse.</span></h2>
+```
+
+### Callout (encadré de mise en avant, vert lime)
+```html
+<div class="callout">
+  <div class="callout-head">Titre du callout</div>
+  <p>Texte du message clé.</p>
+</div>
+```
+Variante avertissement (jaune/ambre) : ajouter `class="callout warn"`.
+
+### Tip-card / Quote-card (colonne de droite)
+```html
+<div class="quote-card">
+  <div class="quote-head"><span class="avatar">A</span><span class="who">Alex</span></div>
+  <p>« Citation ou réflexion du personnage récurrent. »</p>
+</div>
+<div class="tip-card">
+  <div class="tip-head">💡 Bon à savoir</div>
+  <p>Information complémentaire.</p>
+</div>
+```
+
+### Scene-card (mise en situation narrative)
+```html
+<div class="scene-card">
+  <p>Paragraphe de mise en situation.</p>
+  <p class="transition">Phrase de transition vers le contenu qui suit.</p>
+</div>
+```
+
+### Dialogue en bulles de chat
+```html
+<div class="chat-thread">
+  <div class="chat-row left">
+    <span class="chat-avatar">A</span>
+    <div><div class="chat-name">Alex</div><div class="chat-bubble">Texte du message.</div></div>
+  </div>
+  <div class="chat-row right">
+    <span class="chat-avatar">C</span>
+    <div><div class="chat-name">Son collègue</div><div class="chat-bubble">Texte de la réponse.</div></div>
+  </div>
+</div>
+```
+
+### Fiche KPI (chiffre clé + définition)
+```html
+<div class="kpi-card">
+  <div class="kpi-top"><span class="kpi-value">555,3 M€</span> <span class="kpi-delta">▲ +5,5 %</span></div>
+  <div class="kpi-label">Nom du KPI — période</div>
+  <p class="kpi-def">Définition et contexte du chiffre.</p>
+  <div class="kpi-insight">
+    <span class="icon-badge on-light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span>
+    <div><strong>Pourquoi c'est important</strong><p>Explication.</p></div>
+  </div>
+</div>
+```
+
+### Frise chronologique
+```html
+<div class="timeline">
+  <div class="timeline-item">
+    <div class="date">Octobre</div>
+    <div class="title">Titre de l'étape</div>
+    <div class="desc">Description courte.</div>
+    <span class="quiet-tag">Tag optionnel</span>
+  </div>
+  <!-- répéter -->
+</div>
+```
+
+### Liste de piliers/principes numérotés
+```html
+<div class="pillar-list">
+  <div class="pillar-card">
+    <span class="bar"></span>
+    <span class="icon-badge on-light lg"><svg>...</svg></span>
+    <div><div class="title">Titre du principe</div><div class="desc">Description.</div></div>
+  </div>
+</div>
+```
+
+### Cartes à retourner (clic)
+```html
+<div class="flip-grid">
+  <button class="flip-card" aria-pressed="false">
+    <div class="flip-card-inner">
+      <div class="flip-face flip-front"><div class="flip-title">Recto</div><div class="flip-hint">Clique pour découvrir →</div></div>
+      <div class="flip-face flip-back">Texte du verso.</div>
+    </div>
+  </button>
+</div>
+```
+
+### QCM avec feedback contextualisé (non noté)
+```html
+<div class="quiz-card">
+  <div class="quiz-q">Question posée.</div>
+  <div class="quiz-options">
+    <button class="quiz-option" data-correct="false" data-feedback="Explication si faux.">A. Option incorrecte</button>
+    <button class="quiz-option" data-correct="true" data-feedback="Explication si juste.">B. Option correcte</button>
+  </div>
+  <div class="quiz-feedback" hidden></div>
+</div>
+```
+
+### Récapitulatif + glossaire (écran de fin de module)
+```html
+<ul class="recap-list">
+  <li><span class="check">✓</span> Ce que l'apprenant sait faire maintenant.</li>
+</ul>
+<div class="glossary-grid">
+  <div class="glossary-item"><div class="term">Terme</div><div class="def">Définition courte.</div></div>
+</div>
+```
+
+### Carte audio (témoignage réel intégré)
+```html
+<div class="audio-card">
+  <div class="ac-top">
+    <span class="ac-avatar">XX</span>
+    <div><div class="ac-name">Prénom Nom</div><div class="ac-role">Fonction</div></div>
+    <span class="ac-tag">Extrait du podcast interne</span>
+  </div>
+  <div class="ac-player"><audio controls><source src="assets/extrait.mp3" type="audio/mpeg"></audio></div>
+  <div class="ac-quote"><span class="qmark">&ldquo;</span>Retranscription de la citation.</div>
+</div>
+```
+
+**Règle absolue sur ce composant** : ne jamais utiliser un extrait audio fabriqué ou une citation inventée — uniquement de vrais enregistrements internes, découpés aux bons timecodes et intégrés tels quels.
+
+### Encadré façon source externe (Wikipédia)
+```html
+<div class="wiki-box">
+  <div class="wiki-topbar"><span class="wiki-globe">W</span><span class="wiki-brand"><b>Wikipédia</b>, l'encyclopédie libre</span></div>
+  <div class="wiki-body"><h4>Titre de l'article</h4><p>Définition, avec des <span class="wiki-link">termes en style lien</span>.</p></div>
+  <div class="wiki-footer">Source : Wikipédia, licence CC BY-SA 4.0</div>
+</div>
+```
+
+---
+
+## 9. Pièges déjà rencontrés — à ne pas reproduire
+
+Cette section documente des bugs réels rencontrés en production, pour éviter de perdre du temps à les redécouvrir.
+
+1. **Un titre en `<h2>` ne recevait ni couleur, ni graisse, ni marge basse.** Cause : la règle CSS était écrite `h1.headline { ... }` (couplée au tag `h1`), alors que tous les écrans sauf le tout premier utilisent `<h2 class="headline">`. **Règle à suivre** : toujours écrire les styles de composants sur la **classe seule** (`.headline { ... }`), jamais couplés à un tag HTML précis, sauf override volontaire de taille (`h1.headline { font-size: 40px; }` en plus, pas à la place).
+
+2. **Le dégradé de texte sur un mot-clé ne s'affichait pas.** Même cause que ci-dessus : la règle était `h1.headline .accent { ... }`. Toujours utiliser `.headline .accent { ... }`.
+
+3. **Variable CSS mal orthographiée, aucune erreur visible.** `background: var(--navy-dark)` ne faisait rien (transparent silencieux) car la variable réellement définie était `--navy-deep`. CSS ne signale jamais une variable inexistante — **toujours vérifier le bloc `:root` avant d'utiliser une variable**, ou grep le fichier pour confirmer son nom exact.
+
+4. **Grand espace blanc entre la sidebar et le contenu sur les grands écrans.** Cause : `.content-screen { max-width: 1180px; align-self: center; }` centre le bloc de contenu dans l'espace disponible — sur un LMS large (>1600px), ça laisse une bande vide symétrique des deux côtés. **Fix** : `align-self: flex-start` (pas `center`) pour que le contenu colle à la sidebar et que l'espace en trop parte à droite, après la colonne de droite.
+
+5. **Une vidéo ou un visuel narrow alors que la colonne est large.** Cause : un `max-width` fixe en pixels sur l'élément (ex. `.video-frame { max-width: 900px; }`) alors que la colonne parente est plus large. **Fix** : ne jamais fixer de largeur en dur sur un média destiné à remplir sa colonne ; laisser `width: 100%` et laisser le conteneur parent gérer la largeur réelle.
+
+6. **Icône énorme au lieu d'une petite icône dans un badge.** Cause : un `<span>` (élément inline par défaut) avec `width`/`height` en CSS — les propriétés de dimension n'ont aucun effet sur un élément `inline`. **Fix** : ajouter `display: block` (ou `inline-flex`) à tout `<span>` auquel on applique une taille fixe.
+
+7. **Positionnement de repères cliquables (hotspots) en `position: absolute` avec coordonnées pixel devinées.** Fragile et jamais aligné correctement avec le texte réel. **Fix retenu** : structurer chaque ligne annotée comme une rangée flexbox (`display:flex; justify-content:space-between`) avec le texte et le marqueur comme deux enfants normaux — jamais de positionnement absolu à coordonnées fixes sur du texte qui peut re-fluer.
+
+8. **Toujours vérifier le rendu à une largeur d'écran réaliste (1600-1920px), pas seulement à 1280px.** Plusieurs bugs de mise en page ne sont visibles qu'à la largeur réelle du LMS cible, qui est souvent plus large qu'un écran de développement standard.
+
+---
+
+## 10. Conventions de contenu et de narration
+
+- **Un personnage récurrent** ("Alex" dans la formation OVHcloud) traverse tous les modules : un collègue fictif qui découvre les notions en même temps que l'apprenant. Utilisé dans les mises en situation, les citations de la colonne de droite, et les mises en situation. Renommer ce personnage pour chaque nouvelle formation, mais garder le principe : un fil rouge humain plutôt qu'un contenu purement descriptif.
+- **Structure type d'un module de contenu** (hors Introduction et modules de mise en situation pure) :
+  1. Écran de mise en situation (scene-card ou chat-thread, avec une transition en callout vers le contenu)
+  2. Un écran par notion clé (eyebrow "Notion X", headline, lede, puis le bloc de contenu le plus adapté : kpi-card, pillar-list, timeline, flip-grid, wiki-box...)
+  3. Un mini-quiz flash **après 3-4 notions**, jamais plus tard (pour exploiter l'effet de test pendant l'apprentissage, pas seulement après) — toujours accompagné d'un tip précisant qu'il n'est pas noté
+  4. Écran de clôture : recap-list + glossary-grid + callout de transition vers le module suivant
+- **Toujours utiliser de vraies photos et de vrais extraits audio**, jamais générés — les demander à la personne si elles ne sont pas fournies, ou utiliser des espaces réservés explicitement indiqués comme tels (`[Photo — à remplacer]`) plutôt qu'une image générée qui laisserait croire à une vraie photo d'entreprise.
+- **Aucun emoji** dans l'interface — toujours des icônes SVG simples au trait (style Feather/Lucide, `stroke="currentColor" stroke-width="1.8"`, viewBox `0 0 24 24`), cohérentes avec le reste du système de design.
+- **Jamais de chiffres ou de statistiques inventés** présentés comme réels (ex. "82% de tes collègues ont répondu ceci") — soit de vraies données, soit un exemple explicitement étiqueté "illustratif".
+
+---
+
+## 11. Checklist de fabrication d'un nouveau module
+
+1. Définir le nombre d'écrans et leur ordre (mise en situation → notions → quiz → clôture).
+2. Dupliquer le squelette HTML (section 7), dupliquer `style.css` et `app.js`/`scorm-api.js` tels quels.
+3. Remplir le contenu de chaque écran avec les blocs de la section 8.
+4. Écrire le manifeste à partir du template (section 5), avec un identifiant unique et la liste exacte des fichiers utilisés.
+5. Ouvrir `index.html` directement dans un navigateur pour vérifier visuellement avant de zipper.
+6. Vérifier à une largeur d'écran de 1600-1920px (pas seulement en fenêtre réduite).
+7. Vérifier le rendu mobile (< 700px).
+8. Zipper avec `imsmanifest.xml` à la racine du zip.
+9. Rédiger un `README.txt` listant les hypothèses prises et les points à vérifier avant mise en ligne (ex. lien vidéo à finaliser, durées à confirmer).
+
+---
+
+## 12. Annexe — bibliothèque de formats avancés (interactifs)
+
+Ces formats sont optionnels : à n'ajouter que si la nouvelle formation en a l'usage. Ils demandent la version étendue de `app.js` (ci-dessous) et les styles CSS additionnels (ci-dessous), en plus — pas à la place — du cœur des sections 3 à 8.
+
+### 12.1 — CSS additionnel (à ajouter à la suite de `style.css`)
+
+```css
+
+/* ================= NEW INTERACTIVE FORMATS (demo module) ================= */
+
+/* ---------- Drag/tap-to-sort activity ---------- */
+
+.sort-activity {
+  display: flex;
+  gap: 24px;
+  max-width: 680px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.sort-pool {
+  flex: 1 1 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.sort-item {
+  padding: 11px 14px;
+  border: 1.5px solid var(--gray-300);
+  border-radius: 10px;
+  background: var(--white);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, opacity 0.2s;
+}
+
+.sort-item:hover { border-color: var(--navy); }
+
+.sort-item.is-selected {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(6,26,163,0.14);
+}
+
+.sort-item.is-placed { display: none; }
+
+.sort-bins {
+  flex: 1 1 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sort-bin {
+  border: 2px dashed var(--gray-300);
+  border-radius: 12px;
+  padding: 12px 14px;
+  min-height: 70px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.sort-bin.hint-public { border-color: var(--cyan); background: #F2FDFD; }
+.sort-bin.hint-confidential { border-color: var(--warn-border); background: var(--warn-bg); }
+
+.sort-bin .bin-title {
+  font-weight: 800;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+  color: var(--navy);
+}
+
+.sort-bin .bin-item {
+  background: var(--white);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 12px;
+  margin-bottom: 6px;
+  border: 1px solid var(--gray-300);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sort-bin .bin-item.is-correct { border-color: #1E9E5A; background: #EAFAF1; color: #145C33; }
+.sort-bin .bin-item.is-wrong { border-color: #D6444C; background: #FDEEEE; color: #7A1D22; }
+
+.sort-status {
+  font-size: 12px;
+  color: var(--gray-500);
+  margin-top: 4px;
+}
+
+/* ---------- Hotspot annotated document ---------- */
+
+.hotspot-doc {
+  position: relative;
+  max-width: 680px;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-lg);
+  background: var(--white);
+  box-shadow: var(--shadow-card);
+  padding: 26px 30px;
+  margin-bottom: 10px;
+}
+
+.hotspot-doc .doc-kicker {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.hotspot-doc h4 {
+  font-size: 17px;
+  color: var(--navy);
+  margin-bottom: 10px;
+  font-weight: 800;
+}
+
+.hotspot-doc p {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--gray-700);
+  margin-bottom: 8px;
+}
+
+.hotspot-line {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.hotspot-line p { margin-bottom: 0; flex: 1; }
+
+.hotspot-marker {
+  position: relative;
+  width: 24px; height: 24px;
+  flex: 0 0 24px;
+  border-radius: 50%;
+  background: var(--navy-darker);
+  color: var(--white);
+  font-weight: 800;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 0 4px rgba(6,26,163,0.14);
+  margin-top: 1px;
+}
+
+.hotspot-marker.is-open { background: var(--lime); color: var(--navy-darker); }
+
+.hotspot-tooltip {
+  background: var(--navy-deep);
+  color: var(--white);
+  padding: 12px 15px;
+  border-radius: 10px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  margin-bottom: 10px;
+  display: none;
+}
+
+.hotspot-tooltip.is-visible { display: block; }
+
+.hotspot-tooltip strong { color: var(--lime); display: block; margin-bottom: 3px; font-size: 11px; }
+
+/* ---------- Matching pairs ---------- */
+
+.match-activity {
+  display: flex;
+  gap: 30px;
+  max-width: 680px;
+  margin-bottom: 8px;
+}
+
+.match-col { flex: 1; display: flex; flex-direction: column; gap: 9px; }
+
+.match-item {
+  padding: 11px 12px;
+  border: 1.5px solid var(--gray-300);
+  border-radius: 10px;
+  background: var(--white);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--ink);
+}
+
+.match-item.is-selected { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(6,26,163,0.14); }
+.match-item.is-matched { border-color: #1E9E5A; background: #EAFAF1; color: #145C33; cursor: default; }
+.match-item.is-wrong { border-color: #D6444C; background: #FDEEEE; }
+
+/* ---------- Branching scenario ---------- */
+
+.branch-step { display: none; }
+.branch-step.is-active { display: block; }
+
+.branch-narrative {
+  background: var(--gray-100);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  max-width: 680px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.branch-choices { display: flex; flex-direction: column; gap: 10px; max-width: 680px; }
+
+.branch-choice {
+  border: 1.5px solid var(--gray-300);
+  background: var(--white);
+  border-radius: 12px;
+  padding: 13px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.branch-choice:hover { border-color: var(--navy); }
+
+.branch-outcome {
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  max-width: 680px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.branch-outcome.good { background: #EAFAF1; border: 1.5px solid #BEEBD1; color: #145C33; }
+.branch-outcome.mixed { background: var(--warn-bg); border: 1.5px solid var(--warn-border); color: #5C4A05; }
+
+.branch-outcome .outcome-tag {
+  display: inline-block;
+  font-weight: 800;
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.branch-restart {
+  margin-top: 14px;
+  background: none;
+  border: none;
+  color: var(--navy);
+  font-weight: 700;
+  font-size: 12.5px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+/* ---------- Simulated chat reply ---------- */
+
+.reply-options {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 6px;
+  max-width: 680px;
+}
+
+.reply-option {
+  border: 1.5px solid var(--gray-300);
+  border-radius: 18px;
+  padding: 11px 18px;
+  background: var(--white);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.reply-option:hover:not(:disabled) { border-color: var(--navy); }
+.reply-option:disabled { opacity: 0.4; cursor: default; }
+
+.reply-tag {
+  display: inline-block;
+  align-self: flex-start;
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.reply-tag.good { background: #EAFAF1; color: #145C33; }
+.reply-tag.risky { background: #FDEEEE; color: #7A1D22; }
+
+/* ---------- Format tag (demo labeling) ---------- */
+
+.format-tag {
+  display: inline-block;
+  background: var(--navy-darker);
+  color: var(--white);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 4px 11px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 700px) {
+  .sort-activity, .match-activity { flex-direction: column; }
+}
+
+/* ================= PROTOTYPE FORMATS (imaginative, non-standard) ================= */
+
+/* ---------- A. Confidence bet ---------- */
+
+.confidence-card {
+  background: var(--gray-100);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  max-width: 680px;
+  margin-bottom: 10px;
+}
+
+.confidence-claim {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 18px;
+}
+
+.confidence-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 6px;
+}
+
+.confidence-slider-row input[type="range"] {
+  flex: 1;
+  accent-color: var(--navy);
+}
+
+.confidence-pct {
+  font-weight: 800;
+  color: var(--navy);
+  font-size: 15px;
+  min-width: 44px;
+  text-align: right;
+}
+
+.confidence-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: var(--gray-500);
+  margin-bottom: 16px;
+}
+
+.confidence-result {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  display: none;
+}
+
+.confidence-result.is-visible { display: block; }
+.confidence-result.match { background: #EAFAF1; color: #145C33; border: 1px solid #BEEBD1; }
+.confidence-result.mismatch { background: var(--warn-bg); color: #5C4A05; border: 1px solid var(--warn-border); }
+
+/* ---------- B. Explain to a newcomer ---------- */
+
+.explain-box textarea {
+  width: 100%;
+  max-width: 680px;
+  min-height: 90px;
+  border: 1.5px solid var(--gray-300);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  resize: vertical;
+  margin-bottom: 12px;
+}
+
+.explain-box textarea:focus { outline: none; border-color: var(--navy); }
+
+.model-answer {
+  background: var(--tip-bg);
+  border: 1px solid var(--tip-border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  max-width: 680px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #1F3160;
+  display: none;
+}
+
+.model-answer.is-visible { display: block; }
+.model-answer strong { display: block; color: var(--navy); margin-bottom: 6px; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* ---------- C. Countdown unlock ---------- */
+
+.countdown-card {
+  background: var(--navy-darker);
+  color: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  max-width: 680px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.countdown-number {
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--lime);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.countdown-label {
+  font-size: 11px;
+  color: #BFCCFA;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+.countdown-options { max-width: 680px; }
+
+.countdown-options .quiz-option {
+  filter: blur(4px);
+  pointer-events: none;
+  transition: filter 0.4s;
+}
+
+.countdown-options.is-unlocked .quiz-option {
+  filter: none;
+  pointer-events: auto;
+}
+
+/* ---------- D. Find the mistake (fake social post) ---------- */
+
+.fake-post {
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-lg);
+  background: var(--white);
+  box-shadow: var(--shadow-card);
+  max-width: 560px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.fake-post .fp-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px 8px;
+}
+
+.fake-post .fp-avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6EC1FF 0%, var(--lime) 100%);
+  color: var(--navy-darker);
+  font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex: 0 0 38px;
+}
+
+.fake-post .fp-name { font-weight: 700; font-size: 13px; color: var(--ink); }
+.fake-post .fp-meta { font-size: 10.5px; color: var(--gray-500); }
+
+.fake-post .fp-body {
+  padding: 4px 18px 18px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.fp-error {
+  cursor: pointer;
+  border-bottom: 2px dotted var(--gray-500);
+  transition: background 0.15s;
+}
+
+.fp-error:hover { background: #FDF6DF; }
+
+.fp-error.is-found {
+  background: #FDEEEE;
+  border-bottom-color: #D6444C;
+  color: #7A1D22;
+  font-weight: 700;
+}
+
+.fp-error.is-found::after {
+  content: " ⚠";
+}
+
+.find-status {
+  font-size: 12.5px;
+  color: var(--gray-500);
+  font-weight: 600;
+}
+
+/* ---------- E. Decode the jargon ---------- */
+
+.jargon-para {
+  max-width: 680px;
+  background: var(--gray-100);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  font-size: 13.5px;
+  line-height: 1.9;
+  color: var(--ink);
+}
+
+.jargon {
+  color: var(--navy);
+  font-weight: 700;
+  border-bottom: 2px dotted var(--navy);
+  cursor: pointer;
+}
+
+.jargon.is-open { color: #0A6E6E; border-bottom-color: #0A6E6E; }
+
+.jargon-def {
+  display: none;
+  background: var(--navy-deep);
+  color: var(--white);
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin: 6px 0;
+  line-height: 1.4;
+}
+
+.jargon-def.is-visible { display: block; }
+
+/* ---------- F. Voice mosaic ---------- */
+
+.voice-mosaic {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  max-width: 680px;
+}
+
+.voice-mosaic .audio-card { margin-top: 0; }
+
+/* ---------- G. Living document / personal recap ---------- */
+
+.living-doc-prompt {
+  max-width: 680px;
+  margin-bottom: 14px;
+}
+
+.living-doc-prompt label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.living-doc-prompt input[type="text"] {
+  width: 100%;
+  border: 1.5px solid var(--gray-300);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--ink);
+}
+
+.living-doc-prompt input[type="text"]:focus { outline: none; border-color: var(--navy); }
+
+.memo-card {
+  max-width: 680px;
+  background: linear-gradient(160deg, #0A20AE 0%, #050F7A 100%);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  color: var(--white);
+  display: none;
+}
+
+.memo-card.is-visible { display: block; }
+.memo-card h5 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--lime); margin-bottom: 12px; }
+.memo-card .memo-line { font-size: 13px; line-height: 1.6; margin-bottom: 8px; color: #E7ECFC; }
+.memo-card .memo-line strong { color: var(--white); }
+
+/* ---------- H. Overflowing inbox ---------- */
+
+.inbox-sim { max-width: 680px; min-height: 60px; }
+
+.inbox-msg {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--white);
+  border: 1px solid var(--gray-300);
+  border-radius: 12px;
+  padding: 13px 16px;
+  margin-bottom: 10px;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.4s, transform 0.4s;
+}
+
+.inbox-msg.is-visible { opacity: 1; transform: translateY(0); }
+
+.inbox-msg .im-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--tip-bg); color: var(--navy);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 12px; flex: 0 0 32px;
+}
+
+.inbox-msg .im-body { flex: 1; }
+.inbox-msg .im-from { font-weight: 700; font-size: 12.5px; color: var(--ink); }
+.inbox-msg .im-text { font-size: 12px; color: var(--gray-700); margin-top: 2px; }
+.inbox-msg .im-actions { display: flex; gap: 8px; margin-top: 8px; }
+
+.im-actions button {
+  border: 1px solid var(--gray-300);
+  background: var(--white);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.im-actions button.chosen-now { background: var(--navy-darker); color: var(--white); border-color: var(--navy-darker); }
+.im-actions button.chosen-wait { background: var(--warn-bg); border-color: var(--warn-border); }
+.im-actions button:disabled { opacity: 0.5; cursor: default; }
+
+/* ---------- I. Social proof reveal ---------- */
+
+.proof-bars { max-width: 680px; margin-top: 14px; display: none; }
+.proof-bars.is-visible { display: block; }
+
+.proof-row { margin-bottom: 12px; }
+.proof-row .proof-label { font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.proof-track { background: var(--gray-100); border-radius: 999px; height: 20px; overflow: hidden; }
+.proof-fill { height: 100%; background: linear-gradient(90deg, var(--navy), var(--cyan)); display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; color: white; font-size: 10.5px; font-weight: 700; border-radius: 999px; width: 0%; transition: width 0.8s ease; }
+.proof-disclaimer { font-size: 10.5px; color: var(--gray-500); font-style: italic; margin-top: 6px; }
+
+/* ---------- J. Real case reconstruction ---------- */
+
+.case-reveal {
+  max-width: 680px;
+  background: var(--gray-100);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  margin-top: 14px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink);
+  display: none;
+}
+.case-reveal.is-visible { display: block; }
+.case-reveal strong { color: var(--navy); }
+
+@media (max-width: 700px) {
+  .voice-mosaic { grid-template-columns: 1fr; }
+}
+
+/* ---------- Confidence tracker (pre/post, cross-module) ---------- */
+
+.confidence-multi {
+  max-width: 680px;
+  background: var(--gray-100);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  margin-bottom: 12px;
+}
+
+.confidence-multi .stmt { margin-bottom: 20px; }
+.confidence-multi .stmt:last-of-type { margin-bottom: 16px; }
+
+.confidence-multi .stmt label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.confidence-saved-msg {
+  font-size: 12px;
+  font-weight: 700;
+  color: #145C33;
+  margin-top: 4px;
+}
+
+.confidence-compare { max-width: 680px; margin-top: 10px; }
+
+.compare-row { margin-bottom: 18px; }
+
+.compare-row .compare-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.compare-track {
+  position: relative;
+  background: var(--gray-100);
+  border-radius: 999px;
+  height: 22px;
+  margin-bottom: 4px;
+}
+
+.compare-fill-pre {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  background: var(--gray-300);
+  border-radius: 999px;
+}
+
+.compare-fill-post {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  background: linear-gradient(90deg, var(--navy), var(--cyan));
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.compare-delta {
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.compare-delta.up { color: #0A8A4A; }
+.compare-delta.down { color: #B4232C; }
+
+.compare-legend {
+  display: flex;
+  gap: 16px;
+  font-size: 10.5px;
+  color: var(--gray-500);
+  margin-bottom: 14px;
+}
+
+.compare-legend span { display: flex; align-items: center; gap: 5px; }
+.compare-legend .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.compare-legend .dot.pre { background: var(--gray-300); }
+.compare-legend .dot.post { background: var(--navy); }
+
+.confidence-warning {
+  font-size: 11.5px;
+  color: #7A5E00;
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  max-width: 680px;
+  margin-top: 10px;
+}
+
+/* ================= DESIGN REFRESH — moins "archaïque", plus engageant ================= */
+
+/* ---------- Quiz options : relief, indicateur radial, transition plus riche ---------- */
+
+.quiz-card {
+  background: linear-gradient(165deg, #F7F8FC 0%, var(--gray-100) 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+.quiz-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px 14px 16px;
+  box-shadow: 0 1px 2px rgba(16,22,63,0.04);
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.quiz-option::before {
+  content: "";
+  flex: 0 0 18px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--gray-300);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.quiz-option:not(:disabled):hover {
+  border-color: var(--navy);
+  box-shadow: 0 4px 14px rgba(6,26,163,0.1);
+  transform: translateY(-1px);
+}
+
+.quiz-option:not(:disabled):hover::before { border-color: var(--navy); }
+
+.quiz-option.is-correct::before {
+  border-color: #1E9E5A;
+  background: #1E9E5A url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center/12px no-repeat;
+}
+
+.quiz-option.is-wrong::before {
+  border-color: #D6444C;
+  background: #D6444C url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='18' y1='6' x2='6' y2='18'/%3E%3Cline x1='6' y1='6' x2='18' y2='18'/%3E%3C/svg%3E") center/10px no-repeat;
+}
+
+.quiz-option.is-correct { animation: correctPulse 0.5s ease; }
+.quiz-option.is-wrong { animation: wrongShake 0.4s ease; }
+
+@keyframes correctPulse {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.018); box-shadow: 0 0 0 6px rgba(30,158,90,0.16); }
+  100% { transform: scale(1); box-shadow: none; }
+}
+
+@keyframes wrongShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiz-option.is-correct, .quiz-option.is-wrong { animation: none; }
+}
+
+/* ---------- Confetti burst on correct answers ---------- */
+
+.confetti-piece {
+  position: absolute;
+  width: 7px; height: 7px;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 20;
+  animation: confettiBurst 0.85s cubic-bezier(.2,.8,.3,1) forwards;
+}
+
+@keyframes confettiBurst {
+  0% { transform: translate(0,0) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.4); opacity: 0; }
+}
+
+.correct-badge-pop {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%) scale(0);
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: #1E9E5A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  animation: badgePop 0.45s cubic-bezier(.34,1.56,.64,1) forwards;
+}
+
+.correct-badge-pop svg { width: 14px; height: 14px; }
+
+@keyframes badgePop {
+  0% { transform: translateY(-50%) scale(0); }
+  60% { transform: translateY(-50%) scale(1.25); }
+  100% { transform: translateY(-50%) scale(1); }
+}
+
+/* ---------- Format tag with icon ---------- */
+
+.format-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, var(--navy-darker) 0%, var(--navy) 100%);
+  box-shadow: 0 2px 8px rgba(6,26,163,0.25);
+}
+
+.format-tag svg { width: 12px; height: 12px; }
+
+/* ---------- Nicer range sliders ---------- */
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--navy) 0%, var(--navy) var(--fill, 50%), var(--gray-300) var(--fill, 50%), var(--gray-300) 100%);
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 4px solid var(--navy);
+  box-shadow: 0 2px 8px rgba(6,26,163,0.35);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.12); }
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 4px solid var(--navy);
+  box-shadow: 0 2px 8px rgba(6,26,163,0.35);
+  cursor: pointer;
+}
+
+/* ---------- Cards: subtle depth & hover lift where clickable ---------- */
+
+.pillar-card, .kpi-card, .timeline-item, .glossary-item, .profile-card {
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.flip-card:hover .flip-card-inner,
+.sort-item:hover,
+.match-item:not(.is-matched):hover {
+  transform: translateY(-2px);
+}
+
+.sort-item, .match-item { transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease; }
+
+/* ---------- Icon badges reused across headers ---------- */
+
+.section-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6EC1FF 0%, var(--lime) 100%);
+  color: var(--navy-darker);
+  margin-bottom: 10px;
+}
+
+.section-icon svg { width: 18px; height: 18px; }
+
+/* ================= 6 ADDITIONAL PROTOTYPES ================= */
+
+/* ---------- Word cloud reveal ---------- */
+
+.wordcloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  align-items: center;
+  max-width: 680px;
+  background: var(--gray-100);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  margin-top: 14px;
+  display: none;
+}
+
+.wordcloud.is-visible { display: flex; }
+
+.wordcloud span { font-weight: 800; }
+.wc-xl { font-size: 26px; color: var(--navy); }
+.wc-lg { font-size: 20px; color: var(--navy-deep); }
+.wc-md { font-size: 15px; color: #3F6B1B; }
+.wc-sm { font-size: 12px; color: var(--gray-500); font-weight: 700; }
+.wc-you {
+  background: var(--lime);
+  color: var(--navy-darker);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 15px;
+}
+
+/* ---------- Retry quiz (rejoue en mieux) ---------- */
+
+.retry-hint {
+  display: none;
+  background: var(--tip-bg);
+  border: 1px solid var(--tip-border);
+  border-radius: 10px;
+  padding: 12px 15px;
+  font-size: 12px;
+  color: #1F3160;
+  margin-top: 10px;
+}
+
+.retry-hint.is-visible { display: block; }
+
+.retry-btn {
+  display: none;
+  margin-top: 10px;
+}
+
+.retry-btn.is-visible { display: inline-flex; }
+
+.retry-success {
+  display: none;
+  margin-top: 10px;
+}
+
+.retry-success.is-visible { display: block; }
+
+/* ---------- Progressive disclosure (zoom avant/arrière) ---------- */
+
+.zoom-stack { max-width: 680px; }
+
+.zoom-level {
+  background: var(--white);
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  margin-bottom: 10px;
+}
+
+.zoom-level .zoom-kicker {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  margin-bottom: 6px;
+}
+
+.zoom-level p { font-size: 13px; line-height: 1.6; color: var(--ink); margin-bottom: 10px; }
+
+.zoom-more {
+  background: none;
+  border: none;
+  color: var(--navy);
+  font-weight: 700;
+  font-size: 12.5px;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.zoom-more svg { width: 14px; height: 14px; transition: transform 0.2s; }
+
+.zoom-next { display: none; }
+.zoom-next.is-visible { display: block; animation: fadeIn 0.35s ease; }
+
+/* ---------- Duel de répliques ---------- */
+
+.duel-row {
+  display: flex;
+  gap: 16px;
+  max-width: 680px;
+  margin-bottom: 4px;
+}
+
+.duel-card {
+  flex: 1;
+  border: 2px solid var(--gray-300);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  cursor: pointer;
+  background: var(--white);
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+
+.duel-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
+
+.duel-card .duel-who {
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gray-500);
+  margin-bottom: 8px;
+}
+
+.duel-card p { font-size: 13px; line-height: 1.5; color: var(--ink); margin: 0; }
+
+.duel-card.is-picked { border-color: var(--navy); background: #F2F4FD; }
+.duel-card.is-picked.is-best { border-color: #1E9E5A; background: #EAFAF1; }
+
+.duel-analysis {
+  display: none;
+  max-width: 680px;
+  background: var(--gray-100);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  margin-top: 14px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.duel-analysis.is-visible { display: block; }
+
+/* ---------- Risk thermometer ---------- */
+
+.risk-item {
+  max-width: 680px;
+  margin-bottom: 22px;
+}
+
+.risk-item .risk-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+
+.risk-track-wrap { position: relative; margin-top: 26px; }
+
+.risk-track-wrap input[type="range"] {
+  background: linear-gradient(90deg, #1E9E5A 0%, #F2C744 50%, #D6444C 100%) !important;
+  height: 10px;
+}
+
+.risk-expert-mark {
+  position: absolute;
+  top: -6px;
+  width: 3px;
+  height: 22px;
+  background: var(--navy-darker);
+  display: none;
+  border-radius: 2px;
+}
+
+.risk-expert-mark.is-visible { display: block; }
+
+.risk-expert-mark::after {
+  content: "Repère expert";
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8.5px;
+  font-weight: 800;
+  color: var(--navy-darker);
+  white-space: nowrap;
+}
+
+```
+
+### 12.2 — `app.js` version étendue (inclut le cœur de la section 4 + tous les formats avancés)
+
+```javascript
+(function () {
+  "use strict";
+
+  var TOTAL_SCREENS = document.querySelectorAll(".screen").length || 1;
+  var current = 1;
+
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function $all(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+
+  function renderScreen(n) {
+    $all(".screen").forEach(function (el) {
+      el.classList.toggle("is-active", parseInt(el.dataset.screen, 10) === n);
+    });
+
+    $all(".step").forEach(function (el) {
+      var stepNum = parseInt(el.dataset.step, 10);
+      el.classList.toggle("is-active", stepNum === n);
+      el.classList.toggle("is-done", stepNum < n);
+      el.setAttribute("aria-current", stepNum === n ? "step" : "false");
+    });
+
+    $all(".fraction").forEach(function (el) { el.textContent = n + "/" + TOTAL_SCREENS; });
+    var pct = Math.round((n / TOTAL_SCREENS) * 100);
+    $all(".progress-fill").forEach(function (el) { el.style.width = pct + "%"; });
+    $all(".page-indicator").forEach(function (el) { el.textContent = n + " / " + TOTAL_SCREENS; });
+
+    var liveRegion = $("#live-announcer");
+    if (liveRegion) {
+      var titleEl = $('.screen[data-screen="' + n + '"] h1, .screen[data-screen="' + n + '"] h2');
+      liveRegion.textContent = titleEl ? "Écran " + n + " sur " + TOTAL_SCREENS + " : " + titleEl.textContent : "";
+    }
+
+    window.scrollTo(0, 0);
+
+    // SCORM bookkeeping
+    window.SCORM.setLocation(String(n));
+    if (n === TOTAL_SCREENS) {
+      window.SCORM.setStatus("completed");
+    }
+    window.SCORM.save();
+  }
+
+  function goTo(n) {
+    if (n < 1 || n > TOTAL_SCREENS) return;
+    current = n;
+    renderScreen(current);
+  }
+
+  function celebrate(el) {
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var colors = ["#C6F24E", "#29E0E0", "#061AA3", "#6EC1FF"];
+    var rect = el.getBoundingClientRect();
+    el.style.position = el.style.position || "relative";
+    var badge = document.createElement("span");
+    badge.className = "correct-badge-pop";
+    badge.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    el.appendChild(badge);
+    setTimeout(function () { badge.remove(); }, 900);
+    for (var i = 0; i < 10; i++) {
+      var piece = document.createElement("span");
+      piece.className = "confetti-piece";
+      var angle = (Math.random() * 360) * Math.PI / 180;
+      var dist = 40 + Math.random() * 40;
+      piece.style.setProperty("--dx", Math.cos(angle) * dist + "px");
+      piece.style.setProperty("--dy", Math.sin(angle) * dist + "px");
+      piece.style.setProperty("--rot", (Math.random() * 360) + "deg");
+      piece.style.background = colors[i % colors.length];
+      piece.style.right = "20px";
+      piece.style.top = "50%";
+      el.appendChild(piece);
+      (function (p) { setTimeout(function () { p.remove(); }, 900); })(piece);
+    }
+  }
+
+  function initQuizzes() {
+    $all(".quiz-card:not(.retry-quiz)").forEach(function (card) {
+      var feedback = $(".quiz-feedback", card);
+      var options = $all(".quiz-option", card);
+      var answered = false;
+      options.forEach(function (opt) {
+        opt.addEventListener("click", function () {
+          if (answered) return;
+          answered = true;
+          var isCorrect = opt.dataset.correct === "true";
+          options.forEach(function (o) {
+            o.disabled = true;
+            if (o.dataset.correct === "true") o.classList.add("is-correct");
+          });
+          if (!isCorrect) opt.classList.add("is-wrong");
+          else celebrate(opt);
+          feedback.textContent = opt.dataset.feedback || "";
+          feedback.classList.add(isCorrect ? "is-correct" : "is-wrong");
+          feedback.hidden = false;
+        });
+      });
+    });
+  }
+
+  function initFlipCards() {
+    $all(".flip-card").forEach(function (card) {
+      card.addEventListener("click", function () {
+        card.classList.toggle("is-flipped");
+        card.setAttribute("aria-pressed", card.classList.contains("is-flipped") ? "true" : "false");
+      });
+      card.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          card.click();
+        }
+      });
+    });
+  }
+
+  function initLiveTicker() {
+    var line = document.getElementById("tickerLine");
+    if (!line) return;
+
+    var svg = line.closest("svg");
+    var dot = document.getElementById("tickerDot");
+    var priceEl = document.getElementById("tickerPrice");
+    var deltaEl = document.getElementById("tickerDelta");
+
+    var xs = [0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400, 440, 480, 520, 560, 600];
+    var PRICE_MIN = 10.5, PRICE_MAX = 17.5;
+    var Y_TOP = 8, Y_BOTTOM = 110;
+
+    function priceToY(p) {
+      var t = (p - PRICE_MIN) / (PRICE_MAX - PRICE_MIN);
+      t = Math.max(0, Math.min(1, t));
+      return Y_BOTTOM - t * (Y_BOTTOM - Y_TOP);
+    }
+
+    // Seed initial prices so the starting shape matches the static markup
+    var prices = [11.4, 11.6, 11.3, 12.0, 11.8, 12.6, 12.3, 13.2, 12.9, 13.9, 13.5, 14.5, 14.1, 15.1, 14.7, 15.6];
+    var lastDisplayed = prices[prices.length - 1];
+
+    function render(pointPrices) {
+      var pts = xs.map(function (x, i) { return x + "," + priceToY(pointPrices[i]).toFixed(1); }).join(" ");
+      line.setAttribute("points", pts);
+      if (dot) {
+        dot.setAttribute("cx", xs[xs.length - 1]);
+        dot.setAttribute("cy", priceToY(pointPrices[pointPrices.length - 1]).toFixed(1));
+      }
+    }
+
+    render(prices);
+
+    var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) return;
+
+    function nextPrice(p) {
+      var delta = (Math.random() - 0.42) * 0.9;
+      var next = p + delta;
+      if (next < PRICE_MIN + 0.3) next = p + Math.abs(delta);
+      if (next > PRICE_MAX - 0.3) next = p - Math.abs(delta);
+      return Math.round(next * 100) / 100;
+    }
+
+    function tick() {
+      var from = prices.slice();
+      var next = prices.slice(1);
+      next.push(nextPrice(prices[prices.length - 1]));
+
+      var newest = next[next.length - 1];
+      var change = ((newest - lastDisplayed) / lastDisplayed) * 100;
+      if (priceEl) priceEl.textContent = newest.toFixed(2).replace(".", ",") + " €";
+      if (deltaEl) {
+        var up = change >= 0;
+        deltaEl.textContent = (up ? "▲ +" : "▼ ") + change.toFixed(1).replace("-", "") + " %";
+        deltaEl.style.color = up ? "var(--lime)" : "#FF8A8A";
+      }
+      lastDisplayed = newest;
+
+      var start = null;
+      var DURATION = 900;
+      function frame(ts) {
+        if (!start) start = ts;
+        var progress = Math.min(1, (ts - start) / DURATION);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        var interpolated = from.map(function (v, i) {
+          return v + (next[i] - v) * eased;
+        });
+        render(interpolated);
+        if (progress < 1) {
+          requestAnimationFrame(frame);
+        } else {
+          prices = next;
+        }
+      }
+      requestAnimationFrame(frame);
+    }
+
+    setInterval(tick, 2000);
+  }
+
+  function initSort() {
+    $all(".sort-activity").forEach(function (activity) {
+      var selected = null;
+      var status = $(".sort-status", activity);
+      $all(".sort-item", activity).forEach(function (item) {
+        item.addEventListener("click", function () {
+          $all(".sort-item", activity).forEach(function (i) { i.classList.remove("is-selected"); });
+          selected = item;
+          item.classList.add("is-selected");
+          if (status) status.textContent = "Sélectionné : \u00ab " + item.textContent.trim() + " \u00bb — clique sur la bonne corbeille.";
+        });
+      });
+      $all(".sort-bin", activity).forEach(function (bin) {
+        bin.addEventListener("click", function (e) {
+          if (!selected) {
+            if (status) status.textContent = "Choisis d'abord un élément à trier ci-contre.";
+            return;
+          }
+          var correctBin = selected.dataset.answer;
+          var thisBin = bin.dataset.bin;
+          var row = document.createElement("div");
+          row.className = "bin-item";
+          if (correctBin === thisBin) {
+            row.classList.add("is-correct");
+            row.textContent = "\u2713 " + selected.textContent.trim();
+            bin.appendChild(row);
+            selected.classList.add("is-placed");
+            celebrate(row);
+            if (status) status.textContent = "Bien classé.";
+          } else {
+            row.classList.add("is-wrong");
+            row.textContent = "\u2717 " + selected.textContent.trim();
+            bin.appendChild(row);
+            if (status) status.textContent = "Pas dans la bonne corbeille — regarde encore une fois où ça devrait aller.";
+            setTimeout(function () { row.remove(); }, 1400);
+          }
+          selected.classList.remove("is-selected");
+          selected = null;
+        });
+      });
+    });
+  }
+
+  function initHotspots() {
+    $all(".hotspot-doc").forEach(function (doc) {
+      var markers = $all(".hotspot-marker", doc);
+      markers.forEach(function (marker) {
+        var tip = document.getElementById(marker.dataset.tip);
+        marker.addEventListener("click", function () {
+          var isOpen = marker.classList.contains("is-open");
+          markers.forEach(function (m) {
+            m.classList.remove("is-open");
+            var t = document.getElementById(m.dataset.tip);
+            if (t) t.classList.remove("is-visible");
+          });
+          if (!isOpen && tip) {
+            marker.classList.add("is-open");
+            tip.classList.add("is-visible");
+          }
+        });
+      });
+    });
+  }
+
+  function initMatching() {
+    $all(".match-activity").forEach(function (activity) {
+      var leftSel = null, rightSel = null;
+      function tryMatch() {
+        if (!leftSel || !rightSel) return;
+        if (leftSel.dataset.pair === rightSel.dataset.pair) {
+          leftSel.classList.remove("is-selected", "is-wrong");
+          rightSel.classList.remove("is-selected", "is-wrong");
+          leftSel.classList.add("is-matched");
+          rightSel.classList.add("is-matched");
+          celebrate(rightSel);
+        } else {
+          leftSel.classList.add("is-wrong");
+          rightSel.classList.add("is-wrong");
+          setTimeout(function () {
+            leftSel.classList.remove("is-selected", "is-wrong");
+            rightSel.classList.remove("is-selected", "is-wrong");
+          }, 700);
+        }
+        leftSel = null; rightSel = null;
+      }
+      $all(".match-col.left .match-item", activity).forEach(function (item) {
+        item.addEventListener("click", function () {
+          if (item.classList.contains("is-matched")) return;
+          $all(".match-col.left .match-item", activity).forEach(function (i) { i.classList.remove("is-selected"); });
+          leftSel = item;
+          item.classList.add("is-selected");
+          tryMatch();
+        });
+      });
+      $all(".match-col.right .match-item", activity).forEach(function (item) {
+        item.addEventListener("click", function () {
+          if (item.classList.contains("is-matched")) return;
+          $all(".match-col.right .match-item", activity).forEach(function (i) { i.classList.remove("is-selected"); });
+          rightSel = item;
+          item.classList.add("is-selected");
+          tryMatch();
+        });
+      });
+    });
+  }
+
+  function initBranching() {
+    $all(".branch-activity").forEach(function (activity) {
+      function goTo(stepId) {
+        $all(".branch-step", activity).forEach(function (s) {
+          s.classList.toggle("is-active", s.dataset.branchStep === stepId);
+        });
+      }
+      $all("[data-goto]", activity).forEach(function (btn) {
+        btn.addEventListener("click", function () { goTo(btn.dataset.goto); });
+      });
+      $all("[data-restart]", activity).forEach(function (btn) {
+        btn.addEventListener("click", function () { goTo("start"); });
+      });
+    });
+  }
+
+  function initChatReply() {
+    $all(".chat-reply-sim").forEach(function (sim) {
+      var thread = $(".chat-thread", sim);
+      var options = $all(".reply-option", sim);
+      options.forEach(function (opt) {
+        opt.addEventListener("click", function () {
+          options.forEach(function (o) { o.disabled = true; });
+          var row = document.createElement("div");
+          row.className = "chat-row right";
+          row.innerHTML = '<span class="chat-avatar">A</span><div><div class="chat-name">Toi</div><div class="chat-bubble">' + opt.dataset.reply + "</div></div>";
+          thread.appendChild(row);
+          setTimeout(function () {
+            var follow = document.createElement("div");
+            follow.className = "chat-row left";
+            follow.innerHTML = '<span class="chat-avatar">?</span><div><div class="chat-name">' + sim.dataset.contact + '</div><div class="chat-bubble">' + opt.dataset.followup + "</div></div>";
+            thread.appendChild(follow);
+            var tag = document.createElement("div");
+            tag.className = "reply-tag " + (opt.dataset.good === "true" ? "good" : "risky");
+            tag.textContent = opt.dataset.good === "true" ? "Bon réflexe" : "À reconsidérer";
+            $(".reply-options", sim).appendChild(tag);
+          }, 500);
+        });
+      });
+    });
+  }
+
+  function initConfidence() {
+    $all(".confidence-card").forEach(function (card) {
+      var slider = $("input[type=range]", card);
+      var pct = $(".confidence-pct", card);
+      var result = $(".confidence-result", card);
+      if (!slider) return;
+      slider.addEventListener("input", function () {
+        pct.textContent = slider.value + " %";
+        slider.style.setProperty("--fill", slider.value + "%");
+      });
+      $all("[data-reveal-confidence]", card).forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var val = parseInt(slider.value, 10);
+          var isTrue = card.dataset.answer === "true";
+          var msg;
+          if (val >= 65 && !isTrue) msg = "Tu étais très sûr de toi... et pourtant, c'est faux. C'est exactement le genre de certitude à interroger avant de l'affirmer à un client.";
+          else if (val >= 65 && isTrue) msg = "Bien vu, et avec raison d'être confiant sur ce point.";
+          else if (val < 35 && isTrue) msg = "Tu doutais, mais tu avais raison ! Ce réflexe de prudence n'était pas nécessaire ici — bon à savoir pour la prochaine fois.";
+          else msg = "Ton niveau de confiance correspondait à ton incertitude réelle — exactement le bon réflexe face à une zone grise.";
+          result.textContent = (isTrue ? "C'est vrai. " : "C'est faux. ") + msg;
+          result.className = "confidence-result is-visible " + ((val >= 65) === isTrue ? "match" : "mismatch");
+          btn.disabled = true;
+        });
+      });
+    });
+  }
+
+  function initExplain() {
+    $all(".explain-box").forEach(function (box) {
+      var btn = $("[data-reveal-model]", box);
+      var model = $(".model-answer", box);
+      if (btn) btn.addEventListener("click", function () {
+        model.classList.add("is-visible");
+        btn.disabled = true;
+      });
+    });
+  }
+
+  function initCountdown() {
+    $all(".countdown-card").forEach(function (card) {
+      var numberEl = $(".countdown-number", card);
+      var optionsBlock = document.getElementById(card.dataset.unlocks);
+      var n = parseInt(numberEl.textContent, 10);
+      var timer = setInterval(function () {
+        n -= 1;
+        if (n <= 0) {
+          clearInterval(timer);
+          numberEl.textContent = "0";
+          card.querySelector(".countdown-label").textContent = "Réponds maintenant";
+          if (optionsBlock) optionsBlock.classList.add("is-unlocked");
+        } else {
+          numberEl.textContent = String(n);
+        }
+      }, 1000);
+    });
+  }
+
+  function initFindMistake() {
+    $all(".fake-post").forEach(function (post) {
+      var errors = $all(".fp-error", post);
+      var status = document.getElementById(post.dataset.status);
+      var found = 0;
+      errors.forEach(function (err) {
+        err.addEventListener("click", function () {
+          if (err.classList.contains("is-found")) return;
+          err.classList.add("is-found");
+          found++;
+          if (status) status.textContent = found + " / " + errors.length + " erreur(s) trouvée(s)" + (found === errors.length ? " — bravo, tu as tout repéré." : ".");
+        });
+      });
+    });
+  }
+
+  function initJargon() {
+    $all(".jargon").forEach(function (term) {
+      term.addEventListener("click", function () {
+        var def = document.getElementById(term.dataset.def);
+        var isOpen = term.classList.contains("is-open");
+        term.classList.toggle("is-open", !isOpen);
+        if (def) def.classList.toggle("is-visible", !isOpen);
+      });
+    });
+  }
+
+  function initInbox() {
+    $all(".inbox-sim").forEach(function (sim) {
+      var startBtn = $("[data-start-inbox]", sim);
+      var messages = $all(".inbox-msg", sim);
+      if (startBtn) {
+        startBtn.addEventListener("click", function () {
+          startBtn.disabled = true;
+          messages.forEach(function (msg, i) {
+            setTimeout(function () { msg.classList.add("is-visible"); }, i * 900);
+          });
+        });
+      }
+      $all(".im-actions button", sim).forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var group = btn.closest(".im-actions");
+          $all("button", group).forEach(function (b) { b.disabled = true; });
+          btn.classList.add(btn.dataset.action === "now" ? "chosen-now" : "chosen-wait");
+        });
+      });
+    });
+  }
+
+  function initProof() {
+    $all(".proof-trigger").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var bars = document.getElementById(btn.dataset.showsProof);
+        if (!bars) return;
+        bars.classList.add("is-visible");
+        $all(".proof-fill", bars).forEach(function (fill) {
+          var target = fill.dataset.pct;
+          setTimeout(function () { fill.style.width = target + "%"; fill.textContent = target + " %"; }, 50);
+        });
+      });
+    });
+  }
+
+  function initCaseReveal() {
+    $all("[data-reveal-case]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var el = document.getElementById(btn.dataset.revealCase);
+        if (el) el.classList.add("is-visible");
+        btn.disabled = true;
+      });
+    });
+  }
+
+  function initConfidenceTracker() {
+    var STORAGE_PREFIX = "ovh_confidence_";
+
+    function storageAvailable() {
+      try {
+        var k = "__test__";
+        window.localStorage.setItem(k, "1");
+        window.localStorage.removeItem(k);
+        return true;
+      } catch (e) { return false; }
+    }
+    var canStore = storageAvailable();
+
+    $all(".confidence-multi[data-role='pre']").forEach(function (block) {
+      var key = STORAGE_PREFIX + block.dataset.storageKey;
+      block.querySelectorAll(".stmt").forEach(function (stmt) {
+        var slider = stmt.querySelector("input[type=range]");
+        var pct = stmt.querySelector(".confidence-pct");
+        slider.addEventListener("input", function () { pct.textContent = slider.value + " %"; slider.style.setProperty("--fill", slider.value + "%"); });
+      });
+      var saveBtn = $("[data-save-confidence]", block);
+      var msg = $(".confidence-saved-msg", block);
+      if (saveBtn) saveBtn.addEventListener("click", function () {
+        var values = {};
+        block.querySelectorAll(".stmt").forEach(function (stmt) {
+          values[stmt.dataset.id] = stmt.querySelector("input[type=range]").value;
+        });
+        if (canStore) {
+          window.localStorage.setItem(key, JSON.stringify(values));
+          msg.textContent = "\u2713 Enregistré — on comparera à la fin de la formation.";
+        } else {
+          msg.textContent = "Impossible d'enregistrer sur ce navigateur (stockage désactivé) — la comparaison finale ne sera pas disponible.";
+        }
+        msg.hidden = false;
+        saveBtn.disabled = true;
+      });
+    });
+
+    $all(".confidence-multi[data-role='post']").forEach(function (block) {
+      var key = STORAGE_PREFIX + block.dataset.storageKey;
+      block.querySelectorAll(".stmt").forEach(function (stmt) {
+        var slider = stmt.querySelector("input[type=range]");
+        var pct = stmt.querySelector(".confidence-pct");
+        slider.addEventListener("input", function () { pct.textContent = slider.value + " %"; slider.style.setProperty("--fill", slider.value + "%"); });
+      });
+      var compareBtn = $("[data-compare-confidence]", block);
+      var target = document.getElementById(block.dataset.compareTarget);
+      if (compareBtn) compareBtn.addEventListener("click", function () {
+        var preRaw = canStore ? window.localStorage.getItem(key) : null;
+        var post = {};
+        var labels = {};
+        block.querySelectorAll(".stmt").forEach(function (stmt) {
+          post[stmt.dataset.id] = parseInt(stmt.querySelector("input[type=range]").value, 10);
+          labels[stmt.dataset.id] = stmt.querySelector("label").textContent;
+        });
+        target.innerHTML = "";
+        if (!preRaw) {
+          var warn = document.createElement("div");
+          warn.className = "confidence-warning";
+          warn.textContent = "Pas de niveau de départ trouvé pour cette session — pour la démo, retourne d'abord à l'écran \u00ab avant \u00bb, renseigne-le, puis reviens ici sans recharger la page.";
+          target.appendChild(warn);
+          return;
+        }
+        var pre = JSON.parse(preRaw);
+        var legend = document.createElement("div");
+        legend.className = "compare-legend";
+        legend.innerHTML = '<span><span class="dot pre"></span> Avant la formation</span><span><span class="dot post"></span> Après la formation</span>';
+        target.appendChild(legend);
+        Object.keys(labels).forEach(function (id) {
+          var preVal = parseInt(pre[id] || 0, 10);
+          var postVal = post[id];
+          var delta = postVal - preVal;
+          var row = document.createElement("div");
+          row.className = "compare-row";
+          row.innerHTML =
+            '<div class="compare-label">' + labels[id] + '</div>' +
+            '<div class="compare-track">' +
+              '<div class="compare-fill-pre" style="width:' + preVal + '%"></div>' +
+              '<div class="compare-fill-post" style="width:' + postVal + '%">' + postVal + ' %</div>' +
+            '</div>' +
+            '<span class="compare-delta ' + (delta >= 0 ? "up" : "down") + '">' + (delta >= 0 ? "+" : "") + delta + ' points depuis le départ</span>';
+          target.appendChild(row);
+        });
+        compareBtn.disabled = true;
+      });
+    });
+  }
+
+  function initWordcloud() {
+    $all("[data-reveal-wordcloud]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var input = document.getElementById(btn.dataset.wordInput);
+        var cloud = document.getElementById(btn.dataset.revealWordcloud);
+        var youWord = $(".wc-you", cloud);
+        if (youWord && input && input.value.trim()) youWord.textContent = input.value.trim();
+        cloud.classList.add("is-visible");
+        btn.disabled = true;
+      });
+    });
+  }
+
+  function initRetryQuiz() {
+    $all(".retry-quiz").forEach(function (block) {
+      var options = $all(".quiz-option", block);
+      var hint = $(".retry-hint", block);
+      var retryBtn = $(".retry-btn", block);
+      var success = $(".retry-success", block);
+      var attempts = 0;
+      function reset() {
+        options.forEach(function (o) { o.disabled = false; o.classList.remove("is-correct", "is-wrong"); });
+      }
+      options.forEach(function (opt) {
+        opt.addEventListener("click", function () {
+          var isCorrect = opt.dataset.correct === "true";
+          options.forEach(function (o) { o.disabled = true; });
+          if (isCorrect) {
+            opt.classList.add("is-correct");
+            celebrate(opt);
+            hint.classList.remove("is-visible");
+            retryBtn.classList.remove("is-visible");
+            success.classList.add("is-visible");
+          } else {
+            opt.classList.add("is-wrong");
+            attempts++;
+            hint.classList.add("is-visible");
+            retryBtn.classList.add("is-visible");
+          }
+        });
+      });
+      if (retryBtn) retryBtn.addEventListener("click", function () {
+        reset();
+        retryBtn.classList.remove("is-visible");
+      });
+    });
+  }
+
+  function initZoom() {
+    $all(".zoom-more").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var next = document.getElementById(btn.dataset.zoomNext);
+        if (next) next.classList.add("is-visible");
+        btn.style.display = "none";
+      });
+    });
+  }
+
+  function initDuel() {
+    $all(".duel-row").forEach(function (row) {
+      var cards = $all(".duel-card", row);
+      var analysis = document.getElementById(row.dataset.analysisTarget);
+      var answered = false;
+      cards.forEach(function (card) {
+        card.addEventListener("click", function () {
+          if (answered) return;
+          answered = true;
+          cards.forEach(function (c) { c.classList.add("is-picked"); if (c.dataset.best === "true") c.classList.add("is-best"); });
+          if (card.dataset.best === "true") celebrate(card);
+          if (analysis) analysis.classList.add("is-visible");
+        });
+      });
+    });
+  }
+
+  function initRiskThermometer() {
+    $all(".risk-item").forEach(function (item) {
+      var slider = $("input[type=range]", item);
+      var mark = $(".risk-expert-mark", item);
+      var revealBtn = $("[data-reveal-risk]", item);
+      if (revealBtn && mark) revealBtn.addEventListener("click", function () {
+        mark.style.left = mark.dataset.expert + "%";
+        mark.classList.add("is-visible");
+        revealBtn.disabled = true;
+      });
+    });
+  }
+
+  function init() {
+    window.SCORM.init();
+    var resumed = parseInt(window.SCORM.getLocation(), 10);
+    if (resumed && resumed >= 1 && resumed <= TOTAL_SCREENS) {
+      current = resumed;
+    }
+    if (window.SCORM.getStatus() === "" || window.SCORM.getStatus() === undefined) {
+      window.SCORM.setStatus("incomplete");
+    }
+
+    $all("[data-next]").forEach(function (btn) {
+      btn.addEventListener("click", function () { goTo(current + 1); });
+    });
+    $all("[data-prev]").forEach(function (btn) {
+      btn.addEventListener("click", function () { goTo(current - 1); });
+    });
+    $all(".step").forEach(function (el) {
+      el.addEventListener("click", function () {
+        goTo(parseInt(el.dataset.step, 10));
+      });
+    });
+    $all("[data-finish]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        window.SCORM.setStatus("completed");
+        window.SCORM.save();
+        btn.textContent = btn.dataset.doneLabel || (btn.textContent + " ✓");
+        btn.disabled = true;
+      });
+    });
+
+    renderScreen(current);
+    initQuizzes();
+    initFlipCards();
+    initSort();
+    initHotspots();
+    initMatching();
+    initBranching();
+    initChatReply();
+    initConfidence();
+    initExplain();
+    initCountdown();
+    initFindMistake();
+    initJargon();
+    initInbox();
+    initProof();
+    initCaseReveal();
+    initConfidenceTracker();
+    initWordcloud();
+    initRetryQuiz();
+    initZoom();
+    initDuel();
+    initRiskThermometer();
+    initLiveTicker();
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
+})();
+
+```
+
+### 12.3 — Liste des formats avancés disponibles et leur usage
+
+| Format | Classe HTML principale | Cas d'usage |
+|---|---|---|
+| Tri par catégorie (glisser/cliquer-déposer) | `.sort-activity` | Classer des informations dans la bonne catégorie |
+| Document à zones cliquables | `.hotspot-doc` | Décrypter un vrai document sans le dénaturer |
+| Jeu d'association | `.match-activity` | Relier terme et définition |
+| Scénario à embranchements | `.branch-activity` | Simulation avec vraies conséquences narratives |
+| Messagerie simulée | `.chat-reply-sim` | Répondre à un message, réaction en temps réel |
+| Pari de confiance | `.confidence-card` | Casser la surconfiance sur une affirmation |
+| Explique à un nouveau | `.explain-box` | Effet de génération (formuler avec ses mots) |
+| Chrono qui tourne | `.countdown-card` | Pression réaliste avant de répondre |
+| Trouve l'erreur | `.fake-post` | Repérer un problème dans un contenu déjà écrit |
+| Décode le jargon | `.jargon-para` | Traduire un texte dense terme par terme |
+| Document vivant | `.living-doc-prompt` + `.memo-card` | Mémo personnel construit au fil du module |
+| Journée qui déborde | `.inbox-sim` | Priorisation réaliste sous flux continu |
+| Preuve sociale | `.proof-bars` | Comparaison à une vraie donnée (jamais inventée) |
+| Reconstitution d'un cas réel | `.case-reveal` | Ancrage émotionnel sur un événement vécu |
+| Indicateur de confiance avant/après | `.confidence-multi` | Mesure de progression (⚠️ voir limite ci-dessous) |
+| Double sens | (variante de `.explain-box`) | Défendre l'avis contraire pour déloger une certitude |
+| Mot unique | `.wordcloud` | Contrainte créative, résumer en un mot |
+| Rejoue en mieux | `.retry-quiz` | Deuxième chance avec indice après une erreur |
+| Zoom avant/arrière | `.zoom-level` | Profondeur de détail progressive, au rythme de l'apprenant |
+| Duel de répliques | `.duel-card` | Voter entre deux réponses réalistes |
+| Thermomètre de risque | (curseur + zone experte) | Positionner son évaluation vs. la zone recommandée |
+
+**Animation de validation** : la fonction JS `celebrate(element)` (incluse dans le fichier ci-dessus) déclenche un badge check qui apparaît en pulsation + une petite explosion de confettis colorés, à chaque bonne réponse (quiz, tri, association, etc.). Elle respecte `prefers-reduced-motion`. **Toujours appeler `celebrate(el)` sur l'élément correct quand un format interactif valide une bonne réponse** — c'est un standard du système, pas une option.
+
+**⚠️ Limite technique du "Indicateur de confiance avant/après"** : SCORM 1.2 ne transmet aucune donnée automatiquement entre deux modules (deux fichiers .zip distincts). Ce format utilise le `localStorage` du navigateur, qui ne persiste que si tous les modules de la formation sont servis depuis le même domaine par le LMS — à vérifier avant de s'appuyer dessus. Alternative garantie : placer "avant" et "après" dans un seul et même module plutôt que dans deux modules séparés.
+
+---
+
+## 13. Prompt à donner à la nouvelle instance de Claude
+
+Une fois ce document injecté, une consigne efficace pour démarrer :
+
+> "Voici la documentation technique complète d'un système de formation e-learning SCORM que je veux réutiliser pour une nouvelle formation sur [SUJET]. Respecte strictement le système de design, la structure de fichiers, et les conventions décrites. Commence par me proposer un séquencement pédagogique (liste des modules et de leurs écrans), puis construis le module d'introduction en premier."

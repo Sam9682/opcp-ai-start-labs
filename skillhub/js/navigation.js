@@ -20,12 +20,12 @@ const TRACK_ORDER = ['morning', 'afternoon', 'sandbox'];
 /** @type {Record<string, {en: string, fr: string}>} Section titles per track */
 const SECTION_TITLES = {
   morning: {
-    en: 'Morning — Fundamentals',
-    fr: 'Matin — Les fondamentaux'
+    en: 'Introduction & Fundamentals',
+    fr: 'Introduction et fondamentaux'
   },
   afternoon: {
-    en: 'Afternoon — Design & Governance',
-    fr: 'Après-midi — Conception et gouvernance'
+    en: 'Design & Governance',
+    fr: 'Conception et gouvernance'
   },
   sandbox: {
     en: 'Sandbox — opcp-explorer Platform',
