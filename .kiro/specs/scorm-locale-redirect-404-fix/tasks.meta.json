@@ -1,0 +1,141 @@
+{
+  "pbtResults": {
+    "1. Write bug condition exploration test (BEFORE implementing the fix)": {
+      "status": "passed",
+      "failingExample": "The exploration test correctly detected the bug on unfixed code. All 6 assertions failed, surfacing the bare-directory counterexamples in skillhub/index.html:\n\n1. JS redirect target: source contains `window.location.replace(locale + '/');` (bare directory) and does NOT contain `locale + '/index.html'`. On SCORM Cloud this redirects to `en/` or `fr/` → 404.\n2. <noscript> English link: `<a href=\"en/\">English</a>` (bare directory `href=\"en/\"`), not `href=\"en/index.html\"`.\n3. <noscript> French link: `<a href=\"fr/\">Français</a>` (bare directory `href=\"fr/\"`), not `href=\"fr/index.html\"`.\n\nCounterexample (Req 1.1/1.3): with detected locale `en`, redirect emits `en/` → non-auto-indexing host (SCORM Cloud) returns \"Page not found\" (404); same for `fr`. The JS-disabled path follows the bare `href=\"en/\"` / `href=\"fr/\"` links to the same 404.",
+      "lastRunTimestamp": 1790936539907
+    },
+    "3.3 Verify preservation tests still pass": {
+      "status": "passed",
+      "lastRunTimestamp": 1790936835186
+    }
+  },
+  "executionHistory": {
+    "1. Write bug condition exploration test (BEFORE implementing the fix)": [
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790936461579
+      },
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790936469526
+      },
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790936554359
+      }
+    ],
+    "2. Write preservation property tests (BEFORE implementing the fix)": [
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790936461741
+      },
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790936557838
+      },
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790936694628
+      }
+    ],
+    "3.1 Apply the explicit-file redirect fix in `skillhub/index.html`": [
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790936461857
+      },
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790936698187
+      },
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790936729986
+      }
+    ],
+    "3.2 Verify bug condition exploration test now passes": [
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790936461982
+      },
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790936736671
+      },
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790936770107
+      }
+    ],
+    "3.3 Verify preservation tests still pass": [
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790936462105
+      },
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790936773186
+      },
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790936848342
+      }
+    ],
+    "3.4 (Optional) Integration test - built SCORM package carries explicit targets": [
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790936462272
+      },
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790936851591
+      },
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790936923936
+      }
+    ],
+    "4. Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790936462390
+      },
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790936929148
+      },
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790943067619
+      }
+    ],
+    "3. Fix the bare-directory redirect target in the launch page": [
+      {
+        "executionId": "d749756a-c644-4492-85f6-3164f0c385e3",
+        "chatSessionId": "sess_95cbeabd-5f49-4bd4-93f8-017a33480a0e",
+        "timestamp": 1790936924093
+      }
+    ]
+  }
+}
