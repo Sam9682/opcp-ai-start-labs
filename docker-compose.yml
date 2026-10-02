@@ -1,5 +1,5 @@
 services:
-  nginx:
+  frontend-component:
     image: nginx:1.25-alpine
     container_name: opcp-ai-start-labs-nginx-${USER_ID:-0}-${HTTPS_PORT:-5001}
     ports:
@@ -9,13 +9,13 @@ services:
       - ./ssl:/etc/nginx/ssl:ro
       - ./skillhub:/usr/share/nginx/html:ro
     depends_on:
-      app:
+      backend-component:
         condition: service_healthy
     restart: unless-stopped
     networks:
       - ai-store-labs
 
-  app:
+  backend-componenet:
     build:
       context: .
       dockerfile: Dockerfile
