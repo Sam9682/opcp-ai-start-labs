@@ -262,20 +262,84 @@ async function writeSchemaFiles(outDir) {
 }
 
 /**
+ * Exact SCORM metadata for the original skillhub package. Preserved verbatim so
+ * the shipped scorm/skillhub_scorm artifact and its tests stay byte-identical.
+ * skillhub's title is a product name, not a title-cased slug, hence this special
+ * case rather than the generic derivation below.
+ */
+const SKILLHUB_METADATA = {
+  identifier: "SKILLHUB_SCORM12",
+  orgId: "ORG-SKILLHUB",
+  itemId: "ITEM-SKILLHUB",
+  resId: "RES-SKILLHUB",
+  title: "Agentic AI OPCP Labs - SkillHub",
+};
+
+/**
+ * Split a lab folder name into lowercase word tokens, treating hyphens,
+ * underscores, and whitespace as separators and dropping empty tokens.
+ * @param {string} labName
+ * @returns {string[]}
+ */
+function tokenizeLabName(labName) {
+  return String(labName)
+    .trim()
+    .split(/[-_\s]+/)
+    .filter(Boolean)
+    .map((t) => t.toLowerCase());
+}
+
+/**
+ * Derive the SCORM manifest metadata for a lab from its folder name. (Req: auto
+ * metadata derivation.) The "skillhub" lab is a documented special case that
+ * returns the original product-name metadata verbatim; every other lab uses the
+ * generic slug convention:
+ *   identifier → UPPER_SNAKE(name) + "_SCORM12"   ("trace-reading" → "TRACE_READING_SCORM12")
+ *   orgId/itemId/resId → "ORG-/ITEM-/RES-" + UPPER-DASH(name)  ("ORG-TRACE-READING")
+ *   title → Title-Cased words                      ("Trace Reading")
+ * Pure: no filesystem access.
+ * @param {string} labName  The lab folder's basename.
+ * @returns {{identifier: string, orgId: string, itemId: string, resId: string, title: string}}
+ */
+function deriveLabMetadata(labName) {
+  const tokens = tokenizeLabName(labName);
+  if (tokens.join("-") === "skillhub") {
+    return { ...SKILLHUB_METADATA };
+  }
+  if (tokens.length === 0) {
+    throw new Error(`Cannot derive SCORM metadata from empty lab name: ${JSON.stringify(labName)}`);
+  }
+  const upperSnake = tokens.map((t) => t.toUpperCase()).join("_");
+  const upperDash = tokens.map((t) => t.toUpperCase()).join("-");
+  const title = tokens.map((t) => t.charAt(0).toUpperCase() + t.slice(1)).join(" ");
+  return {
+    identifier: `${upperSnake}_SCORM12`,
+    orgId: `ORG-${upperDash}`,
+    itemId: `ITEM-${upperDash}`,
+    resId: `RES-${upperDash}`,
+    title,
+  };
+}
+
+/**
  * Render the imsmanifest.xml content from a model describing the resource files.
  * Single organization → single item → single resource referencing index.html,
  * schemaversion 1.2, scormtype "sco", masteryscore 100, with dependency files
  * enumerated for en/, fr/, js/, assets/. (Req 2.1, 2.2, 2.3, 2.5, 1.4, 1.5)
- * @param {{ files: string[] }} model
+ *
+ * The four manifest identifiers and both <title> tags come from model.meta; when
+ * omitted they default to the skillhub metadata so legacy callers are unaffected.
+ * @param {{ files: string[], meta?: {identifier: string, orgId: string, itemId: string, resId: string, title: string} }} model
  * @returns {string}
  */
 function renderManifest(model) {
+  const meta = model.meta || SKILLHUB_METADATA;
   const fileEls = model.files
     .map((href) => `      <file href="${href}"/>`)
     .join("\n");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<manifest identifier="SKILLHUB_SCORM12" version="1.0"
+<manifest identifier="${meta.identifier}" version="1.0"
           xmlns="http://www.imsproject.org/xsd/imscp_rootv1p1p2"
           xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_rootv1p2"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -286,17 +350,17 @@ function renderManifest(model) {
     <schema>ADL SCORM</schema>
     <schemaversion>1.2</schemaversion>
   </metadata>
-  <organizations default="ORG-SKILLHUB">
-    <organization identifier="ORG-SKILLHUB">
-      <title>Agentic AI OPCP Labs - SkillHub</title>
-      <item identifier="ITEM-SKILLHUB" identifierref="RES-SKILLHUB" isvisible="true">
-        <title>Agentic AI OPCP Labs - SkillHub</title>
+  <organizations default="${meta.orgId}">
+    <organization identifier="${meta.orgId}">
+      <title>${meta.title}</title>
+      <item identifier="${meta.itemId}" identifierref="${meta.resId}" isvisible="true">
+        <title>${meta.title}</title>
         <adlcp:masteryscore>100</adlcp:masteryscore>
       </item>
     </organization>
   </organizations>
   <resources>
-    <resource identifier="RES-SKILLHUB" type="webcontent"
+    <resource identifier="${meta.resId}" type="webcontent"
               adlcp:scormtype="sco" href="index.html">
       <file href="index.html"/>
 ${fileEls}
@@ -310,7 +374,7 @@ ${fileEls}
  * Emit imsmanifest.xml at the package root. If no model is supplied, enumerate the
  * dependency files from the copied en/, fr/, js/, assets/ trees. (Req 2.1–2.3, 2.5)
  * @param {string} outDir
- * @param {{ files?: string[] }} [model]
+ * @param {{ files?: string[], meta?: {identifier: string, orgId: string, itemId: string, resId: string, title: string} }} [model]
  * @returns {Promise<string>} the manifest's absolute path.
  */
 async function writeManifest(outDir, model) {
@@ -322,7 +386,7 @@ async function writeManifest(outDir, model) {
     }
     files.sort();
   }
-  const xml = renderManifest({ files });
+  const xml = renderManifest({ files, meta: model && model.meta });
   const manifestPath = path.join(outDir, "imsmanifest.xml");
   await fs.writeFile(manifestPath, xml, "utf8");
   return manifestPath;
@@ -333,14 +397,22 @@ async function writeManifest(outDir, model) {
  * @param {object} [opts]
  * @param {string} [opts.srcDir="skillhub"]              Source course dir (resolved against repo root if relative).
  * @param {string} [opts.outDir="scorm/skillhub_scorm"]  Output package dir (resolved against repo root if relative).
- * @returns {Promise<{outDir: string, files: string[]}>}
+ * @param {string} [opts.labName]                        Lab name for metadata; defaults to srcDir basename.
+ * @returns {Promise<{outDir: string, files: string[], labName: string, meta: object}>}
  */
 export async function buildScormPackage({
   srcDir = "skillhub",
   outDir = "scorm/skillhub_scorm",
+  labName,
 } = {}) {
   const absSrc = path.isAbsolute(srcDir) ? srcDir : path.resolve(REPO_ROOT, srcDir);
   const absOut = path.isAbsolute(outDir) ? outDir : path.resolve(REPO_ROOT, outDir);
+
+  // Derive per-lab SCORM metadata from the lab name (defaulting to the source
+  // folder's basename, e.g. "skillhub"), so the manifest identifiers and titles
+  // are specific to each lab. (Req: auto metadata derivation.)
+  const resolvedLabName = labName || path.basename(absSrc);
+  const meta = deriveLabMetadata(resolvedLabName);
 
   // 1. Clean/create output + copy course content (index.html, en/, fr/, js/, assets/).
   await copyCourseContent(absSrc, absOut);
@@ -355,13 +427,100 @@ export async function buildScormPackage({
   // 3. Copy the four SCORM 1.2 schema templates to the package root.
   await writeSchemaFiles(absOut);
 
-  // 4. Generate imsmanifest.xml at the package root.
-  await writeManifest(absOut);
+  // 4. Generate imsmanifest.xml at the package root with the derived metadata.
+  await writeManifest(absOut, { meta });
 
   // Final listing of everything in the package, relative + POSIX-style.
   const files = (await listFilesRelative(absOut, absOut)).sort();
 
-  return { outDir: absOut, files };
+  return { outDir: absOut, files, labName: resolvedLabName, meta };
+}
+
+/** Top-level sibling directories that are never lab sites. */
+const NON_SITE_DIRS = new Set([
+  "node_modules", ".git", "scorm", "labs", "scripts", "templates",
+  "shared", "src", "conf", "nginx", "deliverables", "docs", ".venv",
+]);
+
+/** Structural markers every lab site must contain to be recognized. */
+const SITE_MARKERS = ["index.html", "en", "fr", "js", "assets"];
+
+/**
+ * Return true if dir contains all of SITE_MARKERS with the expected kinds
+ * (index.html a file; en/fr/js/assets directories).
+ * @param {string} dir
+ * @returns {Promise<boolean>}
+ */
+async function looksLikeLabSite(dir) {
+  for (const marker of SITE_MARKERS) {
+    const abs = path.join(dir, marker);
+    let stat;
+    try {
+      stat = await fs.stat(abs);
+    } catch {
+      return false;
+    }
+    const wantDir = marker !== "index.html";
+    if (wantDir ? !stat.isDirectory() : !stat.isFile()) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Discover top-level sibling lab sites under repoRoot. A directory qualifies when
+ * it is not a known non-site dir, is not a dotfile/dir, and structurally matches
+ * skillhub's shape (index.html + en/ + fr/ + js/ + assets/). Matching is
+ * structural (not an allowlist) so new sibling sites are picked up automatically.
+ * @param {string} [repoRoot=REPO_ROOT]
+ * @returns {Promise<string[]>} sorted lab-site directory names.
+ */
+async function discoverLabSites(repoRoot = REPO_ROOT) {
+  let entries;
+  try {
+    entries = await fs.readdir(repoRoot, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+  const sites = [];
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const name = entry.name;
+    if (name.startsWith(".")) continue;
+    if (NON_SITE_DIRS.has(name)) continue;
+    if (await looksLikeLabSite(path.join(repoRoot, name))) {
+      sites.push(name);
+    }
+  }
+  sites.sort();
+  return sites;
+}
+
+/**
+ * Build SCORM packages for every discovered sibling lab site into
+ * scorm/<lab>_scorm/. Each lab is built independently; a failure is captured and
+ * reported but does not abort the remaining labs. (Req: multi-lab driver.)
+ * @param {object} [opts]
+ * @param {string} [opts.repoRoot=REPO_ROOT]
+ * @returns {Promise<Array<{lab: string, outDir?: string, fileCount?: number, error?: string}>>}
+ */
+async function buildAllScormPackages({ repoRoot = REPO_ROOT } = {}) {
+  const sites = await discoverLabSites(repoRoot);
+  const results = [];
+  for (const lab of sites) {
+    try {
+      const { outDir, files } = await buildScormPackage({
+        srcDir: path.join(repoRoot, lab),
+        outDir: path.join(repoRoot, "scorm", `${lab}_scorm`),
+        labName: lab,
+      });
+      results.push({ lab, outDir, fileCount: files.length });
+    } catch (err) {
+      results.push({ lab, error: err && err.message ? err.message : String(err) });
+    }
+  }
+  return results;
 }
 
 // Expose internal steps for individual unit testing (Req: individually testable steps).
@@ -374,21 +533,63 @@ export {
   writeSchemaFiles,
   writeManifest,
   renderManifest,
+  deriveLabMetadata,
+  discoverLabSites,
+  buildAllScormPackages,
   listFilesRelative,
   SCHEMA_FILES,
   CONTENT_ENTRIES,
   BOOTSTRAP_SRC_MARKER,
 };
 
+/**
+ * CLI entry point. Supported invocations:
+ *   node build-scorm.mjs            → build skillhub into scorm/skillhub_scorm (default, unchanged)
+ *   node build-scorm.mjs <labName>  → build that sibling lab into scorm/<labName>_scorm
+ *   node build-scorm.mjs --all      → build every discovered sibling lab site
+ */
+async function runCli(argv) {
+  const args = argv.filter((a) => a !== "");
+  if (args.includes("--all")) {
+    const results = await buildAllScormPackages();
+    let failed = 0;
+    for (const r of results) {
+      if (r.error) {
+        failed++;
+        console.error(`  ✗ ${r.lab}: ${r.error}`);
+      } else {
+        console.log(`  ✓ ${r.lab} → ${r.outDir} (${r.fileCount} files)`);
+      }
+    }
+    console.log(`Built ${results.length - failed}/${results.length} SCORM package(s).`);
+    if (failed > 0) {
+      process.exitCode = 1;
+    }
+    return;
+  }
+
+  const positional = args.find((a) => !a.startsWith("-"));
+  if (positional) {
+    const { outDir, files } = await buildScormPackage({
+      srcDir: path.join(REPO_ROOT, positional),
+      outDir: path.join(REPO_ROOT, "scorm", `${positional}_scorm`),
+      labName: positional,
+    });
+    console.log(`SCORM 1.2 package built at: ${outDir}`);
+    console.log(`${files.length} files written.`);
+    return;
+  }
+
+  // No args → preserve the original default behavior exactly.
+  const { outDir, files } = await buildScormPackage();
+  console.log(`SCORM 1.2 package built at: ${outDir}`);
+  console.log(`${files.length} files written.`);
+}
+
 // Run as a CLI when invoked directly: `node scripts/build-scorm.mjs`.
 if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
-  buildScormPackage()
-    .then(({ outDir, files }) => {
-      console.log(`SCORM 1.2 package built at: ${outDir}`);
-      console.log(`${files.length} files written.`);
-    })
-    .catch((err) => {
-      console.error("SCORM build failed:", err);
-      process.exitCode = 1;
-    });
+  runCli(process.argv.slice(2)).catch((err) => {
+    console.error("SCORM build failed:", err);
+    process.exitCode = 1;
+  });
 }

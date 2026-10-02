@@ -1,12 +1,13 @@
 {
-  "name": "opcp-storeai-skillhub",
+  "name": "opcp-openstack-first-steps-skillhub",
   "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "vitest --run",
     "test:watch": "vitest",
-    "build:scorm": "node scripts/build-scorm.mjs"
+    "build:scorm": "node scripts/build-scorm.mjs",
+    "build:scorm:all": "node scripts/build-scorm.mjs --all"
   },
   "devDependencies": {
     "vitest": "2.1.8",
